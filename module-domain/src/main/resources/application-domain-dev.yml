@@ -2,6 +2,7 @@ spring:
   jpa:
     properties:
       hibernate:
+        ddl-auto: none
         dialect: org.hibernate.dialect.MySQL57Dialect
         dialect.storage_engine: innodb
         default_batch_fetch_size: 500
@@ -10,10 +11,12 @@ spring:
 ---
 
 spring:
-  jpa:
-    hibernate:
-      ddl-auto: none
   config:
     activate:
       on-profile: dev
 
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/dev?serverTimezone=UTC
+    username: root
+    password: root
