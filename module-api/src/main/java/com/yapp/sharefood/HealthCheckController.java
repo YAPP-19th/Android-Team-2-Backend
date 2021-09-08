@@ -1,4 +1,4 @@
-package com.yapp.sharefood.controller;
+package com.yapp.sharefood;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;

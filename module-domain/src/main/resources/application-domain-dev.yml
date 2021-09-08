@@ -1,0 +1,19 @@
+spring:
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL57Dialect
+        dialect.storage_engine: innodb
+        default_batch_fetch_size: 500
+    open-in-view: false
+
+---
+
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: none
+  config:
+    activate:
+      on-profile: dev
+
