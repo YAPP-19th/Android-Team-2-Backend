@@ -1,0 +1,3 @@
+rootProject.name = 'sharefood'
+include 'module-api'
+include 'module-common'
