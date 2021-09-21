@@ -56,3 +56,7 @@ docker-compose down
 ```
 
 - [참고사이트](https://www.daleseo.com/docker-compose/)
+
+## application setting
+
+- 설정 정보 : jwt key, oauth 정보
