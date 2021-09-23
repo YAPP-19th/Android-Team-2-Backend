@@ -8,8 +8,8 @@ import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
-public class KakaoOAuthApiCaller implements AuthProvider {
-    @Value("{oauth.kakao.url}")
+public class KakaoAuthProvider implements AuthProvider {
+    @Value("{oauth.kakao.profile-url}")
     private String kakaoOAuthUrl;
 
     @Override
