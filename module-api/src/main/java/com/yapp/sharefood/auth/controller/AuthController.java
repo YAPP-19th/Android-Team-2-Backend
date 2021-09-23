@@ -21,7 +21,6 @@ public class AuthController {
     @ApiOperation("회원 가입 API")
     @PostMapping("/api/v1/auth")
     public ResponseEntity<?> signUpClient(@RequestBody @Valid AuthRequsetDto authRequsetDto, HttpServletResponse response) {
-
-        return ResponseEntity.ok(authRequsetDto);
+        return ResponseEntity.ok(authService.authenticate(authRequsetDto));
     }
 }
