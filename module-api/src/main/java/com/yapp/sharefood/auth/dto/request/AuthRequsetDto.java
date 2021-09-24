@@ -1,6 +1,6 @@
 package com.yapp.sharefood.auth.dto.request;
 
-import com.yapp.sharefood.user.OAuthType;
+import com.yapp.sharefood.user.domain.OAuthType;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;

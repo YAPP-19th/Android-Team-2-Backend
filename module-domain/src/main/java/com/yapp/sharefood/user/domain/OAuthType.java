@@ -1,4 +1,4 @@
-package com.yapp.sharefood.user;
+package com.yapp.sharefood.user.domain;
 
 import com.yapp.sharefood.oauth.exception.OAuthTypeNotFoundException;
 import lombok.Getter;

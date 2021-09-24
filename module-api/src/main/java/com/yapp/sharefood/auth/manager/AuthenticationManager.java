@@ -2,7 +2,7 @@ package com.yapp.sharefood.auth.manager;
 
 import com.yapp.sharefood.external.AuthProvider;
 import com.yapp.sharefood.external.OAuthProfile;
-import com.yapp.sharefood.user.OAuthType;
+import com.yapp.sharefood.user.domain.OAuthType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
