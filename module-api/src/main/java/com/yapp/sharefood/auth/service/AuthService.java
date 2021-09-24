@@ -3,6 +3,7 @@ package com.yapp.sharefood.auth.service;
 import com.yapp.sharefood.auth.dto.OAuthDto;
 import com.yapp.sharefood.auth.dto.request.AuthRequsetDto;
 import com.yapp.sharefood.auth.manager.AuthenticationManager;
+import com.yapp.sharefood.auth.token.TokenProvider;
 import com.yapp.sharefood.external.OAuthProfile;
 import com.yapp.sharefood.user.domain.User;
 import com.yapp.sharefood.user.repository.UserRepository;
@@ -16,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class AuthService {
     private final AuthenticationManager authenticationManager;
     private final UserRepository userRepository;
+    private final TokenProvider tokenProvider;
 
     @Transactional
     public OAuthDto authenticate(AuthRequsetDto authRequsetDto) {
@@ -26,7 +28,8 @@ public class AuthService {
                 .name(profile.oauthNickname())
                 .build();
         User saveUser = userRepository.save(newUser);
+        String token = tokenProvider.createToken(saveUser);
 
-        return new OAuthDto("");
+        return OAuthDto.of(newUser.getId(), token, authRequsetDto.getOAuthType());
     }
 }
