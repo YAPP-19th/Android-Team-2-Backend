@@ -2,14 +2,16 @@ package com.yapp.sharefood.user.domain;
 
 import lombok.AccessLevel;
 import lombok.Builder;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 
+@Getter
 @Entity
 @Table(name = "users",
         uniqueConstraints = {
-                @UniqueConstraint(columnNames = {"oauthId", "name", "oAuthType"})
+                @UniqueConstraint(columnNames = {"oauthId", "oAuthType"})
         })
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class User {
