@@ -15,9 +15,6 @@ public class JwtProviderStrategy implements TokenProvider {
     @Value("${jwt.token.expiration.seconds}")
     private long expireTime;
 
-    @Value("${jwt.http.request.header}")
-    private String tokenHeaderName;
-
     @Override
     public String createToken(User user) {
         Claims claims = Jwts.claims()
