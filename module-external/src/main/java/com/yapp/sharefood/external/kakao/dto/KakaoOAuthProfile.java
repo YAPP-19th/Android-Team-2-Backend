@@ -8,13 +8,22 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
-@Getter
 @NoArgsConstructor
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class KakaoOAuthProfile implements OAuthProfile {
     private String id;
     private LocalDateTime connectedAt;
     private Properties properties;
+
+    @Override
+    public String getOauthId() {
+        return this.id;
+    }
+
+    @Override
+    public String oauthNickname() {
+        return this.properties.getNickname();
+    }
 
     @Getter
     private static class Properties {
