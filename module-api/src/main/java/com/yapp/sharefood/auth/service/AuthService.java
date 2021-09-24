@@ -21,15 +21,15 @@ public class AuthService {
 
     @Transactional
     public OAuthDto authenticate(AuthRequsetDto authRequsetDto) {
-        OAuthProfile profile = authenticationManager.requestOAuthUserInfo(authRequsetDto.getOAuthType(), authRequsetDto.getAccessToken());
+        OAuthProfile profile = authenticationManager.requestOAuthUserInfo(authRequsetDto.getAuthType(), authRequsetDto.getAccessToken());
         User newUser = User.builder()
                 .oauthId(profile.getOauthId())
-                .oAuthType(authRequsetDto.getOAuthType())
+                .oAuthType(authRequsetDto.getAuthType())
                 .name(profile.oauthNickname())
                 .build();
         User saveUser = userRepository.save(newUser);
         String token = tokenProvider.createToken(saveUser);
 
-        return OAuthDto.of(newUser.getId(), token, authRequsetDto.getOAuthType());
+        return OAuthDto.of(newUser.getId(), token, authRequsetDto.getAuthType());
     }
 }
