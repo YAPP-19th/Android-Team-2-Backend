@@ -9,6 +9,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import java.security.InvalidParameterException;
+
 @Slf4j
 @RestControllerAdvice
 @RequiredArgsConstructor
@@ -34,5 +36,16 @@ public class AuthAdviceController {
         log.error(exception.getMessage(), exception);
 
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(exception.getMessage());
+    }
+
+    /**
+     * 400 Bad Request
+     * OAuth 요청 정보가 적절하지 못한 경우
+     */
+    @ExceptionHandler(InvalidParameterException.class)
+    protected ResponseEntity<Object> handleParamterIsNotValidException(final InvalidParameterException exception) {
+        log.error(exception.getMessage(), exception);
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(exception.getMessage());
     }
 }
