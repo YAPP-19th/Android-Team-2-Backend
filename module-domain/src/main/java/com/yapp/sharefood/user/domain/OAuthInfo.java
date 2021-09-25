@@ -21,12 +21,12 @@ public class OAuthInfo {
 
     @Column(nullable = false, length = 30)
     @Enumerated(EnumType.STRING)
-    private OAuthType oAuthType;
+    private OAuthType oauthType;
 
-    private OAuthInfo(String oauthId, String name, OAuthType oAuthType) {
+    private OAuthInfo(String oauthId, String name, OAuthType oauthType) {
         this.oauthId = oauthId;
         this.name = name;
-        this.oAuthType = oAuthType;
+        this.oauthType = oauthType;
     }
 
     public static OAuthInfo of(String oauthId, String name, OAuthType oAuthType) {
