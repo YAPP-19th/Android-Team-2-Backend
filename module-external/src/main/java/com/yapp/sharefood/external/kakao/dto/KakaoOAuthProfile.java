@@ -4,16 +4,16 @@ import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import com.yapp.sharefood.external.OAuthProfile;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
-@NoArgsConstructor
+@Getter
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class KakaoOAuthProfile implements OAuthProfile {
     private String id;
     private LocalDateTime connectedAt;
     private Properties properties;
+    private KakaoAccount kakaoAccount;
 
     @Override
     public String getOauthId() {
