@@ -20,14 +20,15 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String nickName;
+    @Column(length = 60, unique = true)
+    private String nickname;
 
     @Enumerated
     private OAuthInfo oAuthInfo;
 
     @Builder
-    public User(String oauthId, String name, OAuthType oAuthType, String nickName) {
+    public User(String oauthId, String name, OAuthType oAuthType, String nickname) {
         this.oAuthInfo = OAuthInfo.of(oauthId, name, oAuthType);
-        this.nickName = nickName;
+        this.nickname = nickname;
     }
 }

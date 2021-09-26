@@ -11,4 +11,6 @@ import java.util.Optional;
 public interface UserRepository extends JpaRepository<User, Long> {
     @Query("SELECT u FROM User u WHERE u.oAuthInfo.oauthId = :oauthId AND u.oAuthInfo.oauthType = :oauthType")
     Optional<User> findByOAuthIdAndOAuthType(@Param("oauthId") String oauthId, @Param("oauthType") OAuthType oauthType);
+
+    boolean existsByNickname(String nickname);
 }
