@@ -48,6 +48,7 @@ public class AuthService {
                 .nickname(creationRequestDto.getNickname())
                 .oauthId(profile.getOauthId())
                 .name(profile.oauthNickname())
+                .oAuthType(creationRequestDto.getOauthType())
                 .build();
         User saveUser = userRepository.save(newUser);
         String token = tokenProvider.createToken(saveUser);
