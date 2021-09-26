@@ -10,9 +10,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
+import java.net.URI;
 
 @RestController
 @RequiredArgsConstructor
@@ -32,7 +34,15 @@ public class AuthController {
 
     @ApiOperation("회원 가입")
     @PostMapping("/api/v1/auth/creation")
-    public ResponseEntity<?> signUp(@RequestBody @Valid AuthCreationRequestDto creationRequestDto, HttpServletResponse response) {
-        return null;
+    public ResponseEntity<URI> signUp(@RequestBody @Valid AuthCreationRequestDto creationRequestDto, HttpServletResponse response) {
+        OAuthDto oauthDto = authService.singUp(creationRequestDto);
+        response.setHeader(AUTH_TOKEN_HEADER, oauthDto.getToken());
+
+        URI userCreateUri = ServletUriComponentsBuilder.fromCurrentRequest()
+                .path("/{id}")
+                .buildAndExpand(oauthDto.getUserId())
+                .toUri();
+
+        return ResponseEntity.created(userCreateUri).build();
     }
 }

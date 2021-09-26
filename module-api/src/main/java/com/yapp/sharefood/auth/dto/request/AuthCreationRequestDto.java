@@ -14,7 +14,7 @@ public class AuthCreationRequestDto {
     @NotNull
     private OAuthType oauthType;
     @NotNull
-    private String nickName;
+    private String nickname;
     @NotBlank
     private String accessToken;
 }

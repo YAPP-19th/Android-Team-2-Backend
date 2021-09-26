@@ -1,6 +1,7 @@
 package com.yapp.sharefood.auth.advice;
 
 import com.yapp.sharefood.external.exception.BadGatewayException;
+import com.yapp.sharefood.oauth.exception.OAUthExistException;
 import com.yapp.sharefood.oauth.exception.UserNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -43,9 +44,20 @@ public class AuthAdviceController {
      * OAuth 요청 정보가 적절하지 못한 경우
      */
     @ExceptionHandler(InvalidParameterException.class)
-    protected ResponseEntity<Object> handleParamterIsNotValidException(final InvalidParameterException exception) {
+    protected ResponseEntity<String> handleParamterIsNotValidException(final InvalidParameterException exception) {
         log.error(exception.getMessage(), exception);
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(exception.getMessage());
+    }
+
+    /**
+     * 409 Conflict
+     * 이미 동일한 OAUTh로 등록한 회원이 존재하는 경우
+     */
+    @ExceptionHandler(OAUthExistException.class)
+    protected ResponseEntity<String> handleOAuthUserExistException(final OAUthExistException exception) {
+        log.error(exception.getMessage(), exception);
+
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(exception.getMessage());
     }
 }
