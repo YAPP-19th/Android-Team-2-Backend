@@ -12,7 +12,7 @@ import javax.validation.constraints.NotNull;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class AuthCreationRequestDto {
     @NotNull
-    private OAuthType authType;
+    private OAuthType oauthType;
     @NotNull
     private String nickName;
     @NotBlank

@@ -4,8 +4,6 @@ import com.yapp.sharefood.auth.dto.OAuthDto;
 import com.yapp.sharefood.auth.dto.request.AuthCreationRequestDto;
 import com.yapp.sharefood.auth.dto.request.AuthRequsetDto;
 import com.yapp.sharefood.auth.service.AuthService;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -24,10 +22,6 @@ public class AuthController {
     private final AuthService authService;
 
     @ApiOperation("login 회원 Token 발급")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "accessToken", value = "OAuth Access Token", required = true),
-            @ApiImplicitParam(name = "authType", value = "KAKAO", required = true)
-    })
     @PostMapping("/api/v1/auth")
     public ResponseEntity<?> authenticate(@RequestBody @Valid AuthRequsetDto authRequsetDto, HttpServletResponse response) {
         OAuthDto oauthDto = authService.authenticate(authRequsetDto);
