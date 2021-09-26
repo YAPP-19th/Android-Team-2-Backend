@@ -14,7 +14,7 @@ import javax.validation.constraints.NotNull;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class AuthRequsetDto {
     @NotNull
-    private OAuthType authType;
+    private OAuthType oauthType;
     @NotBlank
     private String accessToken;
 }

@@ -22,12 +22,12 @@ public class AuthService {
 
     @Transactional
     public OAuthDto authenticate(AuthRequsetDto authRequsetDto) {
-        OAuthProfile profile = authenticationManager.requestOAuthUserInfo(authRequsetDto.getAuthType(), authRequsetDto.getAccessToken());
-        User existUser = userRepository.findByOAuthIdAndOAuthType(profile.getOauthId(), authRequsetDto.getAuthType())
+        OAuthProfile profile = authenticationManager.requestOAuthUserInfo(authRequsetDto.getOauthType(), authRequsetDto.getAccessToken());
+        User existUser = userRepository.findByOAuthIdAndOAuthType(profile.getOauthId(), authRequsetDto.getOauthType())
                 .orElseThrow(UserNotFoundException::new);
 
         String token = tokenProvider.createToken(existUser);
 
-        return OAuthDto.of(existUser.getId(), token, authRequsetDto.getAuthType());
+        return OAuthDto.of(existUser.getId(), token, authRequsetDto.getOauthType());
     }
 }
