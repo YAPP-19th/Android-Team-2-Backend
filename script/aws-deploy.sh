@@ -1,3 +1,5 @@
+#!/bin/bash
+
 REPOSITORY=/home/ec2-user/shared-food
 PROJECT_NAME=Android-Team-2-Backend
 API_MODULE_NAME=module-api
@@ -6,7 +8,7 @@ cd $REPOSITORY/$PROJECT_NAME/
 
 echo "> Git Pull"
 
-git pull origin dev
+git pull
 
 echo "> 프로젝트 build 시작"
 
