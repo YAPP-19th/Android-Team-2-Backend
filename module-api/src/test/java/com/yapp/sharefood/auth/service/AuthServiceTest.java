@@ -65,8 +65,8 @@ class AuthServiceTest {
         User mockUser = userRepository.findByOAuthIdAndOAuthType(oauthId, OAuthType.KAKAO).get();
 
         // then
-        assertEquals(authenticate.getAuthType(), OAuthType.KAKAO);
-        assertEquals(authenticate.getToken(), tokenProvider.createToken(mockUser));
+        assertEquals(OAuthType.KAKAO, authenticate.getAuthType());
+        assertEquals(tokenProvider.createToken(mockUser), authenticate.getToken());
     }
 
     @Test
