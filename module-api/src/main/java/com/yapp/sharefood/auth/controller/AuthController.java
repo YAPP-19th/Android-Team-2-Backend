@@ -33,7 +33,7 @@ public class AuthController {
             @ApiResponse(code = 502, message = "OAuth 연결 실패"),
     })
     @PostMapping("/api/v1/auth")
-    public ResponseEntity<?> authenticate(@RequestBody @Valid AuthRequsetDto authRequsetDto, HttpServletResponse response) {
+    public ResponseEntity<Void> authenticate(@RequestBody @Valid AuthRequsetDto authRequsetDto, HttpServletResponse response) {
         OAuthDto oauthDto = authService.authenticate(authRequsetDto);
         response.setHeader(AUTH_TOKEN_HEADER, oauthDto.getToken());
 
