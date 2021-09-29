@@ -27,7 +27,8 @@ public class User {
     private OAuthInfo oAuthInfo;
 
     @Builder
-    public User(String oauthId, String name, OAuthType oAuthType, String nickname) {
+    public User(Long id, String oauthId, String name, OAuthType oAuthType, String nickname) {
+        this.id = id;
         this.oAuthInfo = OAuthInfo.of(oauthId, name, oAuthType);
         this.nickname = nickname;
     }
