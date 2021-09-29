@@ -4,7 +4,9 @@ import com.yapp.sharefood.auth.dto.OAuthDto;
 import com.yapp.sharefood.auth.dto.request.AuthRequsetDto;
 import com.yapp.sharefood.auth.manager.AuthenticationManager;
 import com.yapp.sharefood.auth.token.TokenProvider;
+import com.yapp.sharefood.external.exception.BadGatewayException;
 import com.yapp.sharefood.external.kakao.dto.KakaoOAuthProfile;
+import com.yapp.sharefood.oauth.exception.UserNotFoundException;
 import com.yapp.sharefood.user.domain.OAuthType;
 import com.yapp.sharefood.user.domain.User;
 import com.yapp.sharefood.user.repository.UserRepository;
@@ -18,7 +20,9 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.BDDMockito.willReturn;
+import static org.mockito.BDDMockito.willThrow;
 
 @SpringBootTest
 class AuthServiceTest {
@@ -38,8 +42,7 @@ class AuthServiceTest {
     @DisplayName("kakao oauth 로그인 테스트")
     void kakaoAuthenticateTest() {
         // given
-        String accessToken = "accessToken";
-        AuthRequsetDto authRequsetDto = new AuthRequsetDto(OAuthType.KAKAO, accessToken);
+        AuthRequsetDto authRequsetDto = new AuthRequsetDto(OAuthType.KAKAO, "accessToken");
         String oauthId = "kakao_id";
         LocalDateTime now = LocalDateTime.now();
         String nickname = "kkh";
@@ -55,7 +58,7 @@ class AuthServiceTest {
                 .given(userRepository).findByOAuthIdAndOAuthType(oauthId, OAuthType.KAKAO);
 
         willReturn(KakaoOAuthProfile.of(oauthId, now, nickname))
-                .given(authenticationManager).requestOAuthUserInfo(OAuthType.KAKAO, accessToken);
+                .given(authenticationManager).requestOAuthUserInfo(OAuthType.KAKAO, "accessToken");
 
         // when
         OAuthDto authenticate = authService.authenticate(authRequsetDto);
@@ -64,5 +67,39 @@ class AuthServiceTest {
         // then
         assertEquals(authenticate.getAuthType(), OAuthType.KAKAO);
         assertEquals(authenticate.getToken(), tokenProvider.createToken(mockUser));
+    }
+
+    @Test
+    @DisplayName("kakao auth 요청 실패 케이스")
+    void oauthBadRequestTest() throws Exception {
+        // given
+        AuthRequsetDto authRequsetDto = new AuthRequsetDto(OAuthType.KAKAO, "badAccessToken");
+        willThrow(new BadGatewayException("bad gateway"))
+                .given(authenticationManager).requestOAuthUserInfo(OAuthType.KAKAO, "badAccessToken");
+
+        // when
+
+        // then
+        assertThrows(BadGatewayException.class, () -> authService.authenticate(authRequsetDto));
+    }
+
+    @Test
+    @DisplayName("사용자 oauth type 이슈")
+    void oauthOAuthTypeParameterTest() throws Exception {
+        // given
+        AuthRequsetDto authRequsetDto = new AuthRequsetDto(OAuthType.KAKAO, "accessToken");
+        String oauthId = "kakao_id";
+        LocalDateTime now = LocalDateTime.now();
+        String nickname = "kkh";
+
+        willReturn(Optional.empty())
+                .given(userRepository).findByOAuthIdAndOAuthType(oauthId, OAuthType.KAKAO);
+        willReturn(KakaoOAuthProfile.of(oauthId, now, nickname))
+                .given(authenticationManager).requestOAuthUserInfo(OAuthType.KAKAO, "accessToken");
+
+        // when
+
+        // then
+        assertThrows(UserNotFoundException.class, () -> authService.authenticate(authRequsetDto));
     }
 }
