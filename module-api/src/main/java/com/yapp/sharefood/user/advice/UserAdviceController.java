@@ -17,6 +17,6 @@ public class UserAdviceController {
     protected ResponseEntity<Object> handleUserNicknameExistException(final UserNicknameExistException exception) {
         log.error(exception.getMessage(), exception);
 
-        return ResponseEntity.status(HttpStatus.CONFLICT).build();
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(exception.getMessage());
     }
 }
