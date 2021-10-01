@@ -16,8 +16,10 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
+import java.nio.charset.StandardCharsets;
 import java.security.InvalidParameterException;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.willReturn;
 import static org.mockito.BDDMockito.willThrow;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -47,10 +49,9 @@ class AuthControllerTest {
         String requestBodyStr = objectMapper.writeValueAsString(new AuthRequsetDto(OAuthType.KAKAO, "accessToken"));
         ResultActions perform = mockMvc.perform(post("/api/v1/auth")
                 .content(requestBodyStr)
-                .contentType(MediaType.APPLICATION_JSON_VALUE));
+                .contentType(MediaType.APPLICATION_JSON));
 
         // then
-
         perform.andExpect(status().isOk())
                 .andExpect(header().exists("Authorization"))
                 .andExpect(header().string("Authorization", "socialToken"));
@@ -69,12 +70,17 @@ class AuthControllerTest {
         String requestBodyStr = objectMapper.writeValueAsString(new AuthRequsetDto(OAuthType.KAKAO, "accessToken"));
         ResultActions perform = mockMvc.perform(post("/api/v1/auth")
                 .content(requestBodyStr)
-                .contentType(MediaType.APPLICATION_JSON_VALUE));
+                .contentType(MediaType.APPLICATION_JSON));
 
         // then
+        String errorMsg = perform.andExpect(status().is(404))
+                .andExpect(header().doesNotExist("Authorization"))
+                .andReturn()
+                .getResponse()
+                .getContentAsString(StandardCharsets.UTF_8);
 
-        perform.andExpect(status().is(404))
-                .andExpect(header().doesNotExist("Authorization"));
+        assertThat(errorMsg).isNotNull();
+        assertThat(errorMsg).isNotEmpty();
     }
 
     @Test
@@ -92,8 +98,14 @@ class AuthControllerTest {
                 .contentType(MediaType.APPLICATION_JSON_VALUE));
 
         // then
-        perform.andExpect(status().is(502))
-                .andExpect(header().doesNotExist("Authorization"));
+        String errorMsg = perform.andExpect(status().is(502))
+                .andExpect(header().doesNotExist("Authorization"))
+                .andReturn()
+                .getResponse()
+                .getContentAsString(StandardCharsets.UTF_8);
+
+        assertThat(errorMsg).isNotNull();
+        assertThat(errorMsg).isNotEmpty();
     }
 
     @Test
@@ -111,8 +123,14 @@ class AuthControllerTest {
                 .contentType(MediaType.APPLICATION_JSON_VALUE));
 
         // then
-        perform.andExpect(status().is(400))
-                .andExpect(header().doesNotExist("Authorization"));
+        String errorMsg = perform.andExpect(status().is(400))
+                .andExpect(header().doesNotExist("Authorization"))
+                .andReturn()
+                .getResponse()
+                .getContentAsString(StandardCharsets.UTF_8);
+
+        assertThat(errorMsg).isNotNull();
+        assertThat(errorMsg).isNotEmpty();
     }
 
     @Test
