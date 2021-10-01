@@ -52,9 +52,16 @@ class AuthControllerTest {
                 .contentType(MediaType.APPLICATION_JSON));
 
         // then
-        perform.andExpect(status().isOk())
+        String emptyResponseMsg = perform.andExpect(status().isOk())
                 .andExpect(header().exists("Authorization"))
-                .andExpect(header().string("Authorization", "socialToken"));
+                .andExpect(header().string("Authorization", "socialToken"))
+                .andReturn()
+                .getResponse()
+                .getContentAsString(StandardCharsets.UTF_8);
+
+        assertThat(emptyResponseMsg)
+                .isNotNull()
+                .isEmpty();
     }
 
 
@@ -79,8 +86,9 @@ class AuthControllerTest {
                 .getResponse()
                 .getContentAsString(StandardCharsets.UTF_8);
 
-        assertThat(errorMsg).isNotNull();
-        assertThat(errorMsg).isNotEmpty();
+        assertThat(errorMsg)
+                .isNotNull()
+                .isNotEmpty();
     }
 
     @Test
@@ -104,8 +112,9 @@ class AuthControllerTest {
                 .getResponse()
                 .getContentAsString(StandardCharsets.UTF_8);
 
-        assertThat(errorMsg).isNotNull();
-        assertThat(errorMsg).isNotEmpty();
+        assertThat(errorMsg)
+                .isNotNull()
+                .isNotEmpty();
     }
 
     @Test
@@ -129,8 +138,9 @@ class AuthControllerTest {
                 .getResponse()
                 .getContentAsString(StandardCharsets.UTF_8);
 
-        assertThat(errorMsg).isNotNull();
-        assertThat(errorMsg).isNotEmpty();
+        assertThat(errorMsg)
+                .isNotNull()
+                .isNotEmpty();
     }
 
     @Test
