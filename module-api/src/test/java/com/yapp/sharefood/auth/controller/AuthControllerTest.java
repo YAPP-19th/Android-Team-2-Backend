@@ -2,9 +2,11 @@ package com.yapp.sharefood.auth.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yapp.sharefood.auth.dto.OAuthDto;
+import com.yapp.sharefood.auth.dto.request.AuthCreationRequestDto;
 import com.yapp.sharefood.auth.dto.request.AuthRequsetDto;
 import com.yapp.sharefood.auth.service.AuthService;
 import com.yapp.sharefood.external.exception.BadGatewayException;
+import com.yapp.sharefood.oauth.exception.OAUthExistException;
 import com.yapp.sharefood.oauth.exception.UserNotFoundException;
 import com.yapp.sharefood.user.domain.OAuthType;
 import org.junit.jupiter.api.DisplayName;
@@ -42,7 +44,7 @@ class AuthControllerTest {
     void authenticateSuccessTest() throws Exception {
         // given
         AuthRequsetDto authRequsetDto = new AuthRequsetDto(OAuthType.KAKAO, "accessToken");
-        willReturn(OAuthDto.of(1L, "socialToken", OAuthType.KAKAO))
+        willReturn(OAuthDto.of(1L, "jwtToken", OAuthType.KAKAO))
                 .given(authService).authenticate(authRequsetDto);
 
         // when
@@ -54,7 +56,7 @@ class AuthControllerTest {
         // then
         String emptyResponseMsg = perform.andExpect(status().isOk())
                 .andExpect(header().exists("Authorization"))
-                .andExpect(header().string("Authorization", "socialToken"))
+                .andExpect(header().string("Authorization", "jwtToken"))
                 .andReturn()
                 .getResponse()
                 .getContentAsString(StandardCharsets.UTF_8);
@@ -80,7 +82,7 @@ class AuthControllerTest {
                 .contentType(MediaType.APPLICATION_JSON));
 
         // then
-        String errorMsg = perform.andExpect(status().is(404))
+        String errorMsg = perform.andExpect(status().isNotFound())
                 .andExpect(header().doesNotExist("Authorization"))
                 .andReturn()
                 .getResponse()
@@ -106,7 +108,7 @@ class AuthControllerTest {
                 .contentType(MediaType.APPLICATION_JSON_VALUE));
 
         // then
-        String errorMsg = perform.andExpect(status().is(502))
+        String errorMsg = perform.andExpect(status().isBadGateway())
                 .andExpect(header().doesNotExist("Authorization"))
                 .andReturn()
                 .getResponse()
@@ -126,13 +128,13 @@ class AuthControllerTest {
                 .given(authService).authenticate(authRequsetDto);
 
         // when
-        String requestBodyStr = objectMapper.writeValueAsString(new AuthRequsetDto(OAuthType.KAKAO, "accessToken"));
+        String requestBodyStr = objectMapper.writeValueAsString(authRequsetDto);
         ResultActions perform = mockMvc.perform(post("/api/v1/auth")
                 .content(requestBodyStr)
                 .contentType(MediaType.APPLICATION_JSON_VALUE));
 
         // then
-        String errorMsg = perform.andExpect(status().is(400))
+        String errorMsg = perform.andExpect(status().isBadRequest())
                 .andExpect(header().doesNotExist("Authorization"))
                 .andReturn()
                 .getResponse()
@@ -144,6 +146,53 @@ class AuthControllerTest {
     }
 
     @Test
-    void signUp() {
+    @DisplayName("회원 가입 성공")
+    void singUpSuccessTest() throws Exception {
+        // given
+        AuthCreationRequestDto authCreationRequestDto = new AuthCreationRequestDto(OAuthType.KAKAO, "kkh", "accessToken");
+        willReturn(OAuthDto.of(1L, "jwtToken", OAuthType.KAKAO))
+                .given(authService).singUp(authCreationRequestDto);
+
+        // when
+        String requestBodyStr = objectMapper.writeValueAsString(authCreationRequestDto);
+        ResultActions perform = mockMvc.perform(post("/api/v1/auth/creation")
+                .content(requestBodyStr)
+                .contentType(MediaType.APPLICATION_JSON));
+
+        // then
+        String createResponse = perform.andExpect(status().isCreated())
+                .andExpect(header().exists("Authorization"))
+                .andExpect(header().string("Authorization", "jwtToken"))
+                .andReturn()
+                .getResponse()
+                .getContentAsString(StandardCharsets.UTF_8);
+        assertThat(createResponse)
+                .isNotNull()
+                .isEmpty();
+    }
+
+    @Test
+    @DisplayName("회원 가입시 기존 사용자가 있을 경우")
+    void singUpErrorCuzOfExistDataTest() throws Exception {
+        // given
+        AuthCreationRequestDto authCreationRequestDto = new AuthCreationRequestDto(OAuthType.KAKAO, "kkh", "accessToken");
+        willThrow(new OAUthExistException("존재하는 사용자 입니다."))
+                .given(authService).singUp(authCreationRequestDto);
+
+        // when
+        String requestBodyStr = objectMapper.writeValueAsString(authCreationRequestDto);
+        ResultActions perform = mockMvc.perform(post("/api/v1/auth/creation")
+                .content(requestBodyStr)
+                .contentType(MediaType.APPLICATION_JSON));
+
+        // then
+        String createResponse = perform.andExpect(status().isConflict())
+                .andExpect(header().doesNotExist("Authorization"))
+                .andReturn()
+                .getResponse()
+                .getContentAsString(StandardCharsets.UTF_8);
+        assertThat(createResponse)
+                .isNotNull()
+                .isNotEmpty();
     }
 }
