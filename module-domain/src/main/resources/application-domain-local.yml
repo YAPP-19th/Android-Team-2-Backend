@@ -20,4 +20,5 @@ spring:
         dialect: org.hibernate.dialect.MySQL57Dialect
         dialect.storage_engine: innodb
         default_batch_fetch_size: 500
+        format_sql: true
       open-in-view: false
