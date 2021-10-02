@@ -2,8 +2,10 @@ package com.yapp.sharefood.user.controller;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.yapp.sharefood.auth.token.TokenProvider;
 import com.yapp.sharefood.user.dto.response.UserNicknameResponseDto;
 import com.yapp.sharefood.user.exception.UserNicknameExistException;
+import com.yapp.sharefood.user.repository.UserRepository;
 import com.yapp.sharefood.user.service.UserService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
@@ -29,6 +31,11 @@ class UserControllerTest {
     MockMvc mockMvc;
     @MockBean
     UserService userService;
+
+    @MockBean
+    UserRepository userRepository;
+    @MockBean
+    TokenProvider tokenProvider;
 
     ObjectMapper objectMapper = new ObjectMapper();
 
