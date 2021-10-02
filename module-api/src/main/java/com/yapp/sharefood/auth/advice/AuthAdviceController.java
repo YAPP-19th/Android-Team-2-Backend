@@ -1,8 +1,7 @@
 package com.yapp.sharefood.auth.advice;
 
 import com.yapp.sharefood.external.exception.BadGatewayException;
-import com.yapp.sharefood.oauth.exception.OAUthExistException;
-import com.yapp.sharefood.oauth.exception.UserNotFoundException;
+import com.yapp.sharefood.oauth.exception.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -59,5 +58,16 @@ public class AuthAdviceController {
         log.error(exception.getMessage(), exception);
 
         return ResponseEntity.status(HttpStatus.CONFLICT).body(exception.getMessage());
+    }
+
+    /**
+     * 403 Forbidden
+     * token이 적절하지 않을 경우
+     */
+    @ExceptionHandler({AuthHeaderOmittedException.class, TokenValidationException.class, TokenExpireExcetion.class})
+    protected ResponseEntity<String> handleUnAuthForbiddenException(final RuntimeException exception) {
+        log.error(exception.getMessage(), exception);
+
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(exception.getMessage());
     }
 }
