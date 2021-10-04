@@ -47,7 +47,8 @@ subprojects {
     test {
         useJUnitPlatform()
         testLogging {
-            events "passed", "skipped", "failed"
+            events "failed"
+            exceptionFormat "full"
         }
         finalizedBy 'jacocoTestReport'
     }
@@ -57,10 +58,28 @@ subprojects {
     }
 
     jacocoTestReport {
+        dependsOn test // 리포트가 만들어지기 전 테스트 실행되어야 한다.
         reports {
+            html.enabled true
             xml.enabled true
             csv.enabled false
-            html.enabled false
+        }
+        finalizedBy 'jacocoTestCoverageVerification'
+    }
+
+    jacocoTestCoverageVerification {
+        def Qdomains = []
+        for (qPattern in "**/QA".."**/QZ") {
+            Qdomains.add(qPattern + "*")
+        }
+
+        afterEvaluate {
+            classDirectories.setFrom(files(classDirectories.files.collect {
+                fileTree(dir: it, // 리포트 결과에 제외시킬 디렉토리
+                        exclude: ['**/LocalConfig*',
+                                  '**/ApiServiceApplication*',
+                                  '**/DummyData*'] + Qdomains)
+            }))
         }
     }
 
@@ -69,6 +88,7 @@ subprojects {
             property "sonar.host.url", "http://localhost:9090"
             property "sonar.login", "910b5a218ab0fe14c43f5d46dc372739e581766e"
             property "sonar.sources", "src"
+            property "sonar.tests", "src/test/java"
             property "sonar.language", "java"
             property "sonar.sourceEncoding", "UTF-8"
             property "sonar.test.inclusions", "**/*Test.java"
