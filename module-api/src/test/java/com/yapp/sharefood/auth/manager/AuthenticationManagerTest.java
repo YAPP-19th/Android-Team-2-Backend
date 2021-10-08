@@ -15,6 +15,7 @@ import java.time.LocalDateTime;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.willReturn;
 
 @SpringBootTest
@@ -31,7 +32,7 @@ class AuthenticationManagerTest {
     void oauthUserInfoExtractTest() throws Exception {
         // given
         willReturn(KakaoOAuthProfile.of("kakao_socail", LocalDateTime.now(), "kkh_nickname"))
-                .given(kakaoAuthProvider).getOAuthProfileInfo("accessToken");
+                .given(kakaoAuthProvider).getOAuthProfileInfo(anyString());
 
         // when
         OAuthProfile profile = authenticationManager.requestOAuthUserInfo(OAuthType.KAKAO, "accessToken");
@@ -46,7 +47,7 @@ class AuthenticationManagerTest {
     void invalidOauthTypeTest() throws Exception {
         // given
         willReturn(KakaoOAuthProfile.of("kakao_socail", LocalDateTime.now(), "kkh_nickname"))
-                .given(kakaoAuthProvider).getOAuthProfileInfo("accessToken");
+                .given(kakaoAuthProvider).getOAuthProfileInfo(anyString());
 
         // when
 

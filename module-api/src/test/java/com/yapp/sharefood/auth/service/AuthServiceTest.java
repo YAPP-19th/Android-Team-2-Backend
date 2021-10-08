@@ -24,11 +24,13 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.willReturn;
 import static org.mockito.BDDMockito.willThrow;
 
-@SpringBootTest
 @Transactional
+@SpringBootTest
 class AuthServiceTest {
     @Autowired
     AuthService authService;
@@ -57,7 +59,7 @@ class AuthServiceTest {
                 .build());
 
         willReturn(KakaoOAuthProfile.of("kakao_id", now, nickname))
-                .given(authenticationManager).requestOAuthUserInfo(OAuthType.KAKAO, "accessToken");
+                .given(authenticationManager).requestOAuthUserInfo(any(OAuthType.class), anyString());
 
         // when
         OAuthDto authenticate = authService.authenticate(authRequsetDto);
@@ -73,7 +75,7 @@ class AuthServiceTest {
         // given
         AuthRequsetDto authRequsetDto = new AuthRequsetDto(OAuthType.KAKAO, "badAccessToken");
         willThrow(new BadGatewayException("bad gateway"))
-                .given(authenticationManager).requestOAuthUserInfo(OAuthType.KAKAO, "badAccessToken");
+                .given(authenticationManager).requestOAuthUserInfo(any(OAuthType.class), anyString());
 
         // when
 
@@ -88,7 +90,7 @@ class AuthServiceTest {
         AuthRequsetDto authRequsetDto = new AuthRequsetDto(OAuthType.KAKAO, "accessToken");
         LocalDateTime now = LocalDateTime.now();
         willReturn(KakaoOAuthProfile.of("kakao_id", now, "kkh"))
-                .given(authenticationManager).requestOAuthUserInfo(OAuthType.KAKAO, "accessToken");
+                .given(authenticationManager).requestOAuthUserInfo(any(OAuthType.class), anyString());
 
         // when
 
@@ -103,7 +105,7 @@ class AuthServiceTest {
         AuthCreationRequestDto authCreationRequestDto = new AuthCreationRequestDto(OAuthType.KAKAO, "kkh", "accessToken");
         LocalDateTime now = LocalDateTime.now();
         willReturn(KakaoOAuthProfile.of("kakao_id", now, "kkh"))
-                .given(authenticationManager).requestOAuthUserInfo(OAuthType.KAKAO, "accessToken");
+                .given(authenticationManager).requestOAuthUserInfo(any(OAuthType.class), anyString());
 
         // when
         OAuthDto oAuthDto = authService.singUp(authCreationRequestDto);
@@ -128,7 +130,7 @@ class AuthServiceTest {
                 .name("kihwankim")
                 .build()); // 등록
         willReturn(KakaoOAuthProfile.of("kakao_id", now, "kkh"))
-                .given(authenticationManager).requestOAuthUserInfo(OAuthType.KAKAO, "accessToken");
+                .given(authenticationManager).requestOAuthUserInfo(any(OAuthType.class), anyString());
 
         // when
 
