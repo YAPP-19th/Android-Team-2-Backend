@@ -1,3 +1,7 @@
+# Commit Log Convention
+
+- [AngularJS Commit Message Conventions](https://gist.github.com/stephenparish/9941e89d80e2bc58a153) 참고해 Commit Log 작성
+
 # Git Flow
 
 ## 주의 사항
