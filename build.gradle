@@ -64,10 +64,7 @@ subprojects {
             xml.enabled true
             csv.enabled false
         }
-        finalizedBy 'jacocoTestCoverageVerification'
-    }
 
-    jacocoTestCoverageVerification {
         def Qdomains = []
         for (qPattern in "**/QA".."**/QZ") {
             Qdomains.add(qPattern + "*")
@@ -77,10 +74,12 @@ subprojects {
             classDirectories.setFrom(files(classDirectories.files.collect {
                 fileTree(dir: it, // 리포트 결과에 제외시킬 디렉토리
                         exclude: ['**/LocalConfig*',
-                                  '**/ApiServiceApplication*',
+                                  '**/SharefoodApplication*',
                                   '**/DummyData*'] + Qdomains)
             }))
         }
+
+        finalizedBy 'jacocoTestCoverageVerification'
     }
 
     sonarqube {
