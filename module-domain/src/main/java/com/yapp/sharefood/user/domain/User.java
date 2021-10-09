@@ -1,5 +1,6 @@
 package com.yapp.sharefood.user.domain;
 
+import com.yapp.sharefood.common.domain.BaseEntity;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -14,7 +15,7 @@ import javax.persistence.*;
                 @UniqueConstraint(columnNames = {"oauthId", "oAuthType"})
         })
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class User {
+public class User extends BaseEntity {
     @Id
     @Column(name = "user_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
