@@ -1,0 +1,3 @@
+oauth:
+  kakao:
+    profile-url: https://kapi.kakao.com/v2/user/me

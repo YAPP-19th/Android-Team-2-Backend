@@ -5,3 +5,5 @@ spring:
     include:
       - domain-dev
       - domain-local
+      - external
+      - oauth

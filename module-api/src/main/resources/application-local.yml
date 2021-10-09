@@ -1,2 +1,9 @@
 server:
   port: 8000
+
+jwt:
+  token:
+    secret:
+      key: JWTSecretKey
+    expiration:
+      seconds: 60480000
