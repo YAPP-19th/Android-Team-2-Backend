@@ -2,7 +2,7 @@ package com.yapp.sharefood.auth.controller;
 
 import com.yapp.sharefood.auth.dto.OAuthDto;
 import com.yapp.sharefood.auth.dto.request.AuthCreationRequestDto;
-import com.yapp.sharefood.auth.dto.request.AuthRequsetDto;
+import com.yapp.sharefood.auth.dto.request.AuthRequestDto;
 import com.yapp.sharefood.auth.service.AuthService;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
@@ -35,8 +35,8 @@ public class AuthController {
             @ApiResponse(code = 502, message = "[error] OAuth 연결 실패", response = HttpServerErrorException.BadGateway.class),
     })
     @PostMapping("/api/v1/auth")
-    public ResponseEntity<Void> authenticate(@RequestBody @Valid AuthRequsetDto authRequsetDto, HttpServletResponse response) {
-        OAuthDto oauthDto = authService.authenticate(authRequsetDto);
+    public ResponseEntity<Void> authenticate(@RequestBody @Valid AuthRequestDto authRequestDto, HttpServletResponse response) {
+        OAuthDto oauthDto = authService.authenticate(authRequestDto);
         response.setHeader(AUTH_TOKEN_HEADER, oauthDto.getToken());
 
         return ResponseEntity.ok().build();

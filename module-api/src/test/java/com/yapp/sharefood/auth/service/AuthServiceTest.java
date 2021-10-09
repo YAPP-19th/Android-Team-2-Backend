@@ -2,7 +2,7 @@ package com.yapp.sharefood.auth.service;
 
 import com.yapp.sharefood.auth.dto.OAuthDto;
 import com.yapp.sharefood.auth.dto.request.AuthCreationRequestDto;
-import com.yapp.sharefood.auth.dto.request.AuthRequsetDto;
+import com.yapp.sharefood.auth.dto.request.AuthRequestDto;
 import com.yapp.sharefood.auth.manager.AuthenticationManager;
 import com.yapp.sharefood.auth.token.TokenProvider;
 import com.yapp.sharefood.external.exception.BadGatewayException;
@@ -48,7 +48,7 @@ class AuthServiceTest {
     @DisplayName("kakao oauth 로그인 테스트")
     void kakaoAuthenticateTest() {
         // given
-        AuthRequsetDto authRequsetDto = new AuthRequsetDto(OAuthType.KAKAO, "accessToken");
+        AuthRequestDto authRequestDto = new AuthRequestDto(OAuthType.KAKAO, "accessToken");
         LocalDateTime now = LocalDateTime.now();
         String nickname = "kkh";
         User savedUser = userRepository.save(User.builder()
@@ -62,7 +62,7 @@ class AuthServiceTest {
                 .given(authenticationManager).requestOAuthUserInfo(any(OAuthType.class), anyString());
 
         // when
-        OAuthDto authenticate = authService.authenticate(authRequsetDto);
+        OAuthDto authenticate = authService.authenticate(authRequestDto);
 
         // then
         assertEquals(OAuthType.KAKAO, authenticate.getAuthType());
@@ -73,21 +73,21 @@ class AuthServiceTest {
     @DisplayName("kakao auth 요청 실패 케이스")
     void oauthBadRequestTest() throws Exception {
         // given
-        AuthRequsetDto authRequsetDto = new AuthRequsetDto(OAuthType.KAKAO, "badAccessToken");
+        AuthRequestDto authRequestDto = new AuthRequestDto(OAuthType.KAKAO, "badAccessToken");
         willThrow(new BadGatewayException("bad gateway"))
                 .given(authenticationManager).requestOAuthUserInfo(any(OAuthType.class), anyString());
 
         // when
 
         // then
-        assertThrows(BadGatewayException.class, () -> authService.authenticate(authRequsetDto));
+        assertThrows(BadGatewayException.class, () -> authService.authenticate(authRequestDto));
     }
 
     @Test
     @DisplayName("사용자 oauth type 이슈")
     void oauthOAuthTypeParameterTest() throws Exception {
         // given
-        AuthRequsetDto authRequsetDto = new AuthRequsetDto(OAuthType.KAKAO, "accessToken");
+        AuthRequestDto authRequestDto = new AuthRequestDto(OAuthType.KAKAO, "accessToken");
         LocalDateTime now = LocalDateTime.now();
         willReturn(KakaoOAuthProfile.of("kakao_id", now, "kkh"))
                 .given(authenticationManager).requestOAuthUserInfo(any(OAuthType.class), anyString());
@@ -95,7 +95,7 @@ class AuthServiceTest {
         // when
 
         // then
-        assertThrows(UserNotFoundException.class, () -> authService.authenticate(authRequsetDto));
+        assertThrows(UserNotFoundException.class, () -> authService.authenticate(authRequestDto));
     }
 
     @Test

@@ -3,7 +3,7 @@ package com.yapp.sharefood.auth.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yapp.sharefood.auth.dto.OAuthDto;
 import com.yapp.sharefood.auth.dto.request.AuthCreationRequestDto;
-import com.yapp.sharefood.auth.dto.request.AuthRequsetDto;
+import com.yapp.sharefood.auth.dto.request.AuthRequestDto;
 import com.yapp.sharefood.auth.service.AuthService;
 import com.yapp.sharefood.auth.token.TokenProvider;
 import com.yapp.sharefood.external.exception.BadGatewayException;
@@ -52,10 +52,10 @@ class AuthControllerTest {
     void authenticateSuccessTest() throws Exception {
         // given
         willReturn(OAuthDto.of(1L, "jwtToken", OAuthType.KAKAO))
-                .given(authService).authenticate(any(AuthRequsetDto.class));
+                .given(authService).authenticate(any(AuthRequestDto.class));
 
         // when
-        String requestBodyStr = objectMapper.writeValueAsString(new AuthRequsetDto(OAuthType.KAKAO, "accessToken"));
+        String requestBodyStr = objectMapper.writeValueAsString(new AuthRequestDto(OAuthType.KAKAO, "accessToken"));
         ResultActions perform = mockMvc.perform(post("/api/v1/auth")
                 .content(requestBodyStr)
                 .contentType(MediaType.APPLICATION_JSON));
@@ -78,10 +78,10 @@ class AuthControllerTest {
     void authenticateEmptyUserTest() throws Exception {
         // given
         willThrow(new UserNotFoundException())
-                .given(authService).authenticate(any(AuthRequsetDto.class));
+                .given(authService).authenticate(any(AuthRequestDto.class));
 
         // when
-        String requestBodyStr = objectMapper.writeValueAsString(new AuthRequsetDto(OAuthType.KAKAO, "accessToken"));
+        String requestBodyStr = objectMapper.writeValueAsString(new AuthRequestDto(OAuthType.KAKAO, "accessToken"));
         ResultActions perform = mockMvc.perform(post("/api/v1/auth")
                 .content(requestBodyStr)
                 .contentType(MediaType.APPLICATION_JSON));
@@ -103,10 +103,10 @@ class AuthControllerTest {
     void oauthBadGateExceptionHandlerTest() throws Exception {
         // given
         willThrow(new BadGatewayException("oauth 요청 타입 에러"))
-                .given(authService).authenticate(any(AuthRequsetDto.class));
+                .given(authService).authenticate(any(AuthRequestDto.class));
 
         // when
-        String requestBodyStr = objectMapper.writeValueAsString(new AuthRequsetDto(OAuthType.KAKAO, "accessToken"));
+        String requestBodyStr = objectMapper.writeValueAsString(new AuthRequestDto(OAuthType.KAKAO, "accessToken"));
         ResultActions perform = mockMvc.perform(post("/api/v1/auth")
                 .content(requestBodyStr)
                 .contentType(MediaType.APPLICATION_JSON_VALUE));
@@ -128,11 +128,11 @@ class AuthControllerTest {
     void oauthTypeErrorInvalidExceptionHandlerTest() throws Exception {
         // given
         willThrow(new InvalidParameterException("oauth type 불일치 에러"))
-                .given(authService).authenticate(any(AuthRequsetDto.class));
+                .given(authService).authenticate(any(AuthRequestDto.class));
 
         // when
-        AuthRequsetDto authRequsetDto = new AuthRequsetDto(OAuthType.KAKAO, "accessToken");
-        String requestBodyStr = objectMapper.writeValueAsString(authRequsetDto);
+        AuthRequestDto authRequestDto = new AuthRequestDto(OAuthType.KAKAO, "accessToken");
+        String requestBodyStr = objectMapper.writeValueAsString(authRequestDto);
         ResultActions perform = mockMvc.perform(post("/api/v1/auth")
                 .content(requestBodyStr)
                 .contentType(MediaType.APPLICATION_JSON_VALUE));

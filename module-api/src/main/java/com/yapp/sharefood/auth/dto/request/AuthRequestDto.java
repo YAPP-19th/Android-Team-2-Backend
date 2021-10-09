@@ -12,7 +12,7 @@ import javax.validation.constraints.NotNull;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class AuthRequsetDto {
+public class AuthRequestDto {
     @NotNull
     private OAuthType oauthType;
     @NotBlank
