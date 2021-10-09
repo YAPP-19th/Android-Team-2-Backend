@@ -2,7 +2,7 @@ package com.yapp.sharefood.auth.service;
 
 import com.yapp.sharefood.auth.dto.OAuthDto;
 import com.yapp.sharefood.auth.dto.request.AuthCreationRequestDto;
-import com.yapp.sharefood.auth.dto.request.AuthRequsetDto;
+import com.yapp.sharefood.auth.dto.request.AuthRequestDto;
 import com.yapp.sharefood.auth.manager.AuthenticationManager;
 import com.yapp.sharefood.auth.token.TokenProvider;
 import com.yapp.sharefood.external.OAuthProfile;
@@ -24,14 +24,14 @@ public class AuthService {
     private final UserRepository userRepository;
     private final TokenProvider tokenProvider;
 
-    public OAuthDto authenticate(AuthRequsetDto authRequsetDto) {
-        OAuthProfile profile = authenticationManager.requestOAuthUserInfo(authRequsetDto.getOauthType(), authRequsetDto.getAccessToken());
-        User existUser = userRepository.findByOAuthIdAndOAuthType(profile.getOauthId(), authRequsetDto.getOauthType())
+    public OAuthDto authenticate(AuthRequestDto authRequestDto) {
+        OAuthProfile profile = authenticationManager.requestOAuthUserInfo(authRequestDto.getOauthType(), authRequestDto.getAccessToken());
+        User existUser = userRepository.findByOAuthIdAndOAuthType(profile.getOauthId(), authRequestDto.getOauthType())
                 .orElseThrow(UserNotFoundException::new);
 
         String token = tokenProvider.createToken(existUser);
 
-        return OAuthDto.of(existUser.getId(), token, authRequsetDto.getOauthType());
+        return OAuthDto.of(existUser.getId(), token, authRequestDto.getOauthType());
     }
 
     @Transactional
