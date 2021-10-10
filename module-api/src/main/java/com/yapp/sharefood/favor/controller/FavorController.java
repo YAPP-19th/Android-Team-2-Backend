@@ -29,7 +29,7 @@ public class FavorController {
     }
 
     @PostMapping("/api/v1/favors/me")
-    @ApiOperation("사용자가 입력한 입맛 정보 저장")
+    @ApiOperation("[auth] 사용자가 입력한 입맛 정보 저장")
     @ApiResponses({
             @ApiResponse(code = 201, message = "[success] 입 맛 정보 저장 완료"),
             @ApiResponse(code = 400, message = "[error] 입맛 정보를 입력하지 않은 경우와 입맛 정보가 없는 경우", response = HttpClientErrorException.BadRequest.class)
@@ -40,7 +40,7 @@ public class FavorController {
     }
 
     @GetMapping("/api/v1/favors/me")
-    @ApiOperation("사용자가 입력한 입맛 정보 저장")
+    @ApiOperation("[auth] 사용자가 입력한 입맛 정보 저장")
     @ApiResponses({
             @ApiResponse(code = 200, message = "[success] 입 맛 정보 반환", response = FavorResponse.class)
     })
