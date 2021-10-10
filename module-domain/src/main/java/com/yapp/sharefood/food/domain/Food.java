@@ -20,8 +20,6 @@ public class Food extends BaseEntity {
 
     private String reviewMsg; // @Log는 너무 낭비... -> 255로 설정
 
-    private double mySocore;
-
     @Enumerated(EnumType.STRING)
     private FoodStatus foodStatus;
 
