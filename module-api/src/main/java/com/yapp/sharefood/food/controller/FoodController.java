@@ -86,10 +86,13 @@ public class FoodController {
     @ApiResponses({
             @ApiResponse(code = 200, message = "[success] 추천 menu 반환", response = FoodPageResponse.class)
     })
-    public ResponseEntity<FoodPageResponse> recommandedFood(@ApiIgnore @AuthUser User user) {
-        // user favor를 바탕으로 데이터를 가져와 표현 하기
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "page", value = "page 번호", defaultValue = "0", paramType = "query"),
+            @ApiImplicitParam(name = "size", value = "한번 pagination 조회 size 크기", defaultValue = "10", paramType = "query")
+    })
+    public ResponseEntity<FoodPageResponse> recommandedFood(@ApiIgnore @AuthUser User user,
+                                                            @ApiIgnore Pageable pageable) {
         FoodPageResponse foodPageResponse = new FoodPageResponse();
-        // pageable 공부해서 작성하기
 
         return ResponseEntity.ok(foodPageResponse);
     }
@@ -124,7 +127,11 @@ public class FoodController {
     @ApiResponses({
             @ApiResponse(code = 200, message = "[success] 게시판에 올라온 menu 정보 조회", response = FoodPageResponse.class)
     })
-    public ResponseEntity<FoodPageResponse> findAllFoods(@PageableDefault(sort = "createDate", direction = Sort.Direction.DESC) Pageable pageable) {
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "page", value = "page 번호", defaultValue = "0", paramType = "query"),
+            @ApiImplicitParam(name = "size", value = "한번 pagination 조회 size 크기", defaultValue = "10", paramType = "query")
+    })
+    public ResponseEntity<FoodPageResponse> findAllFoods(@ApiIgnore @PageableDefault(sort = "createDate", direction = Sort.Direction.DESC) Pageable pageable) {
         FoodPageResponse foodPageResponse = new FoodPageResponse();
 
         return ResponseEntity.ok(foodPageResponse);
@@ -135,8 +142,12 @@ public class FoodController {
     @ApiResponses({
             @ApiResponse(code = 200, message = "[success] 내가 등록한 menu 반환", response = FoodPageResponse.class)
     })
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "page", value = "page 번호", defaultValue = "0", paramType = "query"),
+            @ApiImplicitParam(name = "size", value = "한번 pagination 조회 size 크기", defaultValue = "10", paramType = "query")
+    })
     public ResponseEntity<FoodPageResponse> findMyFoods(@ApiIgnore @AuthUser User user,
-                                                        @PageableDefault(sort = "lastModifiedDate", direction = Sort.Direction.DESC) Pageable pageable) {
+                                                        @ApiIgnore @PageableDefault(sort = "lastModifiedDate", direction = Sort.Direction.DESC) Pageable pageable) {
         FoodPageResponse foodPageResponse = new FoodPageResponse();
 
         return ResponseEntity.ok(foodPageResponse);
