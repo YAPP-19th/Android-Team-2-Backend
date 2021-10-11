@@ -14,7 +14,7 @@ public class BookMarkController {
 
     @PostMapping("api/v1/food/{foodId}/bookmark/")
     @ApiResponses({
-            @ApiResponse(code = 200, message = "[success]"),
+            @ApiResponse(code = 200, message = "[success] bookmark 추가 성공"),
             @ApiResponse(code = 409, message = "[fail] 이미 bookmark 추가 됨", response = HttpClientErrorException.Conflict.class),
     })
     public ResponseEntity<Void> createBookMark(@PathVariable("foodId") Long foodId) {
