@@ -66,47 +66,49 @@ public class FoodController {
         return ResponseEntity.created(uri).build();
     }
 
-    @GetMapping("/api/v1/food/favorite/{type}")
+    @GetMapping("/api/v1/food/favorite/{categoryType}")
     @ApiOperation("[auth] 최애 menu 조회")
     @ApiResponses({
             @ApiResponse(code = 200, message = "[success] 카테고리별 최애 음식 리스트", response = FoodPageResponse.class),
             @ApiResponse(code = 400, message = "[error] 음료나 음식중 다른 값을 입력한 경우 발생", response = HttpClientErrorException.BadRequest.class)
     })
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "type", value = "음식 음료 정보", required = true, paramType = "path")
+            @ApiImplicitParam(name = "categoryType", value = "음식 음료 정보", required = true, paramType = "path")
     })
-    public ResponseEntity<FoodPageResponse> findFavoriteFood(@ApiIgnore @AuthUser User user, @PathVariable("type") String categoryType) {
+    public ResponseEntity<FoodPageResponse> findFavoriteFood(@ApiIgnore @AuthUser User user, @PathVariable("categoryType") String categoryType) {
         FoodPageResponse response = new FoodPageResponse();
         return ResponseEntity.ok(response);
     }
 
     // category type에 맞는 음식/음료 추천하는 기능 고민 해보기
-    @GetMapping("/api/v1/food/{type}/recommendation")
+    @GetMapping("/api/v1/food/{categoryType}/recommendation")
     @ApiOperation("[auth] 사용자가 선택했던 맛에 관련되 menu 정보 조회 -> 추천 기능")
     @ApiResponses({
             @ApiResponse(code = 200, message = "[success] 추천 menu 반환", response = FoodPageResponse.class)
     })
     @ApiImplicitParams({
+            @ApiImplicitParam(name = "categoryType", value = "음식 음료 정보", required = true, paramType = "path"),
             @ApiImplicitParam(name = "page", value = "page 번호", defaultValue = "0", paramType = "query"),
             @ApiImplicitParam(name = "size", value = "한번 pagination 조회 size 크기", defaultValue = "10", paramType = "query")
     })
     public ResponseEntity<FoodPageResponse> recommandedFood(@ApiIgnore @AuthUser User user,
+                                                            @PathVariable("categoryType") String categoryType,
                                                             @ApiIgnore Pageable pageable) {
         FoodPageResponse foodPageResponse = new FoodPageResponse();
 
         return ResponseEntity.ok(foodPageResponse);
     }
 
-    @GetMapping("/api/v1/food/{type}/rank")
+    @GetMapping("/api/v1/food/{categoryType}/rank")
     @ApiOperation("category별 menu ranking 반환")
     @ApiResponses({
             @ApiResponse(code = 200, message = "[success] top랭킹 정보 반환", response = FoodPageResponse.class)
     })
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "type", value = "음식 음료 정보", required = true, paramType = "path"),
+            @ApiImplicitParam(name = "categoryType", value = "음식 음료 정보", required = true, paramType = "path"),
             @ApiImplicitParam(name = "top", value = "랭킹 몇자리까지 가져올지 결정", defaultValue = "5", paramType = "query")
     })
-    public ResponseEntity<TopRankFoodResponse> findTopRankingFood(@RequestParam(defaultValue = "5") int top, @PathVariable("type") String type) {
+    public ResponseEntity<TopRankFoodResponse> findTopRankingFood(@RequestParam(defaultValue = "5") int top, @PathVariable("categoryType") String categoryType) {
         TopRankFoodResponse topRankFoodResponse = new TopRankFoodResponse();
         return ResponseEntity.ok(topRankFoodResponse);
     }
