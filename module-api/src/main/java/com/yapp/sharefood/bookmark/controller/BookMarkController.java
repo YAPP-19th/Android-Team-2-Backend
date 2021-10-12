@@ -1,12 +1,14 @@
 package com.yapp.sharefood.bookmark.controller;
 
+import com.yapp.sharefood.bookmark.dto.BookMarkPageDto;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -36,5 +38,14 @@ public class BookMarkController {
     })
     public ResponseEntity<Void> deleteBookMark(@PathVariable("foodId") Long foodId) {
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("api/v1/food/bookmark")
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "[success] bookmark list 가져오기 성공")
+    })
+    public ResponseEntity<Page<BookMarkPageDto>> getBookmarkedFood(@PageableDefault(size = 10, sort = "lastModifiedDate", direction = Sort.Direction.DESC) Pageable pageable) {
+        Page<BookMarkPageDto> response = Page.empty();
+        return ResponseEntity.ok(response);
     }
 }
