@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import springfox.documentation.annotations.ApiIgnore;
 
 import java.net.URI;
 
@@ -24,7 +25,7 @@ public class BookMarkController {
             @ApiResponse(code = 201, message = "[success] bookmark 추가 성공"),
             @ApiResponse(code = 409, message = "[fail] 이미 추가된 bookmark가 존재합니다.", response = HttpClientErrorException.Conflict.class),
     })
-    public ResponseEntity<Void> createBookMark(@AuthUser User user, @PathVariable("foodId") Long foodId) {
+    public ResponseEntity<Void> createBookMark(@ApiIgnore @AuthUser User user, @PathVariable("foodId") Long foodId) {
         Long id = 1L;
         URI uri = ServletUriComponentsBuilder.fromCurrentRequest()
                 .path("/{id}")
@@ -38,7 +39,7 @@ public class BookMarkController {
             @ApiResponse(code = 200, message = "[success] bookmark 삭제 성공"),
             @ApiResponse(code = 404, message = "[fail] 삭제할 bookmark가 없습니다.", response = HttpClientErrorException.NotFound.class),
     })
-    public ResponseEntity<Void> deleteBookMark(@AuthUser User user, @PathVariable("foodId") Long foodId) {
+    public ResponseEntity<Void> deleteBookMark(@ApiIgnore @AuthUser User user, @PathVariable("foodId") Long foodId) {
         return ResponseEntity.ok().build();
     }
 }
