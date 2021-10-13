@@ -19,7 +19,7 @@ import java.net.URI;
 @RestController
 public class BookMarkController {
 
-    @PostMapping("api/v1/food/{foodId}/bookmark/")
+    @PostMapping("/api/v1/food/{foodId}/bookmark/")
     @ApiResponses({
             @ApiResponse(code = 201, message = "[success] bookmark 추가 성공"),
             @ApiResponse(code = 409, message = "[fail] 이미 추가된 bookmark가 존재합니다.", response = HttpClientErrorException.Conflict.class),
@@ -33,7 +33,7 @@ public class BookMarkController {
         return ResponseEntity.created(uri).build();
     }
 
-    @DeleteMapping("api/v1/food/{foodId}/bookmark/")
+    @DeleteMapping("/api/v1/food/{foodId}/bookmark/")
     @ApiResponses({
             @ApiResponse(code = 200, message = "[success] bookmark 삭제 성공"),
             @ApiResponse(code = 404, message = "[fail] 삭제할 bookmark가 없습니다.", response = HttpClientErrorException.NotFound.class),
@@ -42,7 +42,7 @@ public class BookMarkController {
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping("api/v1/food/bookmark")
+    @GetMapping("/api/v1/food/bookmark")
     @ApiResponses({
             @ApiResponse(code = 200, message = "[success] bookmark list 가져오기 성공")
     })
