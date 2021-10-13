@@ -32,7 +32,7 @@ public class UserController {
         return ResponseEntity.ok(userNicknameResponseDto);
     }
 
-    @GetMapping("/api/users/nickname/check")
+    @GetMapping("/api/v1/users/nickname/check")
     @ApiResponses({
             @ApiResponse(code = 200, message = "[success] 사용 가능한 닉네임입니다."),
             @ApiResponse(code = 409, message = "[error] 이미 사용중인 닉네임입니다.", response = HttpClientErrorException.Conflict.class)
@@ -41,7 +41,7 @@ public class UserController {
         return ResponseEntity.ok().build();
     }
 
-    @PatchMapping("/api/users/{userId}/nickname")
+    @PatchMapping("/api/v1/users/{userId}/nickname")
     @ApiResponses({
             @ApiResponse(code = 200, message = "[success] 닉네임 변경 성공"),
             @ApiResponse(code = 404, message = "[error] 해당 유저정보를 찾을 수 없습니다.", response = HttpClientErrorException.NotFound.class),
