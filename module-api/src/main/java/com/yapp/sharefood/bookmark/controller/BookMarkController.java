@@ -41,13 +41,4 @@ public class BookMarkController {
     public ResponseEntity<Void> deleteBookMark(@AuthUser User user, @PathVariable("foodId") Long foodId) {
         return ResponseEntity.ok().build();
     }
-
-    @GetMapping("/api/v1/food/bookmark")
-    @ApiResponses({
-            @ApiResponse(code = 200, message = "[success] bookmark list 가져오기 성공")
-    })
-    public ResponseEntity<Page<BookMarkPageDto>> getBookmarkedFood(@AuthUser User user, @PageableDefault(size = 10, sort = "lastModifiedDate", direction = Sort.Direction.DESC) Pageable pageable) {
-        Page<BookMarkPageDto> response = Page.empty();
-        return ResponseEntity.ok(response);
-    }
 }
