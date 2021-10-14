@@ -32,12 +32,12 @@ public class UserController {
         return ResponseEntity.ok(userNicknameResponseDto);
     }
 
-    @GetMapping("/api/v1/users/nickname/check")
+    @GetMapping("/api/v1/users/{userId}/nickname/validation")
     @ApiResponses({
             @ApiResponse(code = 200, message = "[success] 사용 가능한 닉네임입니다."),
             @ApiResponse(code = 409, message = "[error] 이미 사용중인 닉네임입니다.", response = HttpClientErrorException.Conflict.class)
     })
-    public ResponseEntity<Void> checkNicknameDuplicate(@RequestBody NicknameRequest request) {
+    public ResponseEntity<Void> checkNicknameDuplicate(@RequestBody NicknameRequest request, @PathVariable("userId") Long userId) {
         return ResponseEntity.ok().build();
     }
 
