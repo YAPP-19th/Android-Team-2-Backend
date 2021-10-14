@@ -3,6 +3,7 @@ package com.yapp.sharefood.user.controller;
 import com.yapp.sharefood.auth.resolver.AuthUser;
 import com.yapp.sharefood.user.domain.User;
 import com.yapp.sharefood.user.dto.request.NicknameRequest;
+import com.yapp.sharefood.user.dto.response.MyUserInfoResponse;
 import com.yapp.sharefood.user.dto.response.UserInfoResponse;
 import com.yapp.sharefood.user.dto.response.UserNicknameResponseDto;
 import com.yapp.sharefood.user.service.UserService;
@@ -37,7 +38,7 @@ public class UserController {
             @ApiResponse(code = 200, message = "[success] 사용 가능한 닉네임입니다."),
             @ApiResponse(code = 409, message = "[error] 이미 사용중인 닉네임입니다.", response = HttpClientErrorException.Conflict.class)
     })
-    public ResponseEntity<Void> checkNicknameDuplicate(@RequestBody NicknameRequest request, @PathVariable("userId") Long userId) {
+    public ResponseEntity<Void> checkNicknameDuplicate(@PathVariable("userId") Long userId, @RequestBody NicknameRequest request) {
         return ResponseEntity.ok().build();
     }
 
@@ -47,7 +48,7 @@ public class UserController {
             @ApiResponse(code = 404, message = "[error] 해당 유저정보를 찾을 수 없습니다.", response = HttpClientErrorException.NotFound.class),
             @ApiResponse(code = 409, message = "[error] 이미 사용중인 닉네임입니다.", response = HttpClientErrorException.Conflict.class)
     })
-    public ResponseEntity<Void> updateNickname(@ApiIgnore @AuthUser User user, @RequestBody NicknameRequest request) {
+    public ResponseEntity<Void> updateNickname(@ApiIgnore @AuthUser User user, @PathVariable("userId") Long userID, @RequestBody NicknameRequest request) {
         return ResponseEntity.ok().build();
     }
 
@@ -55,8 +56,8 @@ public class UserController {
     @ApiResponses({
             @ApiResponse(code = 200, message = "[success] 내 유저정보 조회 성공")
     })
-    public ResponseEntity<UserInfoResponse> findMyUserInfo(@ApiIgnore @AuthUser User user) {
-        UserInfoResponse response = new UserInfoResponse();
+    public ResponseEntity<MyUserInfoResponse> findMyUserInfo(@ApiIgnore @AuthUser User user) {
+        MyUserInfoResponse response = new MyUserInfoResponse();
         return ResponseEntity.ok(response);
     }
 
