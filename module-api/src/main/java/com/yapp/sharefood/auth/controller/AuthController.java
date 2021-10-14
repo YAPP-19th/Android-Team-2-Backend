@@ -11,10 +11,7 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -72,11 +69,12 @@ public class AuthController {
         return ResponseEntity.created(userCreateUri).build();
     }
 
-    @DeleteMapping("/api/v1/auth/deletion")
+    @DeleteMapping("/api/v1/auth/{userId}/deletion")
     @ApiResponses({
-            @ApiResponse(code = 200, message = "[success] 회원 탈퇴 성공")
+            @ApiResponse(code = 200, message = "[success] 회원 탈퇴 성공"),
+            @ApiResponse(code = 403, message = "[error] 회원 정보가 일치하지 않습니다.", response = HttpClientErrorException.Forbidden.class)
     })
-    public ResponseEntity<Void> withdraw(@ApiIgnore @AuthUser User user) {
+    public ResponseEntity<Void> withdraw(@ApiIgnore @AuthUser User user, @PathVariable("userId") Long userId) {
         return ResponseEntity.ok().build();
     }
 
