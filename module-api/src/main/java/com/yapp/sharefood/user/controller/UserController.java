@@ -48,8 +48,9 @@ public class UserController {
             @ApiResponse(code = 404, message = "[error] 해당 유저정보를 찾을 수 없습니다.", response = HttpClientErrorException.NotFound.class),
             @ApiResponse(code = 409, message = "[error] 이미 사용중인 닉네임입니다.", response = HttpClientErrorException.Conflict.class)
     })
-    public ResponseEntity<Void> updateNickname(@ApiIgnore @AuthUser User user, @PathVariable("userId") Long userID, @RequestBody NicknameRequest request) {
-        return ResponseEntity.ok().build();
+    public ResponseEntity<MyUserInfoResponse> updateNickname(@ApiIgnore @AuthUser User user, @PathVariable("userId") Long userID, @RequestBody NicknameRequest request) {
+        MyUserInfoResponse response = new MyUserInfoResponse();
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/api/v1/users/me")
