@@ -2,7 +2,7 @@ package com.yapp.sharefood.food.controller;
 
 import com.yapp.sharefood.auth.resolver.AuthUser;
 import com.yapp.sharefood.food.dto.request.FoodCreatRequest;
-import com.yapp.sharefood.food.dto.request.FoodUpdateRequset;
+import com.yapp.sharefood.food.dto.request.FoodUpdateRequest;
 import com.yapp.sharefood.food.dto.response.FoodDetailResponse;
 import com.yapp.sharefood.food.dto.response.FoodPageResponse;
 import com.yapp.sharefood.food.dto.response.TopRankFoodResponse;
@@ -43,7 +43,7 @@ public class FoodController {
             @ApiResponse(code = 403, message = "[error] 내가 작성한 menu가 아닌 경우", response = HttpClientErrorException.Forbidden.class)
     })
     public ResponseEntity<Void> editFoodById(@PathVariable Long id,
-                                             @RequestBody FoodUpdateRequset foodUpdateRequset,
+                                             @RequestBody FoodUpdateRequest foodUpdateRequest,
                                              @ApiIgnore @AuthUser User user) {
 
         return ResponseEntity.ok().build();

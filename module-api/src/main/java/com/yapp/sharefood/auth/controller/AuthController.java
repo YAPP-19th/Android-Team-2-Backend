@@ -3,18 +3,19 @@ package com.yapp.sharefood.auth.controller;
 import com.yapp.sharefood.auth.dto.OAuthDto;
 import com.yapp.sharefood.auth.dto.request.AuthCreationRequestDto;
 import com.yapp.sharefood.auth.dto.request.AuthRequestDto;
+import com.yapp.sharefood.auth.resolver.AuthUser;
 import com.yapp.sharefood.auth.service.AuthService;
+import com.yapp.sharefood.user.domain.User;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import springfox.documentation.annotations.ApiIgnore;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
@@ -42,6 +43,14 @@ public class AuthController {
         return ResponseEntity.ok().build();
     }
 
+    @DeleteMapping("/api/v1/auth")
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "[success] 로그아웃 성공")
+    })
+    public ResponseEntity<Void> logout(@ApiIgnore @AuthUser User user) {
+        return ResponseEntity.ok().build();
+    }
+
     @ApiOperation("회원 가입")
     @ApiResponses({
             @ApiResponse(code = 201, message = "[success] 회원 가입 후 token header에 반환", response = URI.class),
@@ -59,4 +68,14 @@ public class AuthController {
 
         return ResponseEntity.created(userCreateUri).build();
     }
+
+    @DeleteMapping("/api/v1/auth/{userId}/deletion")
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "[success] 회원 탈퇴 성공"),
+            @ApiResponse(code = 403, message = "[error] 회원 정보가 일치하지 않습니다.", response = HttpClientErrorException.Forbidden.class)
+    })
+    public ResponseEntity<Void> withdraw(@ApiIgnore @AuthUser User user, @PathVariable("userId") Long userId) {
+        return ResponseEntity.ok().build();
+    }
+
 }
