@@ -11,12 +11,15 @@ public class Food {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false)
     private String foodTitle;
 
+    @Column(nullable = false)
     private int price;
 
-    private String reviewMsg; // @Log는 너무 낭비... -> 255로 설정
+    private String reviewMsg;
 
+    @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private FoodStatus foodStatus;
 
