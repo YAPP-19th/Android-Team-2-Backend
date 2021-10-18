@@ -1,6 +1,6 @@
 package com.yapp.sharefood.food.dto.response;
 
-import com.yapp.sharefood.food.dto.FoodFavorDto;
+import com.yapp.sharefood.food.dto.FoodFlavorDto;
 import com.yapp.sharefood.food.dto.FoodImageDto;
 import com.yapp.sharefood.food.dto.FoodTagDto;
 import lombok.AllArgsConstructor;
@@ -20,9 +20,9 @@ public class FoodDetailResponse {
 
     private boolean isMeLike;
     private boolean isBookmark;
-    private boolean isMyFavorite;
+    private boolean isMyFlavorite;
 
-    private List<FoodFavorDto> foodFavors;
+    private List<FoodFlavorDto> foodFlavors;
     private List<FoodTagDto> foodTags;
     private List<FoodImageDto> foodImages;
 }

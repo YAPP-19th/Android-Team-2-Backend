@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class FoodFavorDto {
+public class FoodFlavorDto {
     private Long id;
-    private String favorName;
+    private String flavorName;
 }

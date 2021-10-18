@@ -1,6 +1,6 @@
 package com.yapp.sharefood.food.dto;
 
-import com.yapp.sharefood.favor.domain.FavorType;
+import com.yapp.sharefood.flavor.domain.FlavorType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -14,5 +14,5 @@ public class FoodPageDto {
     private String categoryName;
     private int price;
     private boolean isBookmark;
-    private FavorType mainFavorType;
+    private FlavorType mainFlavorType;
 }

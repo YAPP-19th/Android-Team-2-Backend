@@ -1,4 +1,4 @@
-package com.yapp.sharefood.favor.dto;
+package com.yapp.sharefood.flavor.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class FavorDto {
+public class FlavorDto {
     private Long id;
-    private String favorName;
+    private String flavorName;
 }

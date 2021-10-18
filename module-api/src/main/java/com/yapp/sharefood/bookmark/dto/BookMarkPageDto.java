@@ -9,6 +9,6 @@ public class BookMarkPageDto {
     private String categoryName;
     private int price;
     private String thumbnailUrl;
-    private String mainFavorName;
+    private String mainFlavorName;
     private boolean isBookmark;
 }

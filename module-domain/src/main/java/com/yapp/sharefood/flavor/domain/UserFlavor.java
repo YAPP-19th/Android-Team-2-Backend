@@ -1,4 +1,4 @@
-package com.yapp.sharefood.favor.domain;
+package com.yapp.sharefood.flavor.domain;
 
 import com.yapp.sharefood.common.domain.BaseEntity;
 import com.yapp.sharefood.user.domain.User;
@@ -6,9 +6,9 @@ import com.yapp.sharefood.user.domain.User;
 import javax.persistence.*;
 
 @Entity
-public class UserFavor extends BaseEntity {
+public class UserFlavor extends BaseEntity {
     @Id
-    @Column(name = "user_favor_id")
+    @Column(name = "user_flavor_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
@@ -17,6 +17,6 @@ public class UserFavor extends BaseEntity {
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "favor_id")
-    private Favor favor;
+    @JoinColumn(name = "flavor_id")
+    private Flavor flavor;
 }

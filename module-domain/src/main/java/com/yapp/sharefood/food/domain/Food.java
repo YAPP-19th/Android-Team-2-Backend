@@ -36,7 +36,7 @@ public class Food extends BaseEntity {
     private List<IngredientTag> ingredientTags;
 
     @OneToMany(mappedBy = "food")
-    private List<FoodFavor> tasteItems;
+    private List<FoodFlavor> tasteItems;
 
     @OneToOne(mappedBy = "food")
     private FoodImages foodImages;

@@ -2,7 +2,7 @@ package com.yapp.sharefood.food.controller;
 
 import com.yapp.sharefood.auth.resolver.AuthUser;
 import com.yapp.sharefood.food.domain.IngredientUseType;
-import com.yapp.sharefood.food.dto.FoodFavorDto;
+import com.yapp.sharefood.food.dto.FoodFlavorDto;
 import com.yapp.sharefood.food.dto.FoodImageDto;
 import com.yapp.sharefood.food.dto.FoodPageDto;
 import com.yapp.sharefood.food.dto.FoodTagDto;
@@ -177,7 +177,7 @@ public class FoodController {
                 .numberOfLike(123456)
                 .isMeLike(true)
                 .isBookmark(false)
-                .foodFavors(List.of(new FoodFavorDto(1L, "달달함"), new FoodFavorDto(2L, "고소함")))
+                .foodFlavors(List.of(new FoodFlavorDto(1L, "달달함"), new FoodFlavorDto(2L, "고소함")))
                 .foodTags(List.of(new FoodTagDto(1L, "커피", IngredientUseType.ADD), new FoodTagDto(2L, "우유", IngredientUseType.ADD),
                         new FoodTagDto(3L, "달고나", IngredientUseType.EXTRACT), new FoodTagDto(4L, "시나몬", IngredientUseType.MAIN)))
                 .foodImages(List.of(new FoodImageDto(1L, "img/urlpath1"), new FoodImageDto(2L, "img/urlpath2")))

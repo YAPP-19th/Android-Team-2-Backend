@@ -1,14 +1,14 @@
-package com.yapp.sharefood.favor.domain;
+package com.yapp.sharefood.flavor.domain;
 
 import javax.persistence.*;
 
 @Entity
-public class Favor {
+public class Flavor {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "favor_id")
+    @Column(name = "flavor_id")
     private Long id;
 
     @Enumerated(EnumType.STRING)
-    private FavorType tasteType;
+    private FlavorType tasteType;
 }
