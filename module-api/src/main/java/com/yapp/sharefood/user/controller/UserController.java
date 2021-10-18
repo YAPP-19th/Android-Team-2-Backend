@@ -34,7 +34,7 @@ public class UserController {
         return ResponseEntity.ok(userNicknameResponse);
     }
 
-    @ApiOperation("닉네임 중복 체크 API")
+    @ApiOperation("[auth] 닉네임 중복 체크 API")
     @GetMapping("/api/v1/users/{userId}/nickname/validation")
     @ApiResponses({
             @ApiResponse(code = 200, message = "[success] 사용 가능한 닉네임입니다."),
@@ -44,7 +44,7 @@ public class UserController {
         return ResponseEntity.ok().build();
     }
 
-    @ApiOperation("내 닉네임 변경 API")
+    @ApiOperation("[auth] 내 닉네임 변경 API")
     @PatchMapping("/api/v1/users/{userId}/nickname")
     @ApiResponses({
             @ApiResponse(code = 200, message = "[success] 닉네임 변경 성공"),
@@ -57,7 +57,7 @@ public class UserController {
         return ResponseEntity.ok(userNicknameResponse);
     }
 
-    @ApiOperation("내 유저정보 조회 API")
+    @ApiOperation("[auth] 내 유저정보 조회 API")
     @GetMapping("/api/v1/users/me")
     @ApiResponses({
             @ApiResponse(code = 200, message = "[success] 내 유저정보 조회 성공")
@@ -68,7 +68,7 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
 
-    @ApiOperation("다른 유저정보 조회 API")
+    @ApiOperation("[auth] 다른 유저정보 조회 API")
     @GetMapping("/api/v1/users/{userId}")
     @ApiResponses({
             @ApiResponse(code = 200, message = "[success] 유저정보 조회 성공"),

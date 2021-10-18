@@ -21,7 +21,7 @@ import java.net.URI;
 @RestController
 public class BookMarkController {
 
-    @ApiOperation("북마크 추가 API")
+    @ApiOperation("[auth] 북마크 추가 API")
     @PostMapping("/api/v1/food/{foodId}/bookmark")
     @ApiResponses({
             @ApiResponse(code = 201, message = "[success] bookmark 추가 성공"),
@@ -37,7 +37,7 @@ public class BookMarkController {
         return ResponseEntity.created(uri).build();
     }
 
-    @ApiOperation("북마크 삭제 API")
+    @ApiOperation("[auth] 북마크 삭제 API")
     @DeleteMapping("/api/v1/food/{foodId}/bookmark")
     @ApiResponses({
             @ApiResponse(code = 200, message = "[success] bookmark 삭제 성공"),
