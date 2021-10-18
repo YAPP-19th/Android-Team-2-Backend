@@ -1,7 +1,7 @@
 package com.yapp.sharefood.flavor.service;
 
-import com.yapp.sharefood.flavor.domain.Flavor;
 import com.yapp.sharefood.flavor.dto.FlavorDto;
+import com.yapp.sharefood.flavor.dto.response.FlavorsResponse;
 import com.yapp.sharefood.flavor.repository.FlavorRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -16,10 +16,10 @@ import java.util.stream.Collectors;
 public class FlavorService {
     private final FlavorRepository flavorRepository;
 
-    public List<FlavorDto> findAllFlavors() {
-        List<Flavor> flavors = flavorRepository.findAll();
-        return flavors.stream()
+    public FlavorsResponse findAllFlavors() {
+        List<FlavorDto> flavors = flavorRepository.findAll().stream()
                 .map(flavor -> FlavorDto.of(flavor.getId(), flavor.getFlavorType()))
                 .collect(Collectors.toList());
+        return new FlavorsResponse(flavors);
     }
 }

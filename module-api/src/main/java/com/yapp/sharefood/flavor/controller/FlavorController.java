@@ -14,8 +14,6 @@ public class FlavorController {
 
     @GetMapping("/api/v1/favors")
     public ResponseEntity<FlavorsResponse> findAllFlavors() {
-        FlavorsResponse flavorsResponse = new FlavorsResponse(flavorService.findAllFlavors());
-
-        return ResponseEntity.ok(flavorsResponse);
+        return ResponseEntity.ok(flavorService.findAllFlavors());
     }
 }

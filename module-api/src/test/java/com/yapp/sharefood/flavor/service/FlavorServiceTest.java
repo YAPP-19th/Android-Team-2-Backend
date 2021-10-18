@@ -2,14 +2,12 @@ package com.yapp.sharefood.flavor.service;
 
 import com.yapp.sharefood.flavor.domain.Flavor;
 import com.yapp.sharefood.flavor.domain.FlavorType;
-import com.yapp.sharefood.flavor.dto.FlavorDto;
+import com.yapp.sharefood.flavor.dto.response.FlavorsResponse;
 import com.yapp.sharefood.flavor.repository.FlavorRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-
-import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -30,11 +28,11 @@ class FlavorServiceTest {
         flavorRepository.save(Flavor.of(FlavorType.SPICY));
 
         // when
-        List<FlavorDto> allFlavors = flavorService.findAllFlavors();
+        FlavorsResponse allFlavors = flavorService.findAllFlavors();
 
         // then
-        assertEquals(2, allFlavors.size());
-        assertThat(allFlavors)
+        assertEquals(2, allFlavors.getFavors().size());
+        assertThat(allFlavors.getFavors())
                 .extracting("flavorName")
                 .contains(FlavorType.SWEET.getFlavorName(), FlavorType.SPICY.getFlavorName());
     }
@@ -45,9 +43,9 @@ class FlavorServiceTest {
         // given
 
         // when
-        List<FlavorDto> allFlavors = flavorService.findAllFlavors();
+        FlavorsResponse allFlavorsResponse = flavorService.findAllFlavors();
 
         // then
-        assertEquals(0, allFlavors.size());
+        assertEquals(0, allFlavorsResponse.getFavors().size());
     }
 }

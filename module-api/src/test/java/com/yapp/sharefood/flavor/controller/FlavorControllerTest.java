@@ -16,7 +16,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -37,7 +37,7 @@ class FlavorControllerTest extends PreprocessController {
     @DisplayName("전체 정상 조회")
     void findAllFlavorsTest() throws Exception {
         // given
-        willReturn(Arrays.asList(FlavorDto.of(1L, FlavorType.SWEET), FlavorDto.of(2L, FlavorType.SPICY)))
+        willReturn(new FlavorsResponse(List.of(FlavorDto.of(1L, FlavorType.SWEET), FlavorDto.of(2L, FlavorType.SPICY))))
                 .given(flavorService).findAllFlavors();
 
         // when
@@ -63,6 +63,8 @@ class FlavorControllerTest extends PreprocessController {
     @DisplayName("아무 것도 없는 경우")
     void findAllFlavorsAndEmptyTest() throws Exception {
         // given
+        willReturn(new FlavorsResponse(List.of()))
+                .given(flavorService).findAllFlavors();
 
         // when
         ResultActions perform = mockMvc.perform(get("/api/v1/favors"));
