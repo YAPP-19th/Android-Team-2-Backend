@@ -31,8 +31,8 @@ class FlavorServiceTest {
         FlavorsResponse allFlavors = flavorService.findAllFlavors();
 
         // then
-        assertEquals(2, allFlavors.getFavors().size());
-        assertThat(allFlavors.getFavors())
+        assertEquals(2, allFlavors.getFlavors().size());
+        assertThat(allFlavors.getFlavors())
                 .extracting("flavorName")
                 .contains(FlavorType.SWEET.getFlavorName(), FlavorType.SPICY.getFlavorName());
     }
@@ -46,6 +46,6 @@ class FlavorServiceTest {
         FlavorsResponse allFlavorsResponse = flavorService.findAllFlavors();
 
         // then
-        assertEquals(0, allFlavorsResponse.getFavors().size());
+        assertEquals(0, allFlavorsResponse.getFlavors().size());
     }
 }

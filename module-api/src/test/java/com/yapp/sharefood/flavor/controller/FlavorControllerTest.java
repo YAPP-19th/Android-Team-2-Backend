@@ -53,8 +53,8 @@ class FlavorControllerTest extends PreprocessController {
                         .getContentAsString(StandardCharsets.UTF_8), new TypeReference<>() {
                 });
 
-        assertEquals(2, flavors.getFavors().size());
-        assertThat(flavors.getFavors())
+        assertEquals(2, flavors.getFlavors().size());
+        assertThat(flavors.getFlavors())
                 .extracting("flavorName")
                 .contains(FlavorType.SWEET.getFlavorName(), FlavorType.SPICY.getFlavorName());
     }
@@ -79,6 +79,6 @@ class FlavorControllerTest extends PreprocessController {
                         .getContentAsString(StandardCharsets.UTF_8), new TypeReference<>() {
                 });
 
-        assertEquals(0, flavors.getFavors().size());
+        assertEquals(0, flavors.getFlavors().size());
     }
 }

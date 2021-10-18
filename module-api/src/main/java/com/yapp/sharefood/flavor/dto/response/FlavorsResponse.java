@@ -11,5 +11,5 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class FlavorsResponse {
-    private List<FlavorDto> favors;
+    private List<FlavorDto> flavors;
 }
