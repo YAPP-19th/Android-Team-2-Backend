@@ -1,9 +1,12 @@
 package com.yapp.sharefood.flavor.dto;
 
 import com.yapp.sharefood.flavor.domain.FlavorType;
+import lombok.AccessLevel;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class FlavorDto {
     private Long id;
     private String flavorName;
