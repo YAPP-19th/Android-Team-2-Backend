@@ -21,7 +21,7 @@ class FlavorServiceTest {
     FlavorRepository flavorRepository;
 
     @Test
-    @DisplayName("하낭 존재하는 겨우")
+    @DisplayName("하나 이상 flavor가 존재하는 겨우")
     void findAllFlavorsTest() {
         // given
         flavorRepository.save(Flavor.of(FlavorType.SWEET));
@@ -38,7 +38,7 @@ class FlavorServiceTest {
     }
 
     @Test
-    @DisplayName("아무 것도 없는 경우")
+    @DisplayName("flavor가 아무 것도 없는 경우")
     void findAllZeroIfEmptyTest() throws Exception {
         // given
 
