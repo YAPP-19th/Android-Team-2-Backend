@@ -29,7 +29,7 @@ public class LikeController {
     public ResponseEntity<Void> createLike(@ApiIgnore @AuthUser User user, @PathVariable("foodId") Long foodId) {
         Long id = 1L;
         URI uri = ServletUriComponentsBuilder.fromCurrentRequest()
-                .path("{id}")
+                .path("/{id}")
                 .buildAndExpand(id)
                 .toUri();
 
