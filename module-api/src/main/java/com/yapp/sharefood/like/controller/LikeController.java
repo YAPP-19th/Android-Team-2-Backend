@@ -18,7 +18,7 @@ import java.net.URI;
 @RestController
 public class LikeController {
 
-    @PostMapping("/api/v1/food/{foodId}/like")
+    @PostMapping("/api/v1/food/{foodId}/likes")
     @ApiResponses({
             @ApiResponse(code = 201, message = "[success] like 추가 성공"),
             @ApiResponse(code = 404, message = "[error] 해당 게시물(Food)가 존재하지 않습니다.", response = HttpClientErrorException.NotFound.class),
@@ -34,7 +34,7 @@ public class LikeController {
         return ResponseEntity.created(uri).build();
     }
 
-    @DeleteMapping("/api/v1/food/{foodId}/like/{likeId}")
+    @DeleteMapping("/api/v1/food/{foodId}/likes/{likeId}")
     @ApiResponses({
             @ApiResponse(code = 200, message = "[success] like 제거 성공"),
             @ApiResponse(code = 404, message = "[error] 삭제할 like가 없습니다.", response = HttpClientErrorException.NotFound.class)

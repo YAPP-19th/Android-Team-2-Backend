@@ -1,4 +1,0 @@
-1633792007567|0|statement|connection 25|url jdbc:h2:mem:testdb|     drop table if exists users|     drop table if exists users
-1633792007577|0|statement|connection 26|url jdbc:h2:mem:testdb|     drop table if exists users|     drop table if exists users
-1633792870799|0|statement|connection 25|url jdbc:h2:mem:testdb|     drop table if exists users|     drop table if exists users
-1633792870810|0|statement|connection 26|url jdbc:h2:mem:testdb|     drop table if exists users|     drop table if exists users
