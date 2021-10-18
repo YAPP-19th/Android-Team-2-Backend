@@ -41,7 +41,7 @@ class FlavorControllerTest extends PreprocessController {
                 .given(flavorService).findAllFlavors();
 
         // when
-        ResultActions perform = mockMvc.perform(get("/api/v1/favors"));
+        ResultActions perform = mockMvc.perform(get("/api/v1/flavors"));
 
         // then
         FlavorsResponse flavors = objectMapper
@@ -67,7 +67,7 @@ class FlavorControllerTest extends PreprocessController {
                 .given(flavorService).findAllFlavors();
 
         // when
-        ResultActions perform = mockMvc.perform(get("/api/v1/favors"));
+        ResultActions perform = mockMvc.perform(get("/api/v1/flavors"));
 
         // then
         FlavorsResponse flavors = objectMapper

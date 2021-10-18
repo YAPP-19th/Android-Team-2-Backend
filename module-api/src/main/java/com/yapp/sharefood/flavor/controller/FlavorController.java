@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class FlavorController {
     private final FlavorService flavorService;
 
-    @GetMapping("/api/v1/favors")
+    @GetMapping("/api/v1/flavors")
     public ResponseEntity<FlavorsResponse> findAllFlavors() {
         return ResponseEntity.ok(flavorService.findAllFlavors());
     }
