@@ -30,6 +30,7 @@ public class UserController {
     public ResponseEntity<UserNicknameResponseDto> findNotExistNickName() {
         String newNickname = userService.createUniqueNickname();
         UserNicknameResponseDto userNicknameResponseDto = new UserNicknameResponseDto(newNickname);
+        userNicknameResponseDto.setNickname("yumyum");
         return ResponseEntity.ok(userNicknameResponseDto);
     }
 
@@ -52,6 +53,7 @@ public class UserController {
     })
     public ResponseEntity<MyUserInfoResponse> updateNickname(@ApiIgnore @AuthUser User user, @PathVariable("userId") Long userID, @RequestBody NicknameRequest request) {
         MyUserInfoResponse response = new MyUserInfoResponse();
+        response.setNickName("yumyum");
         return ResponseEntity.ok(response);
     }
 
@@ -62,6 +64,7 @@ public class UserController {
     })
     public ResponseEntity<MyUserInfoResponse> findMyUserInfo(@ApiIgnore @AuthUser User user) {
         MyUserInfoResponse response = new MyUserInfoResponse();
+        response.setNickName("yumyum");
         return ResponseEntity.ok(response);
     }
 
@@ -73,6 +76,7 @@ public class UserController {
     })
     public ResponseEntity<UserInfoResponse> findUserInfo(@ApiIgnore @AuthUser User user, @PathVariable("userId") Long userId) {
         UserInfoResponse response = new UserInfoResponse();
+        response.setNickName("yumyum");
         return ResponseEntity.ok(response);
     }
 }
