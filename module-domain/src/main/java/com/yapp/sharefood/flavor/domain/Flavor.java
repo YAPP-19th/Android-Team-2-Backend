@@ -1,5 +1,6 @@
 package com.yapp.sharefood.flavor.domain;
 
+import com.yapp.sharefood.common.domain.BaseEntity;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -9,7 +10,7 @@ import javax.persistence.*;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Flavor {
+public class Flavor extends BaseEntity {
     @Id
     @Column(name = "flavor_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
