@@ -2,6 +2,7 @@ package com.yapp.sharefood.like.controller;
 
 import com.yapp.sharefood.auth.resolver.AuthUser;
 import com.yapp.sharefood.user.domain.User;
+import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +19,7 @@ import java.net.URI;
 @RestController
 public class LikeController {
 
+    @ApiOperation("좋아요 추가 API")
     @PostMapping("/api/v1/food/{foodId}/likes")
     @ApiResponses({
             @ApiResponse(code = 201, message = "[success] like 추가 성공"),
@@ -34,6 +36,7 @@ public class LikeController {
         return ResponseEntity.created(uri).build();
     }
 
+    @ApiOperation("좋아요 삭제 API")
     @DeleteMapping("/api/v1/food/{foodId}/likes/{likeId}")
     @ApiResponses({
             @ApiResponse(code = 200, message = "[success] like 제거 성공"),
