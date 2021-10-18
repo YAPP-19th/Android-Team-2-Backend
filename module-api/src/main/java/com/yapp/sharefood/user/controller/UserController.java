@@ -5,7 +5,7 @@ import com.yapp.sharefood.user.domain.User;
 import com.yapp.sharefood.user.dto.request.NicknameRequest;
 import com.yapp.sharefood.user.dto.response.MyUserInfoResponse;
 import com.yapp.sharefood.user.dto.response.UserInfoResponse;
-import com.yapp.sharefood.user.dto.response.UserNicknameResponseDto;
+import com.yapp.sharefood.user.dto.response.UserNicknameResponse;
 import com.yapp.sharefood.user.service.UserService;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
@@ -23,15 +23,15 @@ public class UserController {
 
     @ApiOperation("겹치지 않는 nickname 자동으로 생성하는 API")
     @ApiResponses({
-            @ApiResponse(code = 200, message = "[success] 겹치지 않는 nickname 반환", response = UserNicknameResponseDto.class),
+            @ApiResponse(code = 200, message = "[success] 겹치지 않는 nickname 반환", response = UserNicknameResponse.class),
             @ApiResponse(code = 409, message = "[error] 자동화에서 nickname 겹치는 이슈 발생", response = HttpClientErrorException.Conflict.class)
     })
     @GetMapping("/api/v1/users/nickname")
-    public ResponseEntity<UserNicknameResponseDto> findNotExistNickName() {
+    public ResponseEntity<UserNicknameResponse> findNotExistNickName() {
         String newNickname = userService.createUniqueNickname();
-        UserNicknameResponseDto userNicknameResponseDto = new UserNicknameResponseDto(newNickname);
-        userNicknameResponseDto.setNickname("yumyum");
-        return ResponseEntity.ok(userNicknameResponseDto);
+        UserNicknameResponse userNicknameResponse = new UserNicknameResponse(newNickname);
+        userNicknameResponse.setNickname("yumyum");
+        return ResponseEntity.ok(userNicknameResponse);
     }
 
     @ApiOperation("닉네임 중복 체크 API")
@@ -51,10 +51,10 @@ public class UserController {
             @ApiResponse(code = 404, message = "[error] 해당 유저정보를 찾을 수 없습니다.", response = HttpClientErrorException.NotFound.class),
             @ApiResponse(code = 409, message = "[error] 이미 사용중인 닉네임입니다.", response = HttpClientErrorException.Conflict.class)
     })
-    public ResponseEntity<MyUserInfoResponse> updateNickname(@ApiIgnore @AuthUser User user, @PathVariable("userId") Long userID, @RequestBody NicknameRequest request) {
-        MyUserInfoResponse response = new MyUserInfoResponse();
-        response.setNickName("yumyum");
-        return ResponseEntity.ok(response);
+    public ResponseEntity<UserNicknameResponse> updateNickname(@ApiIgnore @AuthUser User user, @PathVariable("userId") Long userID, @RequestBody NicknameRequest request) {
+        UserNicknameResponse userNicknameResponse = new UserNicknameResponse();
+        userNicknameResponse.setNickname("yumyum");
+        return ResponseEntity.ok(userNicknameResponse);
     }
 
     @ApiOperation("내 유저정보 조회 API")
