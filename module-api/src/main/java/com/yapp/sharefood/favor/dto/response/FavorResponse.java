@@ -7,5 +7,5 @@ import java.util.List;
 
 @Data
 public class FavorResponse {
-    private List<FavorDto> favors;
+    private List<FavorDto> flavors;
 }
