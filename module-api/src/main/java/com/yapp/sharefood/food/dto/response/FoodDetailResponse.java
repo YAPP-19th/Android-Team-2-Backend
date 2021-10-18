@@ -3,11 +3,15 @@ package com.yapp.sharefood.food.dto.response;
 import com.yapp.sharefood.food.dto.FoodFavorDto;
 import com.yapp.sharefood.food.dto.FoodImageDto;
 import com.yapp.sharefood.food.dto.FoodTagDto;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 
 import java.util.List;
 
 @Data
+@Builder
+@AllArgsConstructor
 public class FoodDetailResponse {
     private String title;
     private String reviewDetail;
