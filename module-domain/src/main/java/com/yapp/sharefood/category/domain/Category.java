@@ -1,17 +1,23 @@
 package com.yapp.sharefood.category.domain;
 
+import com.yapp.sharefood.category.exception.CategoryNotFoundException;
 import com.yapp.sharefood.common.domain.BaseEntity;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Objects;
 
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Table(uniqueConstraints = {
+        @UniqueConstraint(
+                name = "category_name_parents_id",
+                columnNames = {"name", "parent_category_id"}
+        )
+})
 public class Category extends BaseEntity {
     @Id
     @Column(name = "category_id")
@@ -24,6 +30,27 @@ public class Category extends BaseEntity {
     @JoinColumn(name = "parent_category_id")
     private Category parent;
 
-    @OneToMany(mappedBy = "parent")
-    private List<Category> childCategories = new ArrayList<>();
+    @Embedded
+    private final ChildCategories childCategories = new ChildCategories();
+
+    private Category(String name) {
+        this.name = name;
+    }
+
+    public static Category of(String name) {
+        return new Category(name);
+    }
+
+    public void assignParent(Category parents) {
+        if (Objects.isNull(parents)) {
+            throw new CategoryNotFoundException();
+        }
+
+        this.parent = parents;
+        childCategories.getChildCategories().add(this);
+    }
+
+    public void addChildCategory(Category newChild) {
+        childCategories.addChildCategory(newChild, this);
+    }
 }
