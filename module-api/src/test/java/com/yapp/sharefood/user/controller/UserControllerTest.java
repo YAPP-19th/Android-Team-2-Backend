@@ -3,7 +3,7 @@ package com.yapp.sharefood.user.controller;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yapp.sharefood.auth.token.TokenProvider;
-import com.yapp.sharefood.user.dto.response.UserNicknameResponseDto;
+import com.yapp.sharefood.user.dto.response.UserNicknameResponse;
 import com.yapp.sharefood.user.exception.UserNicknameExistException;
 import com.yapp.sharefood.user.repository.UserRepository;
 import com.yapp.sharefood.user.service.UserService;
@@ -49,7 +49,7 @@ class UserControllerTest {
         ResultActions perform = mockMvc.perform(get("/api/v1/users/nickname"));
 
         // then
-        UserNicknameResponseDto userNicknameResponseDto = objectMapper.readValue(
+        UserNicknameResponse userNicknameResponse = objectMapper.readValue(
                 perform.andExpect(status().isOk())
                         .andDo(print())
                         .andReturn()
@@ -58,7 +58,7 @@ class UserControllerTest {
                 new TypeReference<>() {
                 });
 
-        Assertions.assertEquals("냠냠박사 unique닉네임", userNicknameResponseDto.getNickname());
+        Assertions.assertEquals("냠냠박사 unique닉네임", userNicknameResponse.getNickname());
     }
 
     @Test
