@@ -46,7 +46,7 @@ class CategoryTest {
         Category child = Category.of("child");
 
         // when
-        now.addChildCategory(child);
+        now.addChildCategories(child);
 
         // then
         assertEquals("child", now.getChildCategories().getChildCategories().get(0).getName());
@@ -63,6 +63,6 @@ class CategoryTest {
         // when
 
         // then
-        assertThrows(CategoryNotFoundException.class, () -> now.addChildCategory(child));
+        assertThrows(CategoryNotFoundException.class, () -> now.addChildCategories(child));
     }
 }

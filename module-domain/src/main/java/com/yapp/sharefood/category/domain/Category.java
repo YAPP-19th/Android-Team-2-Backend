@@ -50,7 +50,9 @@ public class Category extends BaseEntity {
         childCategories.getChildCategories().add(this);
     }
 
-    public void addChildCategory(Category newChild) {
-        childCategories.addChildCategory(newChild, this);
+    public void addChildCategories(Category... newChildren) {
+        for (Category category : newChildren) {
+            childCategories.addChildCategory(category, this);
+        }
     }
 }

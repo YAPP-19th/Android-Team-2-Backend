@@ -8,6 +8,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.util.Comparator;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -73,19 +75,81 @@ class CategoryServiceTest {
     @DisplayName("dept 2인 경우")
     void findAllCategoryTowDept() throws Exception {
         // given
+        Category category1 = Category.of("category1"); // group1
+        Category category3 = Category.of("category3");
+        category1.addChildCategories(category3);
+        categoryRepository.save(category1);
+        categoryRepository.save(category3);
+
+        Category category2 = Category.of("category2"); // group 2
+        Category category4 = Category.of("category4");
+        Category category5 = Category.of("category5");
+        category2.addChildCategories(category4, category5);
+        categoryRepository.save(category2);
+        categoryRepository.save(category4);
+        categoryRepository.save(category5);
 
         // when
+        CategoriesTreeResponse allTreeCategories = categoryService.findAllTreeCategories();
+        allTreeCategories.getCategories().sort(Comparator.comparingInt(category -> category.getChildCategories().size()));
 
         // then
+        assertEquals(2, allTreeCategories.getCategories().size());
+        assertEquals(1, allTreeCategories.getCategories().get(0).getChildCategories().size());
+        assertEquals(2, allTreeCategories.getCategories().get(1).getChildCategories().size());
     }
 
     @Test
     @DisplayName("dept가 3인 경우")
     void findAllCategoryThreeDept() throws Exception {
-        // given
+        Category category1 = Category.of("category1"); // group1
+        categoryRepository.save(category1);
+        Category category3 = Category.of("category3");
+        category1.addChildCategories(category3);
+        categoryRepository.save(category3);
+        Category category6 = Category.of("category6");
+        Category category7 = Category.of("category7");
+        category3.addChildCategories(category6, category7);
+        categoryRepository.save(category6);
+        categoryRepository.save(category7);
+
+        Category category2 = Category.of("category2"); // group 2
+        categoryRepository.save(category2);
+        Category category4 = Category.of("category4");
+        Category category5 = Category.of("category5");
+        category2.addChildCategories(category4, category5);
+        categoryRepository.save(category4);
+        categoryRepository.save(category5);
 
         // when
+        CategoriesTreeResponse allTreeCategories = categoryService.findAllTreeCategories();
+        allTreeCategories.getCategories().sort(Comparator.comparingInt(category -> category.getChildCategories().size()));
 
         // then
+        assertEquals(2, allTreeCategories.getCategories().size());
+        assertEquals(1, allTreeCategories.getCategories().get(0).getChildCategories().size());
+        assertEquals(2, allTreeCategories.getCategories().get(0).getChildCategories().get(0).getChildCategories().size());
+        assertEquals(2, allTreeCategories.getCategories().get(1).getChildCategories().size());
+    }
+
+    @Test
+    @DisplayName("cycle 케이스 제외 test")
+    void exeptCycleTest() throws Exception {
+        // given
+        Category category1 = Category.of("category1"); // group1
+        Category category2 = Category.of("category2");
+        category1.addChildCategories(category2);
+        Category category3 = Category.of("category3");
+        category2.addChildCategories(category3);
+        category3.addChildCategories(category1);
+        categoryRepository.save(category1);
+        categoryRepository.save(category2);
+        categoryRepository.save(category3);
+
+        // when
+        CategoriesTreeResponse allTreeCategories = categoryService.findAllTreeCategories();
+
+        // then
+        assertEquals(0, allTreeCategories.getCategories().size());
     }
 }
