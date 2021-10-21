@@ -75,6 +75,7 @@ subprojects {
                 fileTree(dir: it, // 리포트 결과에 제외시킬 디렉토리
                         exclude: ['**/LocalConfig*',
                                   '**/SharefoodApplication*',
+                                  '**/OrderByNull*',
                                   '**/DummyData*'] + Qdomains)
             }))
         }
