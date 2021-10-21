@@ -1,8 +1,11 @@
 package com.yapp.sharefood.user.service;
 
 import com.yapp.sharefood.common.random.RandomStringCreator;
+import com.yapp.sharefood.oauth.exception.UserNotFoundException;
 import com.yapp.sharefood.user.domain.OAuthType;
 import com.yapp.sharefood.user.domain.User;
+import com.yapp.sharefood.user.dto.UserInfoDto;
+import com.yapp.sharefood.user.dto.request.UserNicknameRequest;
 import com.yapp.sharefood.user.exception.UserNicknameExistException;
 import com.yapp.sharefood.user.repository.UserRepository;
 import org.junit.jupiter.api.DisplayName;
@@ -58,4 +61,128 @@ class UserServiceTest {
         // then
         assertThrows(UserNicknameExistException.class, () -> userService.createUniqueNickname());
     }
+
+    @Test
+    void nicknameNotDuplicate() {
+        //given
+        String nickname = "1";
+        UserNicknameRequest request = new UserNicknameRequest();
+        request.setNickname(nickname);
+
+        //when
+
+        //then
+        userService.checkNicknameDuplicate(request);
+    }
+
+    @Test
+    void nicknameDuplicate() {
+        //given
+        String nickname = "donghwan";
+        User user = User.builder()
+                .oauthId("kaka-id")
+                .oAuthType(OAuthType.KAKAO)
+                .nickname(nickname)
+                .name("kim-dong-hwan")
+                .build();
+        userRepository.save(user);
+
+        UserNicknameRequest request = new UserNicknameRequest();
+        request.setNickname(nickname);
+
+        //when
+
+        //then
+        assertThrows(UserNicknameExistException.class, () -> userService.checkNicknameDuplicate(request));
+    }
+
+    @Test
+    void changeNickname() {
+        String oldNickname = "donghwan";
+        String newNickname = "kimdonghwan";
+
+        User user = User.builder()
+                .oauthId("kaka-id")
+                .oAuthType(OAuthType.KAKAO)
+                .nickname(oldNickname)
+                .name("kim-dong-hwan")
+                .build();
+
+        UserNicknameRequest request = new UserNicknameRequest();
+        request.setNickname(newNickname);
+
+        userRepository.save(user);
+
+        //when
+        String resultNickname = userService.changeUserNickname(user.getId(), request);
+
+        //then
+        assertEquals(newNickname, resultNickname);
+    }
+
+    @Test
+    void nicknameNotChangeCauseDuplicate() {
+        String oldNickname = "donghwan";
+
+        User user = User.builder()
+                .oauthId("kaka-id")
+                .oAuthType(OAuthType.KAKAO)
+                .nickname(oldNickname)
+                .name("kim-dong-hwan")
+                .build();
+
+        UserNicknameRequest request = new UserNicknameRequest();
+        request.setNickname(oldNickname);
+
+        userRepository.save(user);
+
+        //when
+
+        //then
+        assertThrows(UserNicknameExistException.class, () -> userService.changeUserNickname(user.getId(), request));
+    }
+
+    @Test
+    void nicknameNotChangeCauseUserNotFound() {
+        //given
+        String nickname = " donghwan";
+
+        UserNicknameRequest request = new UserNicknameRequest();
+        request.setNickname(nickname);
+
+        //when
+
+        //then
+        assertThrows(UserNotFoundException.class, () -> userService.changeUserNickname(0L, request));
+    }
+
+    @Test
+    void findUser() {
+        //given
+        User user = User.builder()
+                .name("donghwan")
+                .nickname("donghwan")
+                .oauthId("kakao-id")
+                .oAuthType(OAuthType.KAKAO)
+                .build();
+
+        userRepository.save(user);
+
+        //when
+        UserInfoDto resultUserDto = userService.findUserInfo(user.getId());
+
+        //then
+        assertEquals(resultUserDto, UserInfoDto.of(user));
+    }
+
+    @Test
+    void notFoundUser() {
+        //given
+
+        //when
+
+        //then
+        assertThrows(UserNotFoundException.class, () -> userService.findUserInfo(0L));
+    }
+
 }
