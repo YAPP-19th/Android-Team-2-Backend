@@ -7,13 +7,14 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Comparator;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
 
+@Transactional
 @SpringBootTest
 class CategoryServiceTest {
     @Autowired
@@ -45,7 +46,7 @@ class CategoryServiceTest {
 
         // then
         assertEquals(1, allTreeCategories.getCategories().size());
-        assertNull(allTreeCategories.getCategories().get(0).getChildCategories());
+        assertEquals(0, allTreeCategories.getCategories().get(0).getChildCategories().size());
         assertEquals("category1", allTreeCategories.getCategories().get(0).getCategoryName());
     }
 
@@ -65,7 +66,7 @@ class CategoryServiceTest {
 
         // then
         assertEquals(3, allTreeCategories.getCategories().size());
-        assertNull(allTreeCategories.getCategories().get(0).getChildCategories());
+        assertEquals(0, allTreeCategories.getCategories().get(0).getChildCategories().size());
         assertThat(allTreeCategories.getCategories())
                 .extracting("categoryName")
                 .contains("category1", "category2", "category3");
