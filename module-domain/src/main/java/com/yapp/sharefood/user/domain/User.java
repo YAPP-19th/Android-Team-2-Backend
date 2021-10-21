@@ -33,4 +33,8 @@ public class User extends BaseEntity {
         this.oAuthInfo = OAuthInfo.of(oauthId, name, oAuthType);
         this.nickname = nickname;
     }
+
+    public void changeNickname(String newNickname) {
+        this.nickname = newNickname;
+    }
 }
