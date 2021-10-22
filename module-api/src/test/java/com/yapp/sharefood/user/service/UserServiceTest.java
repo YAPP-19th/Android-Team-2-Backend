@@ -15,8 +15,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.transaction.annotation.Transactional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.BDDMockito.willReturn;
 
 @SpringBootTest
@@ -138,11 +137,12 @@ class UserServiceTest {
         request.setNickname(oldNickname);
 
         userRepository.save(user);
-
+        Long userId = user.getId();
         //when
 
         //then
-        assertThrows(UserNicknameExistException.class, () -> userService.changeUserNickname(user.getId(), request));
+        assertNotNull(userId);
+        assertThrows(UserNicknameExistException.class, () -> userService.changeUserNickname(userId, request));
     }
 
     @Test
