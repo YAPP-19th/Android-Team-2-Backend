@@ -31,14 +31,14 @@ public class UserService {
 
     public void checkNicknameDuplicate(UserNicknameRequest request) {
         if(userRepository.existsByNickname(request.getNickname())) {
-            throw new UserNicknameExistException("이미 사용중인 닉네임입니다.");
+            throw new UserNicknameExistException();
         }
     }
 
     @Transactional
     public String changeUserNickname(Long userId, UserNicknameRequest request) {
         if(userRepository.existsByNickname(request.getNickname())) {
-            throw new UserNicknameExistException("이미 사용중인 닉네임입니다.");
+            throw new UserNicknameExistException();
         }
 
         User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
