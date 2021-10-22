@@ -52,8 +52,7 @@ public class UserController {
             @ApiResponse(code = 409, message = "[error] 이미 사용중인 닉네임입니다.", response = HttpClientErrorException.Conflict.class)
     })
     public ResponseEntity<UserNicknameResponse> updateNickname(@ApiIgnore @AuthUser User user, @PathVariable("userId") Long userId, @RequestBody UserNicknameRequest request) {
-        UserNicknameResponse userNicknameResponse = new UserNicknameResponse();
-        userNicknameResponse.setNickname(userService.changeUserNickname(userId, request));
+        UserNicknameResponse userNicknameResponse = new UserNicknameResponse(userService.changeUserNickname(userId, request));
         return ResponseEntity.ok(userNicknameResponse);
     }
 
@@ -63,8 +62,7 @@ public class UserController {
             @ApiResponse(code = 200, message = "[success] 내 유저정보 조회 성공")
     })
     public ResponseEntity<MyUserInfoResponse> findMyUserInfo(@ApiIgnore @AuthUser User user) {
-        MyUserInfoResponse response = new MyUserInfoResponse();
-        response.setUserInfo(userService.findUserInfo(user.getId()));
+        MyUserInfoResponse response = new MyUserInfoResponse(userService.findUserInfo(user.getId()));
         return ResponseEntity.ok(response);
     }
 
@@ -75,8 +73,7 @@ public class UserController {
             @ApiResponse(code = 404, message = "[error] 해당 유저정보를 찾을 수 없습니다.", response = HttpClientErrorException.NotFound.class)
     })
     public ResponseEntity<UserInfoResponse> findUserInfo(@ApiIgnore @AuthUser User user, @PathVariable("userId") Long userId) {
-        UserInfoResponse response = new UserInfoResponse();
-        response.setUserInfo(userService.findUserInfo(userId));
+        UserInfoResponse response = new UserInfoResponse(userService.findUserInfo(userId));
         return ResponseEntity.ok(response);
     }
 }

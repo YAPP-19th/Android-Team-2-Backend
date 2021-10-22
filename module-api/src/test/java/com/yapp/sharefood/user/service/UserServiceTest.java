@@ -69,8 +69,7 @@ class UserServiceTest {
     void nicknameNotDuplicateTest() {
         //given
         String nickname = "1";
-        UserNicknameRequest request = new UserNicknameRequest();
-        request.setNickname(nickname);
+        UserNicknameRequest request = new UserNicknameRequest(nickname);
 
         //when
 
@@ -91,8 +90,7 @@ class UserServiceTest {
                 .build();
         userRepository.save(user);
 
-        UserNicknameRequest request = new UserNicknameRequest();
-        request.setNickname(nickname);
+        UserNicknameRequest request = new UserNicknameRequest(nickname);
 
         //when
 
@@ -113,8 +111,7 @@ class UserServiceTest {
                 .name("kim-dong-hwan")
                 .build();
 
-        UserNicknameRequest request = new UserNicknameRequest();
-        request.setNickname(newNickname);
+        UserNicknameRequest request = new UserNicknameRequest(newNickname);
 
         userRepository.save(user);
 
@@ -137,8 +134,7 @@ class UserServiceTest {
                 .name("kim-dong-hwan")
                 .build();
 
-        UserNicknameRequest request = new UserNicknameRequest();
-        request.setNickname(oldNickname);
+        UserNicknameRequest request = new UserNicknameRequest(oldNickname);
 
         userRepository.save(user);
         Long userId = user.getId();
@@ -155,8 +151,7 @@ class UserServiceTest {
         //given
         String nickname = " donghwan";
 
-        UserNicknameRequest request = new UserNicknameRequest();
-        request.setNickname(nickname);
+        UserNicknameRequest request = new UserNicknameRequest(nickname);
 
         //when
 

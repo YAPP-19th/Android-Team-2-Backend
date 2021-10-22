@@ -1,11 +1,12 @@
 package com.yapp.sharefood.user.dto;
 
 import com.yapp.sharefood.user.domain.User;
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@AllArgsConstructor
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor
 @Data
 public class UserInfoDto {
