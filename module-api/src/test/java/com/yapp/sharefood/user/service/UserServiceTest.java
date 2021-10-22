@@ -13,12 +13,14 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.transaction.annotation.Transactional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.BDDMockito.willReturn;
 
 @SpringBootTest
+@Transactional
 class UserServiceTest {
 
     @Autowired
@@ -27,6 +29,7 @@ class UserServiceTest {
     UserRepository userRepository;
     @MockBean
     RandomStringCreator randomStringCreator;
+
 
     @Test
     @DisplayName("유니크한 nickname 생성")
@@ -63,7 +66,7 @@ class UserServiceTest {
     }
 
     @Test
-    void nicknameNotDuplicate() {
+    void nicknameNotDuplicateTest() {
         //given
         String nickname = "1";
         UserNicknameRequest request = new UserNicknameRequest();
@@ -76,7 +79,7 @@ class UserServiceTest {
     }
 
     @Test
-    void nicknameDuplicate() {
+    void nicknameDuplicateTest() {
         //given
         String nickname = "donghwan";
         User user = User.builder()
@@ -97,7 +100,7 @@ class UserServiceTest {
     }
 
     @Test
-    void changeNickname() {
+    void changeNicknameTest() {
         String oldNickname = "donghwan";
         String newNickname = "kimdonghwan";
 
@@ -121,7 +124,7 @@ class UserServiceTest {
     }
 
     @Test
-    void nicknameNotChangeCauseDuplicate() {
+    void nicknameNotChangeCauseDuplicateTest() {
         String oldNickname = "donghwan";
 
         User user = User.builder()
@@ -143,7 +146,7 @@ class UserServiceTest {
     }
 
     @Test
-    void nicknameNotChangeCauseUserNotFound() {
+    void nicknameNotChangeCauseUserNotFoundTest() {
         //given
         String nickname = " donghwan";
 
@@ -157,7 +160,7 @@ class UserServiceTest {
     }
 
     @Test
-    void findUser() {
+    void findUserTest() {
         //given
         User user = User.builder()
                 .name("donghwan")
@@ -172,11 +175,11 @@ class UserServiceTest {
         UserInfoDto resultUserDto = userService.findUserInfo(user.getId());
 
         //then
-        assertEquals(resultUserDto, UserInfoDto.of(user));
+        assertEquals("donghwan", resultUserDto.getNickname());
     }
 
     @Test
-    void notFoundUser() {
+    void notFoundUserTest() {
         //given
 
         //when
