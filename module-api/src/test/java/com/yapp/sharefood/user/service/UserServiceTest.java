@@ -65,6 +65,7 @@ class UserServiceTest {
     }
 
     @Test
+    @DisplayName("중복되는 닉네임이 없는 경우")
     void nicknameNotDuplicateTest() {
         //given
         String nickname = "1";
@@ -78,6 +79,7 @@ class UserServiceTest {
     }
 
     @Test
+    @DisplayName("중복되는 닉네임이 존재하는 경우")
     void nicknameDuplicateTest() {
         //given
         String nickname = "donghwan";
@@ -99,6 +101,7 @@ class UserServiceTest {
     }
 
     @Test
+    @DisplayName("닉네임 변경 성공")
     void changeNicknameTest() {
         String oldNickname = "donghwan";
         String newNickname = "kimdonghwan";
@@ -123,6 +126,7 @@ class UserServiceTest {
     }
 
     @Test
+    @DisplayName("중복되는 닉네임 존재하는 경우")
     void nicknameNotChangeCauseDuplicateTest() {
         String oldNickname = "donghwan";
 
@@ -146,6 +150,7 @@ class UserServiceTest {
     }
 
     @Test
+    @DisplayName("닉네임을 변경할 유저가 존재하지 않는 경우")
     void nicknameNotChangeCauseUserNotFoundTest() {
         //given
         String nickname = " donghwan";
@@ -160,6 +165,7 @@ class UserServiceTest {
     }
 
     @Test
+    @DisplayName("유저의 정보 조회 성공")
     void findUserTest() {
         //given
         User user = User.builder()
@@ -179,7 +185,8 @@ class UserServiceTest {
     }
 
     @Test
-    void notFoundUserTest() {
+    @DisplayName("유저가 존재하지 않는 경우우")
+   void notFoundUserTest() {
         //given
 
         //when
