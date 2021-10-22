@@ -30,7 +30,6 @@ public class UserController {
     public ResponseEntity<UserNicknameResponse> findNotExistNickName() {
         String newNickname = userService.createUniqueNickname();
         UserNicknameResponse userNicknameResponse = new UserNicknameResponse(newNickname);
-        userNicknameResponse.setNickname("yumyum");
         return ResponseEntity.ok(userNicknameResponse);
     }
 
