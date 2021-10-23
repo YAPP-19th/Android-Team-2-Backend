@@ -3,7 +3,14 @@ package com.yapp.sharefood.user.controller;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yapp.sharefood.common.PreprocessController;
+import com.yapp.sharefood.oauth.exception.UserNotFoundException;
+import com.yapp.sharefood.user.domain.OAuthType;
+import com.yapp.sharefood.user.domain.User;
+import com.yapp.sharefood.user.dto.OtherUserInfoDto;
+import com.yapp.sharefood.user.dto.UserInfoDto;
 import com.yapp.sharefood.user.dto.request.UserNicknameRequest;
+import com.yapp.sharefood.user.dto.response.MyUserInfoResponse;
+import com.yapp.sharefood.user.dto.response.OtherUserInfoResponse;
 import com.yapp.sharefood.user.dto.response.UserNicknameResponse;
 import com.yapp.sharefood.user.exception.UserNicknameExistException;
 import com.yapp.sharefood.user.service.UserService;
@@ -21,6 +28,7 @@ import java.nio.charset.StandardCharsets;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -211,5 +219,110 @@ class UserControllerTest extends PreprocessController {
                 .andReturn()
                 .getResponse()
                 .getContentAsString(StandardCharsets.UTF_8);
+    }
+
+    @Test
+    @DisplayName("user 정보 조회 성공")
+    void userInfoFindingTest() throws Exception {
+        // given
+        Long userId = authUserId;
+        User user = User.builder()
+                .id(userId)
+                .name("kkh")
+                .nickname("nickname")
+                .oAuthType(OAuthType.KAKAO)
+                .build();
+        willReturn(UserInfoDto.of(user))
+                .given(userService).findUserInfo(userId);
+
+        // when
+        ResultActions perform = mockMvc.perform(
+                get("/api/v1/users/me")
+                        .header(HttpHeaders.AUTHORIZATION, "token"));
+
+        // then
+        MyUserInfoResponse response = objectMapper
+                .readValue(perform.andExpect(status().isOk())
+                        .andDo(print())
+                        .andReturn()
+                        .getResponse()
+                        .getContentAsString(StandardCharsets.UTF_8), new TypeReference<>() {
+                });
+
+        assertEquals(userId, response.getUserInfo().getId());
+        assertEquals("nickname", response.getUserInfo().getNickname());
+    }
+
+    @Test
+    @DisplayName("user info 조회 실패 -> 없는 사용자")
+    void userInfoFindingFailTest() throws Exception {
+        // given
+        Long userId = authUserId;
+        willThrow(UserNotFoundException.class)
+                .given(userService).findUserInfo(userId);
+
+        // when
+        ResultActions perform = mockMvc.perform(
+                get("/api/v1/users/me")
+                        .header(HttpHeaders.AUTHORIZATION, "token"));
+
+        // then
+        perform.andExpect(status().isNotFound())
+                .andDo(print())
+                .andReturn()
+                .getResponse()
+                .getContentAsString(StandardCharsets.UTF_8);
+    }
+
+    @Test
+    @DisplayName("다른 사용자 info 정보 확인 테스트")
+    void findOtherUserInfoTest() throws Exception {
+        User user = User.builder()
+                .id(100L)
+                .name("otherName")
+                .nickname("othreNickname")
+                .oAuthType(OAuthType.KAKAO)
+                .build();
+        willReturn(new OtherUserInfoResponse(OtherUserInfoDto.of(user.getId(), user.getNickname())))
+                .given(userService).findOtherUserInfo(anyLong());
+
+        // when
+        ResultActions perform = mockMvc.perform(
+                get(String.format("/api/v1/users/%d", 100L))
+                        .header(HttpHeaders.AUTHORIZATION, "token"));
+
+        // then
+        OtherUserInfoResponse response = objectMapper
+                .readValue(perform.andExpect(status().isOk())
+                        .andDo(print())
+                        .andReturn()
+                        .getResponse()
+                        .getContentAsString(StandardCharsets.UTF_8), new TypeReference<>() {
+                });
+
+        assertNotEquals(100L, authUserId);
+        assertEquals(100L, response.getUserInfo().getId());
+        assertEquals("othreNickname", response.getUserInfo().getNickname());
+    }
+
+    @Test
+    @DisplayName("없는 다른 사용자 이름 검사 테스트")
+    void findOtherUserInfoFailTest() throws Exception {
+        willThrow(UserNotFoundException.class)
+                .given(userService).findOtherUserInfo(anyLong());
+
+        // when
+        ResultActions perform = mockMvc.perform(
+                get(String.format("/api/v1/users/%d", 100L))
+                        .header(HttpHeaders.AUTHORIZATION, "token"));
+
+        // then
+        perform.andExpect(status().isNotFound())
+                .andDo(print())
+                .andReturn()
+                .getResponse()
+                .getContentAsString(StandardCharsets.UTF_8);
+
+        assertNotEquals(100L, authUserId);
     }
 }
