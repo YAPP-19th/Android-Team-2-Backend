@@ -24,14 +24,14 @@ public class User extends BaseEntity {
     @Column(length = 60, unique = true)
     private String nickname;
 
-    @Enumerated
-    private OAuthInfo oAuthInfo;
+    @Embedded
+    private OAuthInfo oAuthInfo = new OAuthInfo();
 
     @Builder
     public User(Long id, String oauthId, String name, OAuthType oAuthType, String nickname) {
         this.id = id;
-        this.oAuthInfo = OAuthInfo.of(oauthId, name, oAuthType);
         this.nickname = nickname;
+        this.oAuthInfo.initOAuthInfo(oauthId, name, oAuthType);
     }
 
     public void changeNickname(String newNickname) {

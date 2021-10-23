@@ -23,13 +23,9 @@ public class OAuthInfo {
     @Enumerated(EnumType.STRING)
     private OAuthType oauthType;
 
-    private OAuthInfo(String oauthId, String name, OAuthType oauthType) {
+    public void initOAuthInfo(String oauthId, String name, OAuthType oauthType) {
         this.oauthId = oauthId;
         this.name = name;
         this.oauthType = oauthType;
-    }
-
-    public static OAuthInfo of(String oauthId, String name, OAuthType oAuthType) {
-        return new OAuthInfo(oauthId, name, oAuthType);
     }
 }
