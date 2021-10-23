@@ -61,13 +61,13 @@ public class AuthAdviceController {
     }
 
     /**
-     * 403 Forbidden
+     * 401 Unauthorized
      * token이 적절하지 않을 경우
      */
     @ExceptionHandler({AuthHeaderOmittedException.class, TokenValidationException.class, TokenExpireExcetion.class})
-    protected ResponseEntity<String> handleUnAuthForbiddenException(final RuntimeException exception) {
+    protected ResponseEntity<String> handleUnAuthorizedException(final RuntimeException exception) {
         log.error(exception.getMessage(), exception);
 
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(exception.getMessage());
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(exception.getMessage());
     }
 }
