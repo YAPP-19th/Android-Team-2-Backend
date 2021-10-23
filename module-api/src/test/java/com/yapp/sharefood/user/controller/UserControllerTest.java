@@ -93,7 +93,7 @@ class UserControllerTest extends PreprocessController {
     void checkNicknameNotDuplicateTest() throws Exception {
         // given
         willDoNothing()
-                .given(userService).checkNicknameDuplicate(any(UserNicknameRequest.class));
+                .given(userService).checkNicknameDuplicate(any(String.class));
 
         // when
         ResultActions perform = mockMvc.perform(
@@ -133,7 +133,7 @@ class UserControllerTest extends PreprocessController {
     void checkNicknameDuplicateTest() throws Exception {
         // given
         willThrow(new UserNicknameExistException())
-                .given(userService).checkNicknameDuplicate(any(UserNicknameRequest.class));
+                .given(userService).checkNicknameDuplicate(any(String.class));
 
         // when
         ResultActions perform = mockMvc.perform(

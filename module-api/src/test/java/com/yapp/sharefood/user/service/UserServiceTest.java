@@ -69,12 +69,11 @@ class UserServiceTest {
     void nicknameNotDuplicateTest() {
         //given
         String nickname = "1";
-        UserNicknameRequest request = new UserNicknameRequest(nickname);
 
         //when
 
         //then
-        userService.checkNicknameDuplicate(request);
+        userService.checkNicknameDuplicate(nickname);
     }
 
     @Test
@@ -90,12 +89,10 @@ class UserServiceTest {
                 .build();
         userRepository.save(user);
 
-        UserNicknameRequest request = new UserNicknameRequest(nickname);
-
         //when
 
         //then
-        assertThrows(UserNicknameExistException.class, () -> userService.checkNicknameDuplicate(request));
+        assertThrows(UserNicknameExistException.class, () -> userService.checkNicknameDuplicate(nickname));
     }
 
     @Test

@@ -29,10 +29,10 @@ public class UserController {
     @GetMapping("/api/v1/users/{userId}/nickname/validation")
     public ResponseEntity<Void> checkNicknameDuplicate(@AuthUser User user,
                                                        @PathVariable("userId") Long userId,
-                                                       UserNicknameRequest request) {
+                                                       @RequestParam(value = "nickname") String nickname) {
         validateUserIdPath(userId, user);
 
-        userService.checkNicknameDuplicate(request);
+        userService.checkNicknameDuplicate(nickname);
         return ResponseEntity.ok().build();
     }
 

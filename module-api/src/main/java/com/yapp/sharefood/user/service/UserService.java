@@ -24,16 +24,16 @@ public class UserService {
 
     public String createUniqueNickname() {
         String newNickname = PREFIX_DEFAULT_NICKNAME + randomStringCreator.createRandomUUIDStr();
-        validateNiknameDuplicate(newNickname);
+        validateNicknameDuplicate(newNickname);
 
         return newNickname;
     }
 
-    public void checkNicknameDuplicate(UserNicknameRequest request) {
-        validateNiknameDuplicate(request.getNickname());
+    public void checkNicknameDuplicate(String nickname) {
+        validateNicknameDuplicate(nickname);
     }
 
-    private void validateNiknameDuplicate(String nickname) {
+    private void validateNicknameDuplicate(String nickname) {
         if (userRepository.existsByNickname(nickname)) {
             throw new UserNicknameExistException();
         }
