@@ -185,4 +185,35 @@ class UserServiceTest {
         //then
         assertThrows(UserNotFoundException.class, () -> userService.findUserInfo(0L));
     }
+
+    @Test
+    @DisplayName("다른 유저정보 조회 성공")
+    void findOtherUserTest() {
+        //given
+        User user = User.builder()
+                .name("donghwan")
+                .nickname("donghwan")
+                .oauthId("kakao-id")
+                .oAuthType(OAuthType.KAKAO)
+                .build();
+
+        userRepository.save(user);
+
+        //when
+        String userNickname = userService.findOtherUserInfo(user.getId()).getUserInfo().getNickname();
+
+        //then
+        assertEquals("donghwan", userNickname);
+    }
+
+    @Test
+    @DisplayName("해당 다른 유저가 존재하지 않느느 경우")
+    void notFoundOtherUserTest() {
+        //given
+
+        //when
+
+        //then
+        assertThrows(UserNotFoundException.class, () -> userService.findOtherUserInfo(0L));
+    }
 }
