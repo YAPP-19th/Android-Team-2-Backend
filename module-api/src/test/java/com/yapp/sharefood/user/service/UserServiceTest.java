@@ -156,7 +156,7 @@ class UserServiceTest {
     }
 
     @Test
-    @DisplayName("유저의 정보 조회 성공")
+    @DisplayName("내 유저정보 조회 성공")
     void findUserTest() {
         //given
         User user = User.builder()
@@ -176,7 +176,7 @@ class UserServiceTest {
     }
 
     @Test
-    @DisplayName("유저가 존재하지 않는 경우우")
+    @DisplayName("내 유저가 존재하지 않는 경우")
    void notFoundUserTest() {
         //given
 
@@ -185,5 +185,4 @@ class UserServiceTest {
         //then
         assertThrows(UserNotFoundException.class, () -> userService.findUserInfo(0L));
     }
-
 }
