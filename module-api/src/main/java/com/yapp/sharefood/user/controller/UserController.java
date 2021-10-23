@@ -1,31 +1,61 @@
 package com.yapp.sharefood.user.controller;
 
-import com.yapp.sharefood.user.dto.response.UserNicknameResponseDto;
+import com.yapp.sharefood.auth.resolver.AuthUser;
+import com.yapp.sharefood.user.domain.User;
+import com.yapp.sharefood.user.dto.request.UserNicknameRequest;
+import com.yapp.sharefood.user.dto.response.MyUserInfoResponse;
+import com.yapp.sharefood.user.dto.response.OtherUserInfoResponse;
+import com.yapp.sharefood.user.dto.response.UserNicknameResponse;
 import com.yapp.sharefood.user.service.UserService;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.bind.annotation.*;
+
+import static com.yapp.sharefood.auth.utils.AuthValidationUtils.validateUserIdPath;
 
 @RestController
 @RequiredArgsConstructor
 public class UserController {
+
     private final UserService userService;
 
-    @ApiOperation("겹치지 않는 nickname 자동으로 생성하는 API")
-    @ApiResponses({
-            @ApiResponse(code = 200, message = "[success] 겹치지 않는 nickname 반환", response = UserNicknameResponseDto.class),
-            @ApiResponse(code = 409, message = "[error] 자동화에서 nickname 겹치는 이슈 발생", response = HttpClientErrorException.Conflict.class)
-    })
     @GetMapping("/api/v1/users/nickname")
-    public ResponseEntity<UserNicknameResponseDto> findNotExistNickName() {
-        String newNickname = userService.createUniqueNickname();
-        UserNicknameResponseDto userNicknameResponseDto = new UserNicknameResponseDto(newNickname);
+    public ResponseEntity<UserNicknameResponse> findNotExistNickName() {
+        UserNicknameResponse response = userService.createUniqueNickname();
 
-        return ResponseEntity.ok(userNicknameResponseDto);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/api/v1/users/{userId}/nickname/validation")
+    public ResponseEntity<Void> checkNicknameDuplicate(@AuthUser User user,
+                                                       @PathVariable("userId") Long userId,
+                                                       @RequestParam(value = "nickname") String nickname) {
+        validateUserIdPath(userId, user);
+
+        userService.checkNicknameDuplicate(nickname);
+
+        return ResponseEntity.ok().build();
+    }
+
+    @PatchMapping("/api/v1/users/{userId}/nickname")
+    public ResponseEntity<UserNicknameResponse> updateNickname(@AuthUser User user,
+                                                               @PathVariable("userId") Long userId,
+                                                               @RequestBody UserNicknameRequest request) {
+        validateUserIdPath(userId, user);
+
+        UserNicknameResponse response = userService.changeUserNickname(userId, request);
+
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/api/v1/users/me")
+    public ResponseEntity<MyUserInfoResponse> findMyUserInfo(@AuthUser User user) {
+        MyUserInfoResponse response = userService.findUserInfo(user.getId());
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/api/v1/users/{userId}")
+    public ResponseEntity<OtherUserInfoResponse> findOtherUserInfo(@PathVariable("userId") Long userId) {
+        return ResponseEntity.ok(userService.findOtherUserInfo(userId));
     }
 }

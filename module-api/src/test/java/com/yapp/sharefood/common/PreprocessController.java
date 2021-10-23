@@ -20,6 +20,8 @@ public abstract class PreprocessController {
     @MockBean
     protected TokenProvider tokenProvider;
 
+    protected Long authUserId = 1L;
+
     @BeforeEach
     void setUp() {
         User user = User.builder()
