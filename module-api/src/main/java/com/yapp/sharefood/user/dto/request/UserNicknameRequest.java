@@ -1,12 +1,12 @@
-package com.yapp.sharefood.user.dto.response;
+package com.yapp.sharefood.user.dto.request;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
-public class UserNicknameResponseDto {
+@AllArgsConstructor
+public class UserNicknameRequest {
     private String nickname;
 }
