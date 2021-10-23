@@ -29,7 +29,7 @@ public class UserController {
     @GetMapping("/api/v1/users/{userId}/nickname/validation")
     public ResponseEntity<Void> checkNicknameDuplicate(@AuthUser User user,
                                                        @PathVariable("userId") Long userId,
-                                                       @RequestBody UserNicknameRequest request) {
+                                                       UserNicknameRequest request) {
         validateUserIdPath(userId, user);
 
         userService.checkNicknameDuplicate(request);
@@ -53,9 +53,7 @@ public class UserController {
     }
 
     @GetMapping("/api/v1/users/{userId}")
-    public ResponseEntity<UserInfoResponse> findUserInfo(@AuthUser User user,
-                                                         @PathVariable("userId") Long userId) {
-        validateUserIdPath(userId, user);
+    public ResponseEntity<UserInfoResponse> findOtherUserInfo(@PathVariable("userId") Long userId) {
         UserInfoResponse response = new UserInfoResponse(userService.findUserInfo(userId));
 
         return ResponseEntity.ok(response);
