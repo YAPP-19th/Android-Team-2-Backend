@@ -1,5 +1,6 @@
 package com.yapp.sharefood.auth.advice;
 
+import com.yapp.sharefood.common.exception.ForbiddenException;
 import com.yapp.sharefood.external.exception.BadGatewayException;
 import com.yapp.sharefood.oauth.exception.*;
 import lombok.RequiredArgsConstructor;
@@ -69,5 +70,16 @@ public class AuthAdviceController {
         log.error(exception.getMessage(), exception);
 
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(exception.getMessage());
+    }
+
+    /**
+     * 403 Forbidden
+     * 접근 권한이 없을 경우
+     */
+    @ExceptionHandler(ForbiddenException.class)
+    protected ResponseEntity<String> handleForbiddenException(final RuntimeException execException) {
+        log.error(execException.getMessage(), execException);
+
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(execException.getMessage());
     }
 }

@@ -11,6 +11,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import static com.yapp.sharefood.auth.utils.AuthValidationUtils.validateUserIdPath;
+
 @RestController
 @RequiredArgsConstructor
 public class UserController {
@@ -25,8 +27,11 @@ public class UserController {
     }
 
     @GetMapping("/api/v1/users/{userId}/nickname/validation")
-    public ResponseEntity<Void> checkNicknameDuplicate(@PathVariable("userId") Long userId,
+    public ResponseEntity<Void> checkNicknameDuplicate(@AuthUser User user,
+                                                       @PathVariable("userId") Long userId,
                                                        @RequestBody UserNicknameRequest request) {
+        validateUserIdPath(userId, user);
+
         userService.checkNicknameDuplicate(request);
         return ResponseEntity.ok().build();
     }
@@ -35,6 +40,8 @@ public class UserController {
     public ResponseEntity<UserNicknameResponse> updateNickname(@AuthUser User user,
                                                                @PathVariable("userId") Long userId,
                                                                @RequestBody UserNicknameRequest request) {
+        validateUserIdPath(userId, user);
+
         UserNicknameResponse userNicknameResponse = new UserNicknameResponse(userService.changeUserNickname(userId, request));
         return ResponseEntity.ok(userNicknameResponse);
     }
@@ -48,7 +55,9 @@ public class UserController {
     @GetMapping("/api/v1/users/{userId}")
     public ResponseEntity<UserInfoResponse> findUserInfo(@AuthUser User user,
                                                          @PathVariable("userId") Long userId) {
+        validateUserIdPath(userId, user);
         UserInfoResponse response = new UserInfoResponse(userService.findUserInfo(userId));
+
         return ResponseEntity.ok(response);
     }
 }
