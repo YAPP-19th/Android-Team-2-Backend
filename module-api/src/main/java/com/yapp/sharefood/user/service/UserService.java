@@ -22,22 +22,24 @@ public class UserService {
 
     public String createUniqueNickname() {
         String newNickname = PREFIX_DEFAULT_NICKNAME + randomStringCreator.createRandomUUIDStr();
-        if (userRepository.existsByNickname(newNickname)) {
-            throw new UserNicknameExistException("Default Nickname을 생성하지 못 하였습니다.");
-        }
+        validateNiknameDuplicate(newNickname);
 
         return newNickname;
     }
 
     public void checkNicknameDuplicate(UserNicknameRequest request) {
-        if(userRepository.existsByNickname(request.getNickname())) {
+        validateNiknameDuplicate(request.getNickname());
+    }
+
+    private void validateNiknameDuplicate(String nickname) {
+        if (userRepository.existsByNickname(nickname)) {
             throw new UserNicknameExistException();
         }
     }
 
     @Transactional
     public String changeUserNickname(Long userId, UserNicknameRequest request) {
-        if(userRepository.existsByNickname(request.getNickname())) {
+        if (userRepository.existsByNickname(request.getNickname())) {
             throw new UserNicknameExistException();
         }
 
@@ -48,7 +50,8 @@ public class UserService {
     }
 
     public UserInfoDto findUserInfo(Long userId) {
-        User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
+        User user = userRepository.findById(userId)
+                .orElseThrow(UserNotFoundException::new);
         return UserInfoDto.of(user);
     }
 }
