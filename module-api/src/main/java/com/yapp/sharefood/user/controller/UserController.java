@@ -4,7 +4,7 @@ import com.yapp.sharefood.auth.resolver.AuthUser;
 import com.yapp.sharefood.user.domain.User;
 import com.yapp.sharefood.user.dto.request.UserNicknameRequest;
 import com.yapp.sharefood.user.dto.response.MyUserInfoResponse;
-import com.yapp.sharefood.user.dto.response.UserInfoResponse;
+import com.yapp.sharefood.user.dto.response.OtherUserInfoResponse;
 import com.yapp.sharefood.user.dto.response.UserNicknameResponse;
 import com.yapp.sharefood.user.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -53,9 +53,7 @@ public class UserController {
     }
 
     @GetMapping("/api/v1/users/{userId}")
-    public ResponseEntity<UserInfoResponse> findOtherUserInfo(@PathVariable("userId") Long userId) {
-        UserInfoResponse response = new UserInfoResponse(userService.findUserInfo(userId));
-
-        return ResponseEntity.ok(response);
+    public ResponseEntity<OtherUserInfoResponse> findOtherUserInfo(@PathVariable("userId") Long userId) {
+        return ResponseEntity.ok(userService.findOtherUserInfo(userId));
     }
 }

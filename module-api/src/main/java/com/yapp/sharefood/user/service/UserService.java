@@ -3,8 +3,10 @@ package com.yapp.sharefood.user.service;
 import com.yapp.sharefood.common.random.RandomStringCreator;
 import com.yapp.sharefood.oauth.exception.UserNotFoundException;
 import com.yapp.sharefood.user.domain.User;
+import com.yapp.sharefood.user.dto.OtherUserInfoDto;
 import com.yapp.sharefood.user.dto.UserInfoDto;
 import com.yapp.sharefood.user.dto.request.UserNicknameRequest;
+import com.yapp.sharefood.user.dto.response.OtherUserInfoResponse;
 import com.yapp.sharefood.user.exception.UserNicknameExistException;
 import com.yapp.sharefood.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -53,5 +55,12 @@ public class UserService {
         User user = userRepository.findById(userId)
                 .orElseThrow(UserNotFoundException::new);
         return UserInfoDto.of(user);
+    }
+
+    public OtherUserInfoResponse findOtherUserInfo(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(UserNotFoundException::new);
+
+        return new OtherUserInfoResponse(OtherUserInfoDto.of(user.getId(), user.getNickname()));
     }
 }
