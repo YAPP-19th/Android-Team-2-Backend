@@ -21,9 +21,9 @@ public class UserController {
 
     @GetMapping("/api/v1/users/nickname")
     public ResponseEntity<UserNicknameResponse> findNotExistNickName() {
-        String newNickname = userService.createUniqueNickname();
-        UserNicknameResponse userNicknameResponse = new UserNicknameResponse(newNickname);
-        return ResponseEntity.ok(userNicknameResponse);
+        UserNicknameResponse response = userService.createUniqueNickname();
+
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/api/v1/users/{userId}/nickname/validation")
@@ -33,6 +33,7 @@ public class UserController {
         validateUserIdPath(userId, user);
 
         userService.checkNicknameDuplicate(nickname);
+
         return ResponseEntity.ok().build();
     }
 
@@ -42,13 +43,14 @@ public class UserController {
                                                                @RequestBody UserNicknameRequest request) {
         validateUserIdPath(userId, user);
 
-        UserNicknameResponse userNicknameResponse = new UserNicknameResponse(userService.changeUserNickname(userId, request));
-        return ResponseEntity.ok(userNicknameResponse);
+        UserNicknameResponse response = userService.changeUserNickname(userId, request);
+
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/api/v1/users/me")
     public ResponseEntity<MyUserInfoResponse> findMyUserInfo(@AuthUser User user) {
-        MyUserInfoResponse response = new MyUserInfoResponse(userService.findUserInfo(user.getId()));
+        MyUserInfoResponse response = userService.findUserInfo(user.getId());
         return ResponseEntity.ok(response);
     }
 

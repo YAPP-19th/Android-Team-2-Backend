@@ -4,7 +4,6 @@ import com.yapp.sharefood.common.random.RandomStringCreator;
 import com.yapp.sharefood.oauth.exception.UserNotFoundException;
 import com.yapp.sharefood.user.domain.OAuthType;
 import com.yapp.sharefood.user.domain.User;
-import com.yapp.sharefood.user.dto.UserInfoDto;
 import com.yapp.sharefood.user.dto.request.UserNicknameRequest;
 import com.yapp.sharefood.user.exception.UserNicknameExistException;
 import com.yapp.sharefood.user.repository.UserRepository;
@@ -38,7 +37,7 @@ class UserServiceTest {
                 .given(randomStringCreator).createRandomUUIDStr();
 
         // when
-        String uniqueNickname = userService.createUniqueNickname();
+        String uniqueNickname = userService.createUniqueNickname().getNickname();
 
         // then
         assertEquals("냠냠학사 randomName", uniqueNickname);
@@ -113,7 +112,7 @@ class UserServiceTest {
         userRepository.save(user);
 
         //when
-        String resultNickname = userService.changeUserNickname(user.getId(), request);
+        String resultNickname = userService.changeUserNickname(user.getId(), request).getNickname();
 
         //then
         assertEquals(newNickname, resultNickname);
@@ -170,10 +169,10 @@ class UserServiceTest {
         userRepository.save(user);
 
         //when
-        UserInfoDto resultUserDto = userService.findUserInfo(user.getId());
+        String userNickname = userService.findUserInfo(user.getId()).getUserInfo().getNickname();
 
         //then
-        assertEquals("donghwan", resultUserDto.getNickname());
+        assertEquals("donghwan", userNickname);
     }
 
     @Test

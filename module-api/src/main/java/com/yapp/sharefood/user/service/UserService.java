@@ -6,7 +6,9 @@ import com.yapp.sharefood.user.domain.User;
 import com.yapp.sharefood.user.dto.OtherUserInfoDto;
 import com.yapp.sharefood.user.dto.UserInfoDto;
 import com.yapp.sharefood.user.dto.request.UserNicknameRequest;
+import com.yapp.sharefood.user.dto.response.MyUserInfoResponse;
 import com.yapp.sharefood.user.dto.response.OtherUserInfoResponse;
+import com.yapp.sharefood.user.dto.response.UserNicknameResponse;
 import com.yapp.sharefood.user.exception.UserNicknameExistException;
 import com.yapp.sharefood.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -22,11 +24,11 @@ public class UserService {
     private final UserRepository userRepository;
     private final RandomStringCreator randomStringCreator;
 
-    public String createUniqueNickname() {
+    public UserNicknameResponse createUniqueNickname() {
         String newNickname = PREFIX_DEFAULT_NICKNAME + randomStringCreator.createRandomUUIDStr();
         validateNicknameDuplicate(newNickname);
 
-        return newNickname;
+        return new UserNicknameResponse(newNickname);
     }
 
     public void checkNicknameDuplicate(String nickname) {
@@ -40,7 +42,7 @@ public class UserService {
     }
 
     @Transactional
-    public String changeUserNickname(Long userId, UserNicknameRequest request) {
+    public UserNicknameResponse changeUserNickname(Long userId, UserNicknameRequest request) {
         if (userRepository.existsByNickname(request.getNickname())) {
             throw new UserNicknameExistException();
         }
@@ -48,13 +50,14 @@ public class UserService {
         User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
         user.changeNickname(request.getNickname());
 
-        return user.getNickname();
+        return new UserNicknameResponse(user.getNickname());
     }
 
-    public UserInfoDto findUserInfo(Long userId) {
+    public MyUserInfoResponse findUserInfo(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(UserNotFoundException::new);
-        return UserInfoDto.of(user);
+
+        return new MyUserInfoResponse(UserInfoDto.of(user));
     }
 
     public OtherUserInfoResponse findOtherUserInfo(Long userId) {
