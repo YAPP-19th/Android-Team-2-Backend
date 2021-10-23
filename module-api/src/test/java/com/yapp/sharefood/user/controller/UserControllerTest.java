@@ -48,7 +48,7 @@ class UserControllerTest extends PreprocessController {
     @Test
     @DisplayName("유니크한 nickname 반환 api 테스트")
     void findNotExistNickNameTest() throws Exception {
-        willReturn("냠냠박사 unique닉네임")
+        willReturn(new UserNicknameResponse("냠냠박사 unique닉네임"))
                 .given(userService).createUniqueNickname();
 
         // when
@@ -154,7 +154,7 @@ class UserControllerTest extends PreprocessController {
     void userNicknameChangeTest() throws Exception {
         // given
         UserNicknameRequest request = new UserNicknameRequest("newNickname");
-        willReturn("newNickname")
+        willReturn(new UserNicknameResponse("newNickname"))
                 .given(userService).changeUserNickname(anyLong(), any(UserNicknameRequest.class));
 
         // when
@@ -203,7 +203,7 @@ class UserControllerTest extends PreprocessController {
     void userNicknameChangeFailCuzForbiddenTest() throws Exception {
         // given
         UserNicknameRequest request = new UserNicknameRequest("newNickname");
-        willReturn("newNickname")
+        willReturn(new UserNicknameResponse("newNickname"))
                 .given(userService).changeUserNickname(anyLong(), any(UserNicknameRequest.class));
 
         // when
@@ -232,7 +232,7 @@ class UserControllerTest extends PreprocessController {
                 .nickname("nickname")
                 .oAuthType(OAuthType.KAKAO)
                 .build();
-        willReturn(UserInfoDto.of(user))
+        willReturn(new MyUserInfoResponse(UserInfoDto.of(user)))
                 .given(userService).findUserInfo(userId);
 
         // when
