@@ -1,8 +1,8 @@
-package com.yapp.sharefood.external.kakao.dto;
+package com.yapp.sharefood.external.oauth.kakao.dto;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
-import com.yapp.sharefood.external.OAuthProfile;
+import com.yapp.sharefood.external.oauth.OAuthProfile;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

@@ -5,7 +5,7 @@ import com.yapp.sharefood.auth.dto.request.AuthCreationRequestDto;
 import com.yapp.sharefood.auth.dto.request.AuthRequestDto;
 import com.yapp.sharefood.auth.manager.AuthenticationManager;
 import com.yapp.sharefood.auth.token.TokenProvider;
-import com.yapp.sharefood.external.OAuthProfile;
+import com.yapp.sharefood.external.oauth.OAuthProfile;
 import com.yapp.sharefood.oauth.exception.OAUthExistException;
 import com.yapp.sharefood.oauth.exception.UserNotFoundException;
 import com.yapp.sharefood.user.domain.User;

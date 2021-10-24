@@ -1,7 +1,7 @@
 package com.yapp.sharefood.auth.manager;
 
-import com.yapp.sharefood.external.AuthProvider;
-import com.yapp.sharefood.external.OAuthProfile;
+import com.yapp.sharefood.external.oauth.AuthProvider;
+import com.yapp.sharefood.external.oauth.OAuthProfile;
 import com.yapp.sharefood.user.domain.OAuthType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

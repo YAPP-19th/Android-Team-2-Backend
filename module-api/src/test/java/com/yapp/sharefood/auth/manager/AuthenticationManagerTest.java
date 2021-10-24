@@ -1,8 +1,8 @@
 package com.yapp.sharefood.auth.manager;
 
-import com.yapp.sharefood.external.OAuthProfile;
-import com.yapp.sharefood.external.kakao.KakaoAuthProvider;
-import com.yapp.sharefood.external.kakao.dto.KakaoOAuthProfile;
+import com.yapp.sharefood.external.oauth.OAuthProfile;
+import com.yapp.sharefood.external.oauth.kakao.KakaoAuthProvider;
+import com.yapp.sharefood.external.oauth.kakao.dto.KakaoOAuthProfile;
 import com.yapp.sharefood.user.domain.OAuthType;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

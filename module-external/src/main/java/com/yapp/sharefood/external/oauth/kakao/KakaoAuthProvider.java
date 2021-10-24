@@ -1,9 +1,9 @@
-package com.yapp.sharefood.external.kakao;
+package com.yapp.sharefood.external.oauth.kakao;
 
-import com.yapp.sharefood.external.AuthProvider;
-import com.yapp.sharefood.external.OAuthProfile;
+import com.yapp.sharefood.external.oauth.AuthProvider;
+import com.yapp.sharefood.external.oauth.OAuthProfile;
 import com.yapp.sharefood.external.exception.BadGatewayException;
-import com.yapp.sharefood.external.kakao.dto.KakaoOAuthProfile;
+import com.yapp.sharefood.external.oauth.kakao.dto.KakaoOAuthProfile;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
