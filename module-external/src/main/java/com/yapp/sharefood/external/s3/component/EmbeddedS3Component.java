@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 @Getter
 @Setter
 @Component
-@Profile({"local"})
+@Profile({"local", "test"})
 public class EmbeddedS3Component implements AwsS3Component {
     private String bucket;
     private String cloudFrontUrl;
