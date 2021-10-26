@@ -1,7 +1,9 @@
 package com.yapp.sharefood.external.kakao;
 
-import com.yapp.sharefood.external.OAuthProfile;
+import com.yapp.sharefood.external.oauth.OAuthProfile;
 import com.yapp.sharefood.external.exception.BadGatewayException;
+import com.yapp.sharefood.external.oauth.kakao.KakaoAuthProvider;
+import com.yapp.sharefood.external.oauth.kakao.KakaoOAuthComponent;
 import io.netty.handler.timeout.ReadTimeoutException;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;

@@ -1,5 +1,6 @@
 package com.yapp.sharefood.external.kakao;
 
+import com.yapp.sharefood.external.oauth.kakao.KakaoOAuthComponent;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;

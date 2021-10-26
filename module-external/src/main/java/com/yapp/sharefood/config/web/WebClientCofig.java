@@ -1,4 +1,4 @@
-package com.yapp.sharefood.config;
+package com.yapp.sharefood.config.web;
 
 import io.netty.channel.ChannelOption;
 import io.netty.handler.timeout.ReadTimeoutHandler;

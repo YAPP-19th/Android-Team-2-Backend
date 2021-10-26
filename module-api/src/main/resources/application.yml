@@ -7,3 +7,4 @@ spring:
       - domain-local
       - external
       - oauth
+      - aws
