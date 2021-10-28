@@ -1,12 +1,15 @@
 package com.yapp.sharefood.user.domain;
 
 import com.yapp.sharefood.common.domain.BaseEntity;
+import com.yapp.sharefood.userflavor.domain.UserFlavor;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Entity
@@ -26,6 +29,9 @@ public class User extends BaseEntity {
 
     @Enumerated
     private OAuthInfo oAuthInfo;
+
+    @OneToMany(mappedBy = "user")
+    private List<UserFlavor> userFlavors = new ArrayList<>();
 
     @Builder
     public User(Long id, String oauthId, String name, OAuthType oAuthType, String nickname) {
