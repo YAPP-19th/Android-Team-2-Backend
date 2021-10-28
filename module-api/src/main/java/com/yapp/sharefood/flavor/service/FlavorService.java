@@ -32,7 +32,7 @@ public class FlavorService {
     }
 
     @Transactional
-    public void updateUserFlavors(User user, UserFlavorRequest request) {
+    public int updateUserFlavors(User user, UserFlavorRequest request) {
         userFlavorRepository.deleteUserFlavorsByUser(user);
 
         ArrayList<UserFlavor> userFlavors = new ArrayList<>();
@@ -41,6 +41,7 @@ public class FlavorService {
             userFlavors.add(UserFlavor.of(user, flavor));
         }
 
-        userFlavorRepository.saveAll(userFlavors);
+        int saveResultSize = userFlavorRepository.saveAll(userFlavors).size();
+        return saveResultSize;
     }
 }
