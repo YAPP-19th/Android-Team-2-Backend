@@ -85,7 +85,7 @@ class FlavorServiceTest {
         request.setFlavors(findFlavors.stream().map(flavor -> FlavorDto.of(flavor)).collect(Collectors.toList()));
 
         //when
-        int result = flavorService.updateUserFlavors(user, request);
+        int result = flavorService.updateUserFlavors(user, request).getUpdateSuccessCount();
 
         //then
         assertEquals(2, result);

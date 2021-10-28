@@ -4,6 +4,7 @@ import com.yapp.sharefood.flavor.domain.Flavor;
 import com.yapp.sharefood.flavor.dto.FlavorDto;
 import com.yapp.sharefood.flavor.dto.request.UserFlavorRequest;
 import com.yapp.sharefood.flavor.dto.response.FlavorsResponse;
+import com.yapp.sharefood.flavor.dto.response.UpdateUserFlavorResponse;
 import com.yapp.sharefood.flavor.exception.FlavorNotFoundException;
 import com.yapp.sharefood.flavor.repository.FlavorRepository;
 import com.yapp.sharefood.user.domain.User;
@@ -32,7 +33,7 @@ public class FlavorService {
     }
 
     @Transactional
-    public int updateUserFlavors(User user, UserFlavorRequest request) {
+    public UpdateUserFlavorResponse updateUserFlavors(User user, UserFlavorRequest request) {
         userFlavorRepository.deleteUserFlavorsByUser(user);
 
         ArrayList<UserFlavor> userFlavors = new ArrayList<>();
@@ -42,6 +43,6 @@ public class FlavorService {
         }
 
         int saveResultSize = userFlavorRepository.saveAll(userFlavors).size();
-        return saveResultSize;
+        return UpdateUserFlavorResponse.of(saveResultSize);
     }
 }
