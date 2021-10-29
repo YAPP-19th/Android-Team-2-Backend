@@ -6,10 +6,10 @@ import com.yapp.sharefood.user.domain.User;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import static com.yapp.sharefood.auth.utils.AuthValidationUtils.validateUserIdPath;
+import static com.yapp.sharefood.auth.utils.AuthUtils.validateUserIdPath;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-class AuthValidationUtilsTest {
+class AuthUtilsTest {
 
     @Test
     @DisplayName("회원 정보가 일치할 경우")
