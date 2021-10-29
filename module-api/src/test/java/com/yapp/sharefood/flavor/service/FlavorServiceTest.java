@@ -82,7 +82,7 @@ class FlavorServiceTest {
 
         List<Flavor> findFlavors = flavorRepository.findAll();
         UserFlavorRequest request = new UserFlavorRequest();
-        request.setFlavors(findFlavors.stream().map(flavor -> FlavorDto.of(flavor)).collect(Collectors.toList()));
+        request.setFlavors(findFlavors.stream().map(flavor -> FlavorDto.of(flavor.getId(), flavor.getFlavorType())).collect(Collectors.toList()));
 
         //when
         int result = flavorService.updateUserFlavors(user, request).getUpdateSuccessCount();

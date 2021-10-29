@@ -12,18 +12,9 @@ public class FlavorDto {
     private Long id;
     private String flavorName;
 
-    private FlavorDto(Flavor flavor) {
-        this.id = flavor.getId();
-        this.flavorName = flavor.getFlavorType().getFlavorName();
-    }
-
     private FlavorDto(Long id, String flavorName) {
         this.id = id;
         this.flavorName = flavorName;
-    }
-
-    public static FlavorDto of(Flavor flavor) {
-        return new FlavorDto(flavor);
     }
 
     public static FlavorDto of(Long id, FlavorType flavorType) {
