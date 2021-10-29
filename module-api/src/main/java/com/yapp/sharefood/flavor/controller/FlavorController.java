@@ -10,6 +10,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
+
 import static com.yapp.sharefood.auth.utils.AuthValidationUtils.validateUserIdPath;
 
 @RestController
@@ -25,7 +27,7 @@ public class FlavorController {
     @PutMapping("/api/v1/users/{userId}/flavors/")
     public ResponseEntity<UpdateUserFlavorResponse> updateUserFlavor(@AuthUser User user,
                                                                      @PathVariable("userId") Long userId,
-                                                                     @RequestBody UserFlavorRequest request) {
+                                                                     @Valid @RequestBody UserFlavorRequest request) {
         validateUserIdPath(userId, user);
 
         return ResponseEntity.ok(flavorService.updateUserFlavors(user, request));
