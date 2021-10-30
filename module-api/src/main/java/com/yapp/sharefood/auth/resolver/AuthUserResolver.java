@@ -1,6 +1,7 @@
 package com.yapp.sharefood.auth.resolver;
 
 import com.yapp.sharefood.auth.token.TokenProvider;
+import com.yapp.sharefood.auth.utils.AuthUtils;
 import com.yapp.sharefood.oauth.exception.AuthHeaderOmittedException;
 import com.yapp.sharefood.oauth.exception.UserNotFoundException;
 import com.yapp.sharefood.user.domain.User;
@@ -20,7 +21,6 @@ import javax.servlet.http.HttpServletRequest;
 @Component
 @RequiredArgsConstructor
 public class AuthUserResolver implements HandlerMethodArgumentResolver {
-    private static final String AUTH_TOKEN_HEADER = "Authorization";
 
     private final HttpServletRequest httpServletRequest;
     private final TokenProvider tokenProvider;
@@ -31,7 +31,7 @@ public class AuthUserResolver implements HandlerMethodArgumentResolver {
         boolean hasAnnotation = parameter.getParameterAnnotation(AuthUser.class) != null;
         boolean isMatchType = parameter.getParameterType().equals(User.class);
 
-        if (hasAnnotation && httpServletRequest.getHeader(AUTH_TOKEN_HEADER) == null) {
+        if (hasAnnotation && AuthUtils.extractToken(httpServletRequest) == null) {
             throw new AuthHeaderOmittedException();
         }
 
@@ -40,7 +40,7 @@ public class AuthUserResolver implements HandlerMethodArgumentResolver {
 
     @Override
     public User resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer, NativeWebRequest webRequest, WebDataBinderFactory binderFactory) throws Exception {
-        String authToken = webRequest.getHeader(AUTH_TOKEN_HEADER);
+        String authToken = AuthUtils.extractTokenByWebRequset(webRequest);
 
         if (tokenProvider.isValidToken(authToken)) {
             Long userId = tokenProvider.extractIdByToken(authToken);
