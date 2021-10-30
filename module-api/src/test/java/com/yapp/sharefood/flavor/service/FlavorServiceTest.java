@@ -2,23 +2,44 @@ package com.yapp.sharefood.flavor.service;
 
 import com.yapp.sharefood.flavor.domain.Flavor;
 import com.yapp.sharefood.flavor.domain.FlavorType;
+import com.yapp.sharefood.flavor.dto.FlavorDto;
+import com.yapp.sharefood.flavor.dto.request.UserFlavorRequest;
 import com.yapp.sharefood.flavor.dto.response.FlavorsResponse;
+import com.yapp.sharefood.flavor.exception.FlavorNotFoundException;
 import com.yapp.sharefood.flavor.repository.FlavorRepository;
+import com.yapp.sharefood.oauth.exception.UserNotFoundException;
+import com.yapp.sharefood.user.domain.OAuthType;
+import com.yapp.sharefood.user.domain.User;
+import com.yapp.sharefood.user.repository.UserRepository;
+import com.yapp.sharefood.userflavor.domain.UserFlavor;
+import com.yapp.sharefood.userflavor.repository.UserFlavorRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
+@Transactional
 @SpringBootTest
 class FlavorServiceTest {
 
     @Autowired
     FlavorService flavorService;
     @Autowired
+    UserRepository userRepository;
+    @Autowired
     FlavorRepository flavorRepository;
+    @Autowired
+    UserFlavorRepository userFlavorRepository;
 
     @Test
     @DisplayName("하나 이상 flavor가 존재하는 겨우")
@@ -47,5 +68,98 @@ class FlavorServiceTest {
 
         // then
         assertEquals(0, allFlavorsResponse.getFlavors().size());
+    }
+
+    @Test
+    @DisplayName("Flavor 최신화 성공")
+    void updateUserFlavorTest() {
+        //given
+        User user = User.builder().name("donghwan")
+                .nickname("donghwan")
+                .oAuthType(OAuthType.KAKAO)
+                .oauthId("oauth-id")
+                .build();
+        userRepository.save(user);
+
+        Flavor flavor1 = Flavor.of(FlavorType.SPICY);
+        flavorRepository.save(flavor1);
+        Flavor flavor2 = Flavor.of(FlavorType.SWEET);
+        flavorRepository.save(flavor2);
+
+        List<Flavor> findFlavors = flavorRepository.findAll();
+        UserFlavorRequest request = new UserFlavorRequest();
+        request.setFlavors(findFlavors.stream().map(flavor -> FlavorDto.of(flavor.getId(), flavor.getFlavorType())).collect(Collectors.toList()));
+
+        //when
+        int result = flavorService.updateUserFlavors(user, request).getUpdateSuccessCount();
+
+        //then
+        assertEquals(2, result);
+    }
+
+    @Test
+    @DisplayName("요청이 들어온 Flavor를 찾을 수 없는 경우")
+    void failUpdateUserFlavorCauseNotFoundFlavorTest() {
+        //given
+        User user = User.builder().name("donghwan")
+                .nickname("donghwan")
+                .oAuthType(OAuthType.KAKAO)
+                .oauthId("oauth-id")
+                .build();
+        userRepository.save(user);
+
+        FlavorDto flavorDto = FlavorDto.of(-1L, FlavorType.SPICY);
+        List<FlavorDto> flavorDtos = Arrays.asList(flavorDto);
+
+        List<Flavor> findFlavors = flavorRepository.findAll();
+        UserFlavorRequest request = new UserFlavorRequest();
+        request.setFlavors(flavorDtos);
+
+        //when
+
+        //then
+        assertThrows(FlavorNotFoundException.class, () -> flavorService.updateUserFlavors(user, request));
+    }
+
+    @Test
+    @DisplayName("유저 정보 기반 선호하는 Flavor 불러오는 상황")
+    void findUserFlavorByUserId() {
+        //given
+        User user = User.builder().name("donghwan")
+                .nickname("donghwan")
+                .oAuthType(OAuthType.KAKAO)
+                .oauthId("oauth-id")
+                .build();
+        userRepository.save(user);
+
+        Flavor flavor1 = Flavor.of(FlavorType.SPICY);
+        flavorRepository.save(flavor1);
+        Flavor flavor2 = Flavor.of(FlavorType.SWEET);
+        flavorRepository.save(flavor2);
+
+        UserFlavor userFlavor1 = UserFlavor.of(user, flavor1);
+        userFlavorRepository.save(userFlavor1);
+        UserFlavor userFlavor2 = UserFlavor.of(user, flavor2);
+        userFlavorRepository.save(userFlavor2);
+
+        //when
+        FlavorsResponse response = flavorService.findUserFlavors(user);
+
+        //then
+        assertEquals(2, response.getFlavors().size());
+        assertThat(response.getFlavors())
+                .extracting("flavorName")
+                .contains(flavor1.getFlavorType().getFlavorName(), flavor2.getFlavorType().getFlavorName());
+    }
+
+    @Test
+    @DisplayName("")
+    void notFoundUserFlavorByUserIdCauseNotFoundUser() {
+        //given
+
+        //when
+
+        //then
+        assertThrows(UserNotFoundException.class, () -> flavorService.findUserFlavors(User.builder().id(-1L).build()));
     }
 }
