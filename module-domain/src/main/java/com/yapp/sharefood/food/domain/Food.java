@@ -1,10 +1,16 @@
 package com.yapp.sharefood.food.domain;
 
 import com.yapp.sharefood.user.domain.User;
+import lombok.AccessLevel;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 
 @Entity
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Food {
     @Id
     @Column(name = "food_id")
@@ -26,4 +32,14 @@ public class Food {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "writer_id")
     private User writer;
+
+    @Builder
+    public Food(Long id, String foodTitle, int price, String reviewMsg, FoodStatus foodStatus, User writer) {
+        this.id = id;
+        this.foodTitle = foodTitle;
+        this.price = price;
+        this.reviewMsg = reviewMsg;
+        this.foodStatus = foodStatus;
+        this.writer = writer;
+    }
 }
