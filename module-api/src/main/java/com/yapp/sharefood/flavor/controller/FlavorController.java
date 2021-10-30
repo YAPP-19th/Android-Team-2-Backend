@@ -32,7 +32,7 @@ public class FlavorController {
         return ResponseEntity.ok(flavorService.findUserFlavors(user));
     }
 
-    @PutMapping("/api/v1/users/{userId}/flavors/")
+    @PutMapping("/api/v1/users/{userId}/flavors")
     public ResponseEntity<UpdateUserFlavorResponse> updateUserFlavor(@AuthUser User user,
                                                                      @PathVariable("userId") Long userId,
                                                                      @Valid @RequestBody UserFlavorRequest request) {
