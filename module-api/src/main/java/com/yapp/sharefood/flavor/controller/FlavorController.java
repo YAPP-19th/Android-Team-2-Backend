@@ -24,6 +24,14 @@ public class FlavorController {
         return ResponseEntity.ok(flavorService.findAllFlavors());
     }
 
+    @GetMapping("/api/v1/users/{userId}/flavors")
+    public ResponseEntity<FlavorsResponse> findUserFlavor(@AuthUser User user,
+                                                          @PathVariable("userId") Long userId) {
+        validateUserIdPath(userId, user);
+
+        return ResponseEntity.ok(flavorService.findUserFlavors(user));
+    }
+
     @PutMapping("/api/v1/users/{userId}/flavors/")
     public ResponseEntity<UpdateUserFlavorResponse> updateUserFlavor(@AuthUser User user,
                                                                      @PathVariable("userId") Long userId,
