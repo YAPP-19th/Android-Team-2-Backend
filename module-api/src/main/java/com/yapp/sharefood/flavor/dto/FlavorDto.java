@@ -1,6 +1,5 @@
 package com.yapp.sharefood.flavor.dto;
 
-import com.yapp.sharefood.flavor.domain.Flavor;
 import com.yapp.sharefood.flavor.domain.FlavorType;
 import lombok.AccessLevel;
 import lombok.Data;
