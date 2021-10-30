@@ -20,6 +20,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -108,8 +109,7 @@ class FlavorServiceTest {
         userRepository.save(user);
 
         FlavorDto flavorDto = FlavorDto.of(-1L, FlavorType.SPICY);
-        ArrayList<FlavorDto> flavorDtos = new ArrayList();
-        flavorDtos.add(flavorDto);
+        List<FlavorDto> flavorDtos = Arrays.asList(flavorDto);
 
         List<Flavor> findFlavors = flavorRepository.findAll();
         UserFlavorRequest request = new UserFlavorRequest();
