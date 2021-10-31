@@ -1,5 +1,6 @@
 package com.yapp.sharefood.food.domain;
 
+import com.yapp.sharefood.category.domain.Category;
 import com.yapp.sharefood.user.domain.User;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -29,17 +30,26 @@ public class Food {
     @Enumerated(EnumType.STRING)
     private FoodStatus foodStatus;
 
+    @Column(length = 50)
+    private String writerNickname;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "writer_id")
     private User writer;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "category_id")
+    private Category category;
+
     @Builder
-    public Food(Long id, String foodTitle, int price, String reviewMsg, FoodStatus foodStatus, User writer) {
+    public Food(Long id, String foodTitle, int price, String reviewMsg, FoodStatus foodStatus, User writer, Category category) {
         this.id = id;
         this.foodTitle = foodTitle;
         this.price = price;
         this.reviewMsg = reviewMsg;
         this.foodStatus = foodStatus;
+        this.writerNickname = writer.getNickname();
         this.writer = writer;
+        this.category = category;
     }
 }
