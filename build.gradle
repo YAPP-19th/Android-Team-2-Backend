@@ -76,6 +76,7 @@ subprojects {
                         exclude: ['**/LocalConfig*',
                                   '**/SharefoodApplication*',
                                   '**/OrderByNull*',
+                                  '**/*S3*',
                                   '**/DummyData*'] + Qdomains)
             }))
         }

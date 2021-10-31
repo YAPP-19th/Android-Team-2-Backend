@@ -1,6 +1,6 @@
-package com.yapp.sharefood.external.kakao;
+package com.yapp.sharefood.external.oauth.kakao;
 
-import com.yapp.sharefood.external.OAuthComponent;
+import com.yapp.sharefood.external.oauth.OAuthComponent;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 

@@ -11,7 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import static com.yapp.sharefood.auth.utils.AuthValidationUtils.validateUserIdPath;
+import static com.yapp.sharefood.auth.utils.AuthUtils.validateUserIdPath;
 
 @RestController
 @RequiredArgsConstructor
