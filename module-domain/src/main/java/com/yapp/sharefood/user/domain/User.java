@@ -21,7 +21,7 @@ public class User extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(length = 60, unique = true)
+    @Column(length = 20, unique = true)
     private String nickname;
 
     @Embedded
