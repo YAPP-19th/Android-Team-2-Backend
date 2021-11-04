@@ -4,12 +4,21 @@ import com.yapp.sharefood.category.domain.Category;
 import com.yapp.sharefood.category.exception.CategoryNotFoundException;
 import com.yapp.sharefood.category.repository.CategoryRepository;
 import com.yapp.sharefood.food.domain.Food;
+import com.yapp.sharefood.food.domain.FoodTag;
+import com.yapp.sharefood.food.dto.FoodImageDto;
+import com.yapp.sharefood.food.dto.FoodTagDto;
 import com.yapp.sharefood.food.dto.request.FoodCreationRequest;
+import com.yapp.sharefood.food.dto.response.FoodDetailResponse;
+import com.yapp.sharefood.food.exception.FoodNotFoundException;
 import com.yapp.sharefood.food.repository.FoodRepository;
+import com.yapp.sharefood.food.repository.FoodTagRepository;
 import com.yapp.sharefood.user.domain.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -17,6 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class FoodService {
 
     private final FoodRepository foodRepository;
+    private final FoodTagRepository foodTagRepository;
     private final CategoryRepository categoryRepository;
 
     @Transactional
@@ -36,5 +46,34 @@ public class FoodService {
         Food save = foodRepository.save(food);
 
         return save.getId();
+    }
+
+    public FoodDetailResponse findFoodById(Long id) {
+        Food food = foodRepository.findById(id)
+                .orElseThrow(FoodNotFoundException::new);
+        List<FoodImageDto> foodImageDtos = food.getImages().getImages()
+                .stream()
+                .map(img -> new FoodImageDto(img.getId(), img.getStoreFilename(), img.getRealFilename()))
+                .collect(Collectors.toList());
+        List<FoodTagDto> tags = findFoodTagsByFoodTag(food.getFoodTags().getFoodTags());
+
+        return FoodDetailResponse
+                .builder()
+                .title(food.getFoodTitle())
+                .writerName(food.getWriterNickname())
+                .reviewDetail(food.getReviewMsg())
+                .price(food.getPrice())
+                .foodImages(foodImageDtos)
+                .foodTags(tags)
+                .build();
+    }
+
+    private List<FoodTagDto> findFoodTagsByFoodTag(List<FoodTag> foodTags) {
+        List<Long> tagIds = foodTags.stream()
+                .map(FoodTag::getId)
+                .collect(Collectors.toList());
+        return foodTagRepository.findFoodtagsWithTag(tagIds)
+                .stream().map(foodTag -> FoodTagDto.of(foodTag.getTag().getId(), foodTag.getTag().getName(), foodTag.getIngredientType()))
+                .collect(Collectors.toList());
     }
 }
