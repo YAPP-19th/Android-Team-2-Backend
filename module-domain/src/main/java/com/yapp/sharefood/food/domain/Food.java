@@ -45,6 +45,9 @@ public class Food {
     @JoinColumn(name = "category_id")
     private Category category;
 
+    @Embedded
+    private FoodTags foodTags = new FoodTags();
+
     @Builder
     public Food(Long id, String foodTitle, int price, String reviewMsg, FoodStatus foodStatus) {
         this.id = id;
@@ -66,7 +69,6 @@ public class Food {
 
         this.writer = user;
     }
-
 
     public void assignCategory(Category category) {
         if (Objects.isNull(category)) {
