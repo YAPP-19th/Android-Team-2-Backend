@@ -48,6 +48,9 @@ public class Food {
     @Embedded
     private FoodTags foodTags = new FoodTags();
 
+    @Embedded
+    private Images images = new Images();
+
     @Builder
     public Food(Long id, String foodTitle, int price, String reviewMsg, FoodStatus foodStatus) {
         this.id = id;
