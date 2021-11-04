@@ -1,6 +1,9 @@
 package com.yapp.sharefood.food.domain;
 
 import com.yapp.sharefood.category.domain.Category;
+import com.yapp.sharefood.category.exception.CategoryNotFoundException;
+import com.yapp.sharefood.common.exception.InvalidOperationException;
+import com.yapp.sharefood.oauth.exception.UserNotFoundException;
 import com.yapp.sharefood.user.domain.User;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -8,6 +11,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.util.Objects;
 
 @Entity
 @Getter
@@ -42,14 +46,33 @@ public class Food {
     private Category category;
 
     @Builder
-    public Food(Long id, String foodTitle, int price, String reviewMsg, FoodStatus foodStatus, User writer, Category category) {
+    public Food(Long id, String foodTitle, int price, String reviewMsg, FoodStatus foodStatus) {
         this.id = id;
         this.foodTitle = foodTitle;
         this.price = price;
         this.reviewMsg = reviewMsg;
         this.foodStatus = foodStatus;
         this.writerNickname = writer.getNickname();
-        this.writer = writer;
+    }
+
+    public void assignWriter(User user) {
+        if (Objects.isNull(user)) {
+            throw new UserNotFoundException();
+        }
+
+        if (Objects.nonNull(this.writer)) {
+            throw new InvalidOperationException("작성자를 바꿀 수 없습니다.");
+        }
+
+        this.writer = user;
+    }
+
+
+    public void assignCategory(Category category) {
+        if (Objects.isNull(category)) {
+            throw new CategoryNotFoundException();
+        }
+
         this.category = category;
     }
 }
