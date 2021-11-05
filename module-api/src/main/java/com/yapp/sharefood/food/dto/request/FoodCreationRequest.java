@@ -2,6 +2,7 @@ package com.yapp.sharefood.food.dto.request;
 
 import com.yapp.sharefood.food.domain.FoodStatus;
 import com.yapp.sharefood.food.dto.FoodCategoryDto;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -27,4 +28,13 @@ public class FoodCreationRequest {
 
     @NotNull
     private FoodCategoryDto foodCategory;
+
+    @Builder
+    public FoodCreationRequest(String title, Integer price, String reviewMsg, FoodStatus foodStatus, FoodCategoryDto foodCategory) {
+        this.title = title;
+        this.price = price;
+        this.reviewMsg = reviewMsg;
+        this.foodStatus = foodStatus;
+        this.foodCategory = foodCategory;
+    }
 }

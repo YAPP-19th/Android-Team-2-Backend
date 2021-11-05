@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.util.Objects;
 
 @Getter
 @Entity
@@ -29,4 +30,13 @@ public class FoodTag extends BaseEntity {
     @JoinColumn(name = "tag_id")
     private Tag tag;
 
+    public boolean isSameTag(Tag tag) {
+        return Objects.equals(this.tag, tag);
+    }
+
+    public FoodTag(FoodIngredientType ingredientType, Food food, Tag tag) {
+        this.ingredientType = ingredientType;
+        this.food = food;
+        this.tag = tag;
+    }
 }
