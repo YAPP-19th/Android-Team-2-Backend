@@ -4,6 +4,7 @@ import com.yapp.sharefood.common.exception.InvalidOperationException;
 import com.yapp.sharefood.tag.domain.Tag;
 import lombok.Getter;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Embeddable;
 import javax.persistence.OneToMany;
 import java.util.ArrayList;
@@ -12,7 +13,7 @@ import java.util.List;
 @Getter
 @Embeddable
 public class FoodTags {
-    @OneToMany(mappedBy = "food")
+    @OneToMany(mappedBy = "food", cascade = CascadeType.PERSIST, orphanRemoval = true)
     private List<FoodTag> foodTags = new ArrayList<>();
 
     public void addAllTags(List<TagWrapper> wrapperTags, Food food) {

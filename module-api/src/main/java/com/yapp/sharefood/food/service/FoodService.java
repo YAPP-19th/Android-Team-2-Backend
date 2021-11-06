@@ -39,9 +39,9 @@ public class FoodService {
                 .foodStatus(foodCreationRequest.getFoodStatus())
                 .price(foodCreationRequest.getPrice())
                 .reviewMsg(foodCreationRequest.getReviewMsg())
+                .writer(user)
+                .category(findCategory)
                 .build();
-        food.assignWriter(user);
-        food.assignCategory(findCategory);
 
         Food save = foodRepository.save(food);
 

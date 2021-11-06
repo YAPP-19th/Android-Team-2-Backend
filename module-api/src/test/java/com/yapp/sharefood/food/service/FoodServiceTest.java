@@ -9,6 +9,7 @@ import com.yapp.sharefood.food.domain.FoodStatus;
 import com.yapp.sharefood.food.domain.TagWrapper;
 import com.yapp.sharefood.food.dto.FoodCategoryDto;
 import com.yapp.sharefood.food.dto.request.FoodCreationRequest;
+import com.yapp.sharefood.food.dto.response.FoodDetailResponse;
 import com.yapp.sharefood.food.repository.FoodRepository;
 import com.yapp.sharefood.tag.domain.Tag;
 import com.yapp.sharefood.tag.repository.TagRepository;
@@ -103,18 +104,25 @@ class FoodServiceTest {
         tags.add(new TagWrapper(saveTag("B"), FoodIngredientType.EXTRACT));
         tags.add(new TagWrapper(saveTag("C"), FoodIngredientType.MAIN));
 
-        Food saveFood = Food.builder()
+        Food newFood = Food.builder()
                 .foodTitle("title")
                 .price(1000)
                 .reviewMsg("reviewMsg")
                 .foodStatus(FoodStatus.SHARED)
+                .writer(saveUser)
+                .category(saveCategory)
                 .build();
-        saveFood.assignCategory(saveCategory);
-        saveFood.assignWriter(saveUser);
-        saveFood.getFoodTags().addAllTags(tags, saveFood);
-        
+        newFood.getFoodTags().addAllTags(tags, newFood);
+        Food saveFood = foodRepository.save(newFood);
+
         // when
+        FoodDetailResponse foodResponse = foodService.findFoodById(saveFood.getId());
 
         // then
+        assertEquals("title", foodResponse.getTitle());
+        assertEquals(1000, foodResponse.getPrice());
+        assertEquals("reviewMsg", foodResponse.getReviewDetail());
+        assertEquals("nickname", foodResponse.getWriterName());
+        assertEquals(3, foodResponse.getFoodTags().size());
     }
 }

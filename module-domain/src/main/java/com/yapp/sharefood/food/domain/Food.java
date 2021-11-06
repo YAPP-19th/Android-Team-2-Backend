@@ -52,13 +52,14 @@ public class Food {
     private Images images = new Images();
 
     @Builder
-    public Food(Long id, String foodTitle, int price, String reviewMsg, FoodStatus foodStatus) {
+    public Food(Long id, String foodTitle, int price, String reviewMsg, FoodStatus foodStatus, User writer, Category category) {
         this.id = id;
         this.foodTitle = foodTitle;
         this.price = price;
         this.reviewMsg = reviewMsg;
         this.foodStatus = foodStatus;
-        this.writerNickname = writer.getNickname();
+        assignWriter(writer);
+        assignCategory(category);
     }
 
     public void assignWriter(User user) {
@@ -71,6 +72,7 @@ public class Food {
         }
 
         this.writer = user;
+        this.writerNickname = user.getNickname();
     }
 
     public void assignCategory(Category category) {

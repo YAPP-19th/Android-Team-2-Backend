@@ -23,11 +23,11 @@ public class FoodTag extends BaseEntity {
     private FoodIngredientType ingredientType;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "food_id")
+    @JoinColumn(name = "food_id", nullable = false)
     private Food food;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "tag_id")
+    @JoinColumn(name = "tag_id", nullable = false)
     private Tag tag;
 
     public boolean isSameTag(Tag tag) {
