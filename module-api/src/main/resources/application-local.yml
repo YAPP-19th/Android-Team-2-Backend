@@ -7,3 +7,13 @@ jwt:
       key: JWTSecretKey
     expiration:
       seconds: 60480000
+
+
+logging:
+  level:
+    com:
+      amazonaws:
+        util:
+          EC2MetadataUtils: error
+        internal:
+          InstanceMetadataServiceResourceFetcher: error
