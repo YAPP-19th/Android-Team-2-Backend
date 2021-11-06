@@ -16,7 +16,7 @@
         <!-- 파일로 로그를 작성할 때 -->
         <appender name="LOG_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
             <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-                <fileNamePattern>logs/sharedfood-.%d{yyyy-MM-dd}.log</fileNamePattern>
+                <fileNamePattern>logs/sharedfood-%d{yyyy-MM-dd}.log</fileNamePattern>
                 <maxHistory>30</maxHistory>
             </rollingPolicy>
             <encoder>
