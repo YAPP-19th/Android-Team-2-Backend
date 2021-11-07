@@ -8,7 +8,7 @@
         <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
             <layout class="ch.qos.logback.classic.PatternLayout">
                 <Pattern>
-                    %green(%d{yyyy-MM-dd HH:mm:ss}) %magenta([%thread]) %blue(%-5level) %yellow(%logger{36}) - %msg%n
+                    %green(%d{yyyy-MM-dd HH:mm:ss}) %magenta([%thread]) %blue(%-5level) %yellow(%logger{36}) : %msg%n
                 </Pattern>
             </layout>
         </appender>
@@ -20,7 +20,7 @@
                 <maxHistory>30</maxHistory>
             </rollingPolicy>
             <encoder>
-                <pattern>%date %level [%thread] %msg%n</pattern>
+                <pattern>%date [%thread] %level : %msg%n</pattern>
             </encoder>
         </appender>
 
