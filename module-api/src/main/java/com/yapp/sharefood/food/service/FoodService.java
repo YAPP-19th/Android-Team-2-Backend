@@ -1,19 +1,24 @@
 package com.yapp.sharefood.food.service;
 
 import com.yapp.sharefood.category.domain.Category;
+import com.yapp.sharefood.category.dto.CategoryDto;
 import com.yapp.sharefood.category.exception.CategoryNotFoundException;
 import com.yapp.sharefood.category.repository.CategoryRepository;
 import com.yapp.sharefood.food.domain.Food;
 import com.yapp.sharefood.food.domain.FoodTag;
 import com.yapp.sharefood.food.dto.FoodImageDto;
+import com.yapp.sharefood.food.dto.FoodPageDto;
 import com.yapp.sharefood.food.dto.FoodTagDto;
 import com.yapp.sharefood.food.dto.request.FoodCreationRequest;
 import com.yapp.sharefood.food.dto.response.FoodDetailResponse;
+import com.yapp.sharefood.food.dto.response.FoodPageResponse;
 import com.yapp.sharefood.food.exception.FoodNotFoundException;
 import com.yapp.sharefood.food.repository.FoodRepository;
 import com.yapp.sharefood.food.repository.FoodTagRepository;
 import com.yapp.sharefood.user.domain.User;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -75,5 +80,18 @@ public class FoodService {
         return foodTagRepository.findFoodtagsWithTag(tagIds)
                 .stream().map(foodTag -> FoodTagDto.of(foodTag.getTag().getId(), foodTag.getTag().getName(), foodTag.getIngredientType()))
                 .collect(Collectors.toList());
+    }
+
+    public FoodPageResponse findAllFoods(CategoryDto categoryDto, Pageable pageable) {
+        Category category = categoryRepository.findByName(categoryDto.getCategoryName())
+                .orElseThrow(CategoryNotFoundException::new);
+        Slice<FoodPageDto> findFoods = foodRepository.findByCategory(category, pageable)
+                .map(food -> FoodPageDto.builder()
+                        .foodTitle(food.getFoodTitle())
+                        .categoryName(category.getName())
+                        .price(food.getPrice())
+                        .build());
+
+        return new FoodPageResponse(findFoods);
     }
 }
