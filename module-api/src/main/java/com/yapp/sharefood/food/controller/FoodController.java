@@ -23,11 +23,13 @@ import java.net.URI;
 public class FoodController {
     private final FoodService foodService;
 
-    @PostMapping("/api/v1/foods")
-    public ResponseEntity<URI> saveFood(@AuthUser User user, @Valid @RequestBody FoodCreationRequest foodCreationRequest) {
+    @PostMapping("/api/v1/categories/{categoryName}/foods")
+    public ResponseEntity<URI> saveFood(@AuthUser User user,
+                                        @Valid @RequestBody FoodCreationRequest foodCreationRequest,
+                                        @PathVariable("categoryName") String categoryName) {
         URI userCreateUri = ServletUriComponentsBuilder.fromCurrentRequest()
                 .path("/{id}")
-                .buildAndExpand(foodService.saveFood(user, foodCreationRequest))
+                .buildAndExpand(foodService.saveFood(user, foodCreationRequest, categoryName))
                 .toUri();
 
         return ResponseEntity.created(userCreateUri).build();

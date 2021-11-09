@@ -35,8 +35,8 @@ public class FoodService {
     private final CategoryRepository categoryRepository;
 
     @Transactional
-    public Long saveFood(User user, FoodCreationRequest foodCreationRequest) {
-        Category findCategory = categoryRepository.findById(foodCreationRequest.getFoodCategory().getId())
+    public Long saveFood(User user, FoodCreationRequest foodCreationRequest, String categoryName) {
+        Category findCategory = categoryRepository.findByName(categoryName)
                 .orElseThrow(CategoryNotFoundException::new);
 
         Food food = Food.builder()

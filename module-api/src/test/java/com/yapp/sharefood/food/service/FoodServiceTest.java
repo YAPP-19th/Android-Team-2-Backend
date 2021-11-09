@@ -7,7 +7,6 @@ import com.yapp.sharefood.food.domain.Food;
 import com.yapp.sharefood.food.domain.FoodIngredientType;
 import com.yapp.sharefood.food.domain.FoodStatus;
 import com.yapp.sharefood.food.domain.TagWrapper;
-import com.yapp.sharefood.food.dto.FoodCategoryDto;
 import com.yapp.sharefood.food.dto.request.FoodCreationRequest;
 import com.yapp.sharefood.food.dto.response.FoodDetailResponse;
 import com.yapp.sharefood.food.repository.FoodRepository;
@@ -74,13 +73,9 @@ class FoodServiceTest {
         request.setPrice(1000);
         request.setReviewMsg("reviewMsg");
         request.setFoodStatus(FoodStatus.SHARED);
-        FoodCategoryDto foodCategoryDto = new FoodCategoryDto();
-        foodCategoryDto.setCategoryName(saveCategory.getName());
-        foodCategoryDto.setId(saveCategory.getId());
-        request.setFoodCategory(foodCategoryDto);
 
         // when
-        Long saveFoodId = foodService.saveFood(saveUser, request);
+        Long saveFoodId = foodService.saveFood(saveUser, request, saveCategory.getName());
         Food food = foodRepository.findById(saveFoodId)
                 .orElseThrow(() -> new NotFoundException(""));
 
