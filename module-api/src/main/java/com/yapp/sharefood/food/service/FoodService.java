@@ -10,11 +10,15 @@ import com.yapp.sharefood.food.dto.FoodImageDto;
 import com.yapp.sharefood.food.dto.FoodPageDto;
 import com.yapp.sharefood.food.dto.FoodTagDto;
 import com.yapp.sharefood.food.dto.request.FoodCreationRequest;
+import com.yapp.sharefood.food.dto.request.FoodTopRankRequest;
 import com.yapp.sharefood.food.dto.response.FoodDetailResponse;
 import com.yapp.sharefood.food.dto.response.FoodPageResponse;
+import com.yapp.sharefood.food.dto.response.TopRankFoodResponse;
 import com.yapp.sharefood.food.exception.FoodNotFoundException;
 import com.yapp.sharefood.food.repository.FoodRepository;
 import com.yapp.sharefood.food.repository.FoodTagRepository;
+import com.yapp.sharefood.like.projection.TopLikeProjection;
+import com.yapp.sharefood.like.repository.LikeRepository;
 import com.yapp.sharefood.user.domain.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -22,8 +26,13 @@ import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
+
+import static com.yapp.sharefood.food.dto.FoodPageDto.toList;
+import static java.util.stream.Collectors.toMap;
 
 @Service
 @RequiredArgsConstructor
@@ -33,6 +42,7 @@ public class FoodService {
     private final FoodRepository foodRepository;
     private final FoodTagRepository foodTagRepository;
     private final CategoryRepository categoryRepository;
+    private final LikeRepository likeRepository;
 
     @Transactional
     public Long saveFood(User user, FoodCreationRequest foodCreationRequest, String categoryName) {
@@ -86,12 +96,22 @@ public class FoodService {
         Category category = categoryRepository.findByName(categoryDto.getCategoryName())
                 .orElseThrow(CategoryNotFoundException::new);
         Slice<FoodPageDto> findFoods = foodRepository.findByCategory(category, pageable)
-                .map(food -> FoodPageDto.builder()
-                        .foodTitle(food.getFoodTitle())
-                        .categoryName(category.getName())
-                        .price(food.getPrice())
-                        .build());
+                .map(food -> FoodPageDto.toFoodPageDto(food, 0L));
 
         return new FoodPageResponse(findFoods);
+    }
+
+
+    public TopRankFoodResponse findTopRankFoods(FoodTopRankRequest foodTopRankRequest, LocalDateTime before, LocalDateTime now) {
+        List<TopLikeProjection> topFoodIdsByCount =
+                likeRepository.findTopFoodIdsByCount(foodTopRankRequest.getTop(), before, now);
+
+        Map<Long, Long> foodIdKeylikeCountMap = topFoodIdsByCount.stream()
+                .collect(toMap(TopLikeProjection::getFoodId, TopLikeProjection::getCount));
+        List<Long> foodIds = topFoodIdsByCount.stream()
+                .map(TopLikeProjection::getFoodId)
+                .collect(Collectors.toList());
+
+        return TopRankFoodResponse.of(toList(foodRepository.findFoodWithCategoryByIds(foodIds), foodIdKeylikeCountMap));
     }
 }
