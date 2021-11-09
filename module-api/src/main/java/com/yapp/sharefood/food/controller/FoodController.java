@@ -29,21 +29,4 @@ public class FoodController {
 
         return ResponseEntity.ok(foodService.findTopRankFoods(foodTopRankRequest, beforePeriod, now));
     }
-
-    @PostMapping("/api/v1/categories/{categoryName}/foods")
-    public ResponseEntity<URI> saveFood(@AuthUser User user,
-                                        @Valid @RequestBody FoodCreationRequest foodCreationRequest,
-                                        @PathVariable("categoryName") String categoryName) {
-        URI userCreateUri = ServletUriComponentsBuilder.fromCurrentRequest()
-                .path("/{id}")
-                .buildAndExpand(foodService.saveFood(user, foodCreationRequest, categoryName))
-                .toUri();
-
-        return ResponseEntity.created(userCreateUri).build();
-    }
-
-    @GetMapping("/api/v1/categories/{categoryName}/foods/{foodId}")
-    public ResponseEntity<FoodDetailResponse> findFood(@PathVariable("foodId") Long foodId) {
-        return ResponseEntity.ok(foodService.findFoodById(foodId));
-    }
 }
