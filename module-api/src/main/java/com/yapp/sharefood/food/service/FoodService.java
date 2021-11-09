@@ -66,11 +66,6 @@ public class FoodService {
     public FoodDetailResponse findFoodById(Long id) {
         Food food = foodRepository.findById(id)
                 .orElseThrow(FoodNotFoundException::new);
-        List<FoodImageDto> foodImageDtos = food.getImages().getImages()
-                .stream()
-                .map(img -> new FoodImageDto(img.getId(), img.getStoreFilename(), img.getRealFilename()))
-                .collect(Collectors.toList());
-        List<FoodTagDto> tags = findFoodTagsByFoodTag(food.getFoodTags().getFoodTags());
 
         return FoodDetailResponse
                 .builder()
@@ -78,8 +73,9 @@ public class FoodService {
                 .writerName(food.getWriterNickname())
                 .reviewDetail(food.getReviewMsg())
                 .price(food.getPrice())
-                .foodImages(foodImageDtos)
-                .foodTags(tags)
+                .numberOfLike(food.getLikeNumber())
+                .foodImages(FoodImageDto.toList(food.getImages().getImages()))
+                .foodTags(findFoodTagsByFoodTag(food.getFoodTags().getFoodTags()))
                 .build();
     }
 

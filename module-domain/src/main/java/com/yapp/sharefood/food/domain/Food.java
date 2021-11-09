@@ -51,6 +51,9 @@ public class Food {
     @Embedded
     private Images images = new Images();
 
+    @Embedded
+    private Likes likes = new Likes();
+
     @Builder
     public Food(Long id, String foodTitle, int price, String reviewMsg, FoodStatus foodStatus, User writer, Category category) {
         this.id = id;
@@ -81,5 +84,9 @@ public class Food {
         }
 
         this.category = category;
+    }
+
+    public int getLikeNumber() {
+        return this.likes.getSize();
     }
 }
