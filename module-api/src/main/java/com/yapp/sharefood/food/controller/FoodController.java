@@ -35,7 +35,7 @@ public class FoodController {
         return ResponseEntity.created(userCreateUri).build();
     }
 
-    @GetMapping("/api/v1/foods/{foodId}")
+    @GetMapping("/api/v1/categories/{categoryName}/foods/{foodId}")
     public ResponseEntity<FoodDetailResponse> findFood(@PathVariable("foodId") Long foodId) {
         return ResponseEntity.ok(foodService.findFoodById(foodId));
     }
