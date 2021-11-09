@@ -5,12 +5,14 @@ import com.yapp.sharefood.category.repository.CategoryRepository;
 import com.yapp.sharefood.tag.domain.Tag;
 import com.yapp.sharefood.tag.repository.TagRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.PostConstruct;
 
 @Component
+@Profile({"local", "dev"})
 @RequiredArgsConstructor
 public class MockData {
     private final TagMock tagMock;
