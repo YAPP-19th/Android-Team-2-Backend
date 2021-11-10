@@ -3,6 +3,7 @@ package com.yapp.sharefood.food.domain;
 import com.yapp.sharefood.category.domain.Category;
 import com.yapp.sharefood.category.exception.CategoryNotFoundException;
 import com.yapp.sharefood.common.exception.InvalidOperationException;
+import com.yapp.sharefood.like.domain.Like;
 import com.yapp.sharefood.oauth.exception.UserNotFoundException;
 import com.yapp.sharefood.user.domain.User;
 import lombok.AccessLevel;
@@ -88,5 +89,9 @@ public class Food {
 
     public int getLikeNumber() {
         return this.likes.getSize();
+    }
+
+    public void assignLike(Like like) {
+        this.likes.assignLike(like, this);
     }
 }
