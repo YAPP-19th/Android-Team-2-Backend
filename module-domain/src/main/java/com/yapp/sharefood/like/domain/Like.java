@@ -51,8 +51,8 @@ public class Like extends BaseEntity {
         if (Objects.nonNull(this.food)) {
             throw new InvalidOperationException("한번 할당된 게시글은 변경할 수 없습니다.");
         }
-        food.assignLike(this);
         this.food = food;
+        food.getLikes().getLikes().add(this);
     }
 }
 

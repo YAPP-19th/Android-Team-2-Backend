@@ -4,6 +4,7 @@ import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.core.types.dsl.NumberPath;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import com.yapp.sharefood.food.domain.FoodStatus;
 import com.yapp.sharefood.like.projection.QTopLikeProjection;
 import com.yapp.sharefood.like.projection.TopLikeProjection;
 import lombok.RequiredArgsConstructor;
@@ -30,7 +31,8 @@ public class LikeCustomRepositoryImpl implements LikeCustomRepository {
                 .from(like)
                 .where(
                         greatherThanCreateDate(before),
-                        lessThanCreateDate(now)
+                        lessThanCreateDate(now),
+                        eqFoodStatus(FoodStatus.SHARED)
                 )
                 .groupBy(like.food)
                 .orderBy(COUNT_ALIAS.desc())
@@ -44,5 +46,9 @@ public class LikeCustomRepositoryImpl implements LikeCustomRepository {
 
     private BooleanExpression greatherThanCreateDate(LocalDateTime time) {
         return time == null ? null : like.createDate.after(time);
+    }
+
+    private BooleanExpression eqFoodStatus(FoodStatus foodStatus) {
+        return foodStatus != null ? null : like.food.foodStatus.eq(foodStatus);
     }
 }

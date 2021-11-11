@@ -34,7 +34,7 @@ public class Likes {
         validateAlreadyLikeUser(like.getUser().getId());
 
         like.assignFood(food);
-        if (!contains(like)) {
+        if (!likes.contains(like)) {
             likes.add(like);
         }
     }
@@ -49,11 +49,6 @@ public class Likes {
                 .filter(like -> like.getUser().getId().equals(userId))
                 .findAny()
                 .orElseThrow(ForbiddenException::new);
-    }
-
-    private boolean contains(Like like) {
-        return likes.stream()
-                .anyMatch(eachLike -> eachLike.getId().equals(like.getId()));
     }
 
     private void validateAlreadyLikeUser(Long userId) {
