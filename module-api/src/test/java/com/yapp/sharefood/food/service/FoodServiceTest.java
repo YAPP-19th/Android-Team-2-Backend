@@ -8,8 +8,11 @@ import com.yapp.sharefood.food.domain.FoodIngredientType;
 import com.yapp.sharefood.food.domain.FoodStatus;
 import com.yapp.sharefood.food.domain.TagWrapper;
 import com.yapp.sharefood.food.dto.request.FoodCreationRequest;
+import com.yapp.sharefood.food.dto.request.FoodTopRankRequest;
 import com.yapp.sharefood.food.dto.response.FoodDetailResponse;
+import com.yapp.sharefood.food.dto.response.TopRankFoodResponse;
 import com.yapp.sharefood.food.repository.FoodRepository;
+import com.yapp.sharefood.like.service.LikeService;
 import com.yapp.sharefood.tag.domain.Tag;
 import com.yapp.sharefood.tag.repository.TagRepository;
 import com.yapp.sharefood.user.domain.OAuthType;
@@ -21,6 +24,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,6 +36,8 @@ class FoodServiceTest {
 
     @Autowired
     FoodService foodService;
+    @Autowired
+    LikeService likeService;
 
     @Autowired
     FoodRepository foodRepository;
@@ -47,14 +53,25 @@ class FoodServiceTest {
         return categoryRepository.save(category);
     }
 
-    private User saveTestUser(String nickname, String name) {
+    private User saveTestUser(String nickname, String name, String oauthId) {
         User user = User.builder()
                 .nickname(nickname)
                 .name(name)
                 .oAuthType(OAuthType.KAKAO)
-                .oauthId("oauthId")
+                .oauthId(oauthId)
                 .build();
         return userRepository.save(user);
+    }
+
+    private Food saveFood(String title, User user, Category category) {
+        Food food = Food.builder()
+                .foodTitle(title)
+                .writer(user)
+                .foodStatus(FoodStatus.SHARED)
+                .category(category)
+                .build();
+
+        return foodRepository.save(food);
     }
 
     private Tag saveTag(String tagName) {
@@ -65,7 +82,7 @@ class FoodServiceTest {
     @DisplayName("food 내부 값만 저장")
     void saveFood() {
         // given
-        User saveUser = saveTestUser("nickname", "name");
+        User saveUser = saveTestUser("nickname", "name", "oauthId");
         Category saveCategory = saveTestCategory("A");
 
         FoodCreationRequest request = new FoodCreationRequest();
@@ -92,7 +109,7 @@ class FoodServiceTest {
     @DisplayName("food Detail 정보 조회 기능")
     void findFoodDetailTest() throws Exception {
         // given
-        User saveUser = saveTestUser("nickname", "name");
+        User saveUser = saveTestUser("nickname", "name", "oauthId");
         Category saveCategory = saveTestCategory("A");
         List<TagWrapper> tags = new ArrayList<>();
         tags.add(new TagWrapper(saveTag("A"), FoodIngredientType.ADD));
@@ -119,5 +136,49 @@ class FoodServiceTest {
         assertEquals("reviewMsg", foodResponse.getReviewDetail());
         assertEquals("nickname", foodResponse.getWriterName());
         assertEquals(3, foodResponse.getFoodTags().size());
+    }
+
+    @Test
+    @DisplayName("food rank 조회 기능")
+    void findTopRankFoodsTest() throws Exception {
+        // given
+        FoodTopRankRequest foodTopRankRequest = FoodTopRankRequest.of(5, 7);
+        LocalDateTime past = LocalDateTime.now().minusDays(5);
+        LocalDateTime now = LocalDateTime.now().plusDays(2);
+        Category saveCategory = saveTestCategory("A");
+        User user1 = saveTestUser("user1_nick", "user1_name", "oauthId1");
+        User user2 = saveTestUser("user2_nick", "user2_name", "oauthId2");
+        User user3 = saveTestUser("user3_nick", "user3_name", "oauthId3");
+        User user4 = saveTestUser("user4_nick", "user4_name", "oauthId4");
+        User user5 = saveTestUser("user5_nick", "user5_name", "oauthId5");
+
+        Food food1 = saveFood("food title1", user1, saveCategory);
+        Food food2 = saveFood("food title2", user1, saveCategory);
+        Food food3 = saveFood("food title3", user1, saveCategory);
+        Food food4 = saveFood("food title4", user1, saveCategory);
+        saveFood("food title5", user1, saveCategory);
+        likeService.saveLike(user2, food1.getId(), saveCategory.getName());
+        likeService.saveLike(user3, food1.getId(), saveCategory.getName());
+        likeService.saveLike(user4, food1.getId(), saveCategory.getName());
+        likeService.saveLike(user5, food1.getId(), saveCategory.getName());
+
+        likeService.saveLike(user3, food3.getId(), saveCategory.getName());
+        likeService.saveLike(user4, food3.getId(), saveCategory.getName());
+        likeService.saveLike(user5, food3.getId(), saveCategory.getName());
+
+        likeService.saveLike(user4, food2.getId(), saveCategory.getName());
+        likeService.saveLike(user5, food2.getId(), saveCategory.getName());
+
+        likeService.saveLike(user5, food4.getId(), saveCategory.getName());
+
+        // when
+        TopRankFoodResponse topRankFoods = foodService.findTopRankFoods(foodTopRankRequest, past, now);
+
+        // then
+        assertEquals(4, topRankFoods.getTopRankingFoods().size());
+        assertEquals("food title1", topRankFoods.getTopRankingFoods().get(0).getFoodTitle());
+        assertEquals("food title3", topRankFoods.getTopRankingFoods().get(1).getFoodTitle());
+        assertEquals("food title2", topRankFoods.getTopRankingFoods().get(2).getFoodTitle());
+        assertEquals("food title4", topRankFoods.getTopRankingFoods().get(3).getFoodTitle());
     }
 }

@@ -20,4 +20,13 @@ public class FoodTopRankRequest {
     @Min(3)
     @NotNull
     private Integer rankDatePeriod;
+
+    private FoodTopRankRequest(Integer top, Integer rankDatePeriod) {
+        this.top = top;
+        this.rankDatePeriod = rankDatePeriod;
+    }
+
+    public static FoodTopRankRequest of(Integer top, Integer rankDatePeriod) {
+        return new FoodTopRankRequest(top, rankDatePeriod);
+    }
 }

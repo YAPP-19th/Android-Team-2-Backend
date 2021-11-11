@@ -18,15 +18,17 @@ import static com.yapp.sharefood.like.domain.QLike.like;
 @Repository
 @RequiredArgsConstructor
 public class LikeCustomRepositoryImpl implements LikeCustomRepository {
-    private static final NumberPath<Long> COUNT_ALIAS = Expressions.numberPath(Long.class, "counts");
 
     private final JPAQueryFactory queryFactory;
 
     @Override
     public List<TopLikeProjection> findTopFoodIdsByCount(int top, LocalDateTime before, LocalDateTime now) {
-        return queryFactory.select(new QTopLikeProjection(
-                        like.food.id,
-                        like.count().as(COUNT_ALIAS)
+        NumberPath<Long> countAlias = Expressions.numberPath(Long.class, "lik_count");
+
+        return queryFactory
+                .select(new QTopLikeProjection(
+                        like.count().as(countAlias),
+                        like.food.id
                 ))
                 .from(like)
                 .where(
@@ -35,7 +37,7 @@ public class LikeCustomRepositoryImpl implements LikeCustomRepository {
                         eqFoodStatus(FoodStatus.SHARED)
                 )
                 .groupBy(like.food)
-                .orderBy(COUNT_ALIAS.desc())
+                .orderBy(countAlias.desc())
                 .limit(top)
                 .fetch();
     }
@@ -49,6 +51,6 @@ public class LikeCustomRepositoryImpl implements LikeCustomRepository {
     }
 
     private BooleanExpression eqFoodStatus(FoodStatus foodStatus) {
-        return foodStatus != null ? null : like.food.foodStatus.eq(foodStatus);
+        return foodStatus == null ? null : like.food.foodStatus.eq(foodStatus);
     }
 }
