@@ -5,6 +5,7 @@ import com.yapp.sharefood.like.service.LikeService;
 import com.yapp.sharefood.user.domain.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -28,5 +29,13 @@ public class LikeController {
                 .buildAndExpand(likeService.saveLike(user, foodId, categoryName))
                 .toUri();
         return ResponseEntity.created(likeUri).build();
+    }
+
+    @DeleteMapping("/api/v1/categories/{categoryName}/foods/{foodId}/likes")
+    public ResponseEntity<Void> deleteLike(@AuthUser User user,
+                                           @PathVariable("foodId") Long foodId,
+                                           @PathVariable("categoryName") String categoryName) {
+        likeService.deleteLike(user, foodId, categoryName);
+        return ResponseEntity.ok().build();
     }
 }

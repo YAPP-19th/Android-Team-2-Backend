@@ -94,4 +94,8 @@ public class Food {
     public void assignLike(Like like) {
         this.likes.assignLike(like, this);
     }
+
+    public void deleteLike(User user) {
+        likes.deleteLike(user.getId());
+    }
 }

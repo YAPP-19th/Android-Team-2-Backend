@@ -1,5 +1,6 @@
 package com.yapp.sharefood.food.domain;
 
+import com.yapp.sharefood.common.exception.ForbiddenException;
 import com.yapp.sharefood.common.exception.InvalidOperationException;
 import com.yapp.sharefood.like.domain.Like;
 import com.yapp.sharefood.like.exception.LikeNotFoundException;
@@ -36,6 +37,18 @@ public class Likes {
         if (!contains(like)) {
             likes.add(like);
         }
+    }
+
+    public void deleteLike(Long userId) {
+        Like like = findLikeByUserId(userId);
+        likes.remove(like);
+    }
+
+    private Like findLikeByUserId(Long userId) {
+        return likes.stream()
+                .filter(like -> like.getUser().getId().equals(userId))
+                .findAny()
+                .orElseThrow(ForbiddenException::new);
     }
 
     private boolean contains(Like like) {
