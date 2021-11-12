@@ -92,6 +92,9 @@ public class Food {
     }
 
     public void assignLike(Like like) {
+        if (foodStatus == FoodStatus.MINE) {
+            throw new InvalidOperationException("나만 보기 food는 like를 할 수 없습니다.");
+        }
         this.likes.assignLike(like, this);
     }
 
