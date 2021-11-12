@@ -2,6 +2,7 @@ package com.yapp.sharefood.like.service;
 
 import com.yapp.sharefood.category.domain.Category;
 import com.yapp.sharefood.category.repository.CategoryRepository;
+import com.yapp.sharefood.common.exception.ForbiddenException;
 import com.yapp.sharefood.common.exception.InvalidOperationException;
 import com.yapp.sharefood.food.domain.Food;
 import com.yapp.sharefood.food.domain.FoodStatus;
@@ -15,10 +16,12 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.transaction.annotation.Transactional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+@Transactional
 @SpringBootTest
 class LikeServiceTest {
     @Autowired
@@ -109,11 +112,41 @@ class LikeServiceTest {
     }
 
     @Test
+    @DisplayName("like 삭제 기능 테스트")
     void deleteLikeTest() {
         // given
+        Category saveCategory = saveTestCategory("A");
+        User user1 = saveTestUser("user1_nick", "user1_name", "oauthId1");
+        Food food = saveFood("food title", user1, saveCategory, FoodStatus.SHARED);
+        Like like = Like.of(user1);
+        food.assignLike(like);
+        likeRepository.flush();
+
+        // when
+        likeService.deleteLike(user1, food.getId(), "A");
+        Food findFood = foodRepository.findByIdWithCategory(food.getId())
+                .orElseThrow();
+
+        // then
+        assertEquals(0, findFood.getLikes().getSize());
+    }
+
+    @Test
+    @DisplayName("like 버튼을 누르지 않은 food에 like 취소 요청을 보낸 경우")
+    void deleteLikeFailTest() throws Exception {
+        // given
+        Category saveCategory = saveTestCategory("A");
+        User user1 = saveTestUser("user1_nick", "user1_name", "oauthId1");
+        Food food = saveFood("food title", user1, saveCategory, FoodStatus.SHARED);
+        Like like = Like.of(user1);
+        food.assignLike(like);
+        likeRepository.flush();
+
+        User user2 = saveTestUser("user2_nick", "user2_name", "oauthId2");
 
         // when
 
         // then
+        assertThrows(ForbiddenException.class, () -> likeService.deleteLike(user2, food.getId(), "A"));
     }
 }
