@@ -1,0 +1,29 @@
+spring:
+  profiles:
+    active: test
+    include:
+      - domain-dev
+      - domain-local
+      - external
+      - oauth
+      - aws
+
+server:
+  port: 8000
+
+jwt:
+  token:
+    secret:
+      key: JWTSecretKey
+    expiration:
+      seconds: 60480000
+
+
+logging:
+  level:
+    com:
+      amazonaws:
+        util:
+          EC2MetadataUtils: error
+        internal:
+          InstanceMetadataServiceResourceFetcher: error
