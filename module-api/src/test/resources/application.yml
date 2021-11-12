@@ -9,7 +9,7 @@ spring:
       - aws
 
 server:
-  port: 8000
+  port: 8100
 
 jwt:
   token:
