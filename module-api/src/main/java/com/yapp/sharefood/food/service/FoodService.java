@@ -27,6 +27,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -99,9 +100,10 @@ public class FoodService {
     }
 
 
-    public TopRankFoodResponse findTopRankFoods(FoodTopRankRequest foodTopRankRequest, LocalDateTime before, LocalDateTime now) {
+    public TopRankFoodResponse findTopRankFoods(FoodTopRankRequest foodTopRankRequest, String categoryName, LocalDateTime before, LocalDateTime now) {
+        List<Category> categoryWithChildrenByName = findCategoryWithChildrenByName(categoryName);
         List<TopLikeProjection> topFoodIdsByCount =
-                likeRepository.findTopFoodIdsByCount(foodTopRankRequest.getTop(), before, now);
+                likeRepository.findTopFoodIdsByCount(foodTopRankRequest.getTop(), categoryWithChildrenByName, before, now);
 
         Map<Long, Long> foodIdKeylikeCountMap = topFoodIdsByCount.stream()
                 .collect(toMap(TopLikeProjection::getFoodId, TopLikeProjection::getCount));
@@ -113,5 +115,15 @@ public class FoodService {
                 .stream().sorted(Comparator.comparing(foodPageDto -> -foodPageDto.getNumberOfLikes()))
                 .collect(Collectors.toList());
         return TopRankFoodResponse.of(foodPageDtos);
+    }
+
+    private List<Category> findCategoryWithChildrenByName(String categoryName) {
+        Category findCategory = categoryRepository.findByName(categoryName)
+                .orElseThrow(CategoryNotFoundException::new);
+        List<Category> allCategories = new ArrayList<>();
+        allCategories.add(findCategory);
+        allCategories.addAll(findCategory.getChildCategories().getChildCategories());
+
+        return allCategories;
     }
 }
