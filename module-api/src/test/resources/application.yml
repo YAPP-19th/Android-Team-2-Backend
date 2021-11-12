@@ -1,5 +1,15 @@
+spring:
+  profiles:
+    active: test
+    include:
+      - domain-dev
+      - domain-local
+      - external
+      - oauth
+      - aws
+
 server:
-  port: 8000
+  port: 8100
 
 jwt:
   token:
