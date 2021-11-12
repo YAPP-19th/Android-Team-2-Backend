@@ -41,18 +41,18 @@ public class Category extends BaseEntity {
         return new Category(name);
     }
 
-    public void assignParent(Category parents) {
-        if (Objects.isNull(parents)) {
+    public void assignParent(Category parent) {
+        if (Objects.isNull(parent)) {
             throw new CategoryNotFoundException();
         }
 
-        this.parent = parents;
-        childCategories.getChildCategories().add(this);
+        this.parent = parent;
+        parent.childCategories.getChildCategories().add(this);
     }
 
     public void addChildCategories(Category... newChildren) {
         for (Category category : newChildren) {
-            childCategories.addChildCategory(category, this);
+            childCategories.assignChildCategory(category, this);
         }
     }
 }

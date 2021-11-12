@@ -24,7 +24,7 @@ public class ChildCategories {
         childCategories.remove(findCategoryForRemoving);
     }
 
-    public void addChildCategory(Category newChild, Category parent) {
+    public void assignChildCategory(Category newChild, Category parent) {
         if (Objects.isNull(newChild)) {
             throw new CategoryNotFoundException();
         }
