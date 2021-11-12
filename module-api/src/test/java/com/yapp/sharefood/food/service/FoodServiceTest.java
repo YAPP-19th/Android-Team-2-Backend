@@ -142,6 +142,90 @@ class FoodServiceTest {
     @DisplayName("food rank 조회 기능")
     void findTopRankFoodsTest() throws Exception {
         // given
+        FoodTopRankRequest foodTopRankRequest = FoodTopRankRequest.of(4, 7);
+        LocalDateTime past = LocalDateTime.now().minusDays(5);
+        LocalDateTime now = LocalDateTime.now().plusDays(2);
+        Category saveCategory = saveTestCategory("A");
+        User user1 = saveTestUser("user1_nick", "user1_name", "oauthId1");
+        User user2 = saveTestUser("user2_nick", "user2_name", "oauthId2");
+        User user3 = saveTestUser("user3_nick", "user3_name", "oauthId3");
+        User user4 = saveTestUser("user4_nick", "user4_name", "oauthId4");
+        User user5 = saveTestUser("user5_nick", "user5_name", "oauthId5");
+
+        Food food1 = saveFood("food title1", user1, saveCategory);
+        Food food2 = saveFood("food title2", user1, saveCategory);
+        Food food3 = saveFood("food title3", user1, saveCategory);
+        Food food4 = saveFood("food title4", user1, saveCategory);
+        likeService.saveLike(user2, food1.getId(), saveCategory.getName());
+        likeService.saveLike(user3, food1.getId(), saveCategory.getName());
+        likeService.saveLike(user4, food1.getId(), saveCategory.getName());
+        likeService.saveLike(user5, food1.getId(), saveCategory.getName());
+
+        likeService.saveLike(user3, food3.getId(), saveCategory.getName());
+        likeService.saveLike(user4, food3.getId(), saveCategory.getName());
+        likeService.saveLike(user5, food3.getId(), saveCategory.getName());
+
+        likeService.saveLike(user4, food2.getId(), saveCategory.getName());
+        likeService.saveLike(user5, food2.getId(), saveCategory.getName());
+
+        likeService.saveLike(user5, food4.getId(), saveCategory.getName());
+
+        // when
+        TopRankFoodResponse topRankFoods = foodService.findTopRankFoods(foodTopRankRequest, past, now);
+
+        // then
+        assertEquals(4, topRankFoods.getTopRankingFoods().size());
+        assertEquals("food title1", topRankFoods.getTopRankingFoods().get(0).getFoodTitle());
+        assertEquals("food title3", topRankFoods.getTopRankingFoods().get(1).getFoodTitle());
+        assertEquals("food title2", topRankFoods.getTopRankingFoods().get(2).getFoodTitle());
+        assertEquals("food title4", topRankFoods.getTopRankingFoods().get(3).getFoodTitle());
+    }
+
+    @Test
+    @DisplayName("food rank 조회할 때 전체 food 보다 작은 걍우")
+    void findRankFoodLessThanAllTest() throws Exception {
+        FoodTopRankRequest foodTopRankRequest = FoodTopRankRequest.of(3, 7);
+        LocalDateTime past = LocalDateTime.now().minusDays(5);
+        LocalDateTime now = LocalDateTime.now().plusDays(2);
+        Category saveCategory = saveTestCategory("A");
+        User user1 = saveTestUser("user1_nick", "user1_name", "oauthId1");
+        User user2 = saveTestUser("user2_nick", "user2_name", "oauthId2");
+        User user3 = saveTestUser("user3_nick", "user3_name", "oauthId3");
+        User user4 = saveTestUser("user4_nick", "user4_name", "oauthId4");
+        User user5 = saveTestUser("user5_nick", "user5_name", "oauthId5");
+
+        Food food1 = saveFood("food title1", user1, saveCategory);
+        Food food2 = saveFood("food title2", user1, saveCategory);
+        Food food3 = saveFood("food title3", user1, saveCategory);
+        Food food4 = saveFood("food title4", user1, saveCategory);
+        likeService.saveLike(user2, food1.getId(), saveCategory.getName());
+        likeService.saveLike(user3, food1.getId(), saveCategory.getName());
+        likeService.saveLike(user4, food1.getId(), saveCategory.getName());
+        likeService.saveLike(user5, food1.getId(), saveCategory.getName());
+
+        likeService.saveLike(user3, food3.getId(), saveCategory.getName());
+        likeService.saveLike(user4, food3.getId(), saveCategory.getName());
+        likeService.saveLike(user5, food3.getId(), saveCategory.getName());
+
+        likeService.saveLike(user4, food2.getId(), saveCategory.getName());
+        likeService.saveLike(user5, food2.getId(), saveCategory.getName());
+
+        likeService.saveLike(user5, food4.getId(), saveCategory.getName());
+
+        // when
+        TopRankFoodResponse topRankFoods = foodService.findTopRankFoods(foodTopRankRequest, past, now);
+
+        // then
+        assertEquals(3, topRankFoods.getTopRankingFoods().size());
+        assertEquals("food title1", topRankFoods.getTopRankingFoods().get(0).getFoodTitle());
+        assertEquals("food title3", topRankFoods.getTopRankingFoods().get(1).getFoodTitle());
+        assertEquals("food title2", topRankFoods.getTopRankingFoods().get(2).getFoodTitle());
+    }
+
+    @Test
+    @DisplayName("food rank 조회 기능 0개의 like를 가진 food는 재외하는 경우 테스트")
+    void findFoodRankIfZeroLikeExist() throws Exception {
+        // given
         FoodTopRankRequest foodTopRankRequest = FoodTopRankRequest.of(5, 7);
         LocalDateTime past = LocalDateTime.now().minusDays(5);
         LocalDateTime now = LocalDateTime.now().plusDays(2);
@@ -156,7 +240,6 @@ class FoodServiceTest {
         Food food2 = saveFood("food title2", user1, saveCategory);
         Food food3 = saveFood("food title3", user1, saveCategory);
         Food food4 = saveFood("food title4", user1, saveCategory);
-        saveFood("food title5", user1, saveCategory);
         likeService.saveLike(user2, food1.getId(), saveCategory.getName());
         likeService.saveLike(user3, food1.getId(), saveCategory.getName());
         likeService.saveLike(user4, food1.getId(), saveCategory.getName());
