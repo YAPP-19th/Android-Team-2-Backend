@@ -6,6 +6,7 @@ import com.yapp.sharefood.common.exception.ForbiddenException;
 import com.yapp.sharefood.common.exception.InvalidOperationException;
 import com.yapp.sharefood.food.domain.Food;
 import com.yapp.sharefood.food.domain.FoodStatus;
+import com.yapp.sharefood.food.exception.FoodNotFoundException;
 import com.yapp.sharefood.food.repository.FoodRepository;
 import com.yapp.sharefood.like.domain.Like;
 import com.yapp.sharefood.like.repository.LikeRepository;
@@ -112,6 +113,19 @@ class LikeServiceTest {
     }
 
     @Test
+    @DisplayName("없는 food를 like 추가 하는 경우")
+    void saveFoodNotFoundExceptionTest() throws Exception {
+        // given
+        Category saveCategory = saveTestCategory("A");
+        User user1 = saveTestUser("user1_nick", "user1_name", "oauthId1");
+
+        // when
+
+        // then
+        assertThrows(FoodNotFoundException.class, () -> likeService.saveLike(user1, 1L, saveCategory.getName()));
+    }
+
+    @Test
     @DisplayName("like 삭제 기능 테스트")
     void deleteLikeTest() {
         // given
@@ -148,5 +162,17 @@ class LikeServiceTest {
 
         // then
         assertThrows(ForbiddenException.class, () -> likeService.deleteLike(user2, food.getId(), "A"));
+    }
+
+    @Test
+    @DisplayName("없는 food를 like 삭제 하는 경우")
+    void deleteFoodNotFoundExceptionTest() throws Exception {
+        // given
+        User user1 = saveTestUser("user1_nick", "user1_name", "oauthId1");
+
+        // when
+
+        // then
+        assertThrows(FoodNotFoundException.class, () -> likeService.deleteLike(user1, 1L, "A"));
     }
 }
