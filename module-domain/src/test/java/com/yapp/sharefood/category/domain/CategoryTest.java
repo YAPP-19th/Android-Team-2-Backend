@@ -22,7 +22,7 @@ class CategoryTest {
 
         // then
         assertEquals("parent", now.getParent().getName());
-        assertEquals("now", now.getChildCategories().getChildCategories().get(0).getName());
+        assertEquals("now", parent.getChildCategories().getChildCategories().get(0).getName());
     }
 
     @Test
@@ -50,7 +50,7 @@ class CategoryTest {
 
         // then
         assertEquals("child", now.getChildCategories().getChildCategories().get(0).getName());
-        assertEquals("now", child.getChildCategories().getChildCategories().get(0).getParent().getName());
+        assertEquals("now", child.getParent().getName());
     }
 
     @Test
