@@ -188,7 +188,7 @@ class FoodServiceTest {
     }
 
     @Test
-    @DisplayName("food rank 조회 기능")
+    @DisplayName("food rank 조회 기능 Child category 까지 조회")
     void findTopRankWithChildrensFoodsTest() throws Exception {
         // given
         FoodTopRankRequest foodTopRankRequest = FoodTopRankRequest.of(4, 7);
@@ -229,6 +229,46 @@ class FoodServiceTest {
         assertEquals("food title3", topRankFoods.getTopRankingFoods().get(1).getFoodTitle());
         assertEquals("food title2", topRankFoods.getTopRankingFoods().get(2).getFoodTitle());
         assertEquals("food title4", topRankFoods.getTopRankingFoods().get(3).getFoodTitle());
+    }
+
+    @Test
+    @DisplayName("food rank 조회 기능 카테고리 범위가 아닌 경우 테스트")
+    void findTopRankNotAssociatedCategoryFoodsTest() throws Exception {
+        // given
+        FoodTopRankRequest foodTopRankRequest = FoodTopRankRequest.of(4, 7);
+        LocalDateTime past = LocalDateTime.now().minusDays(5);
+        LocalDateTime now = LocalDateTime.now().plusDays(2);
+        Category saveExternalCategoryParent = saveTestCategory("external");
+        saveTestCategory("A");
+        User user1 = saveTestUser("user1_nick", "user1_name", "oauthId1");
+        User user2 = saveTestUser("user2_nick", "user2_name", "oauthId2");
+        User user3 = saveTestUser("user3_nick", "user3_name", "oauthId3");
+        User user4 = saveTestUser("user4_nick", "user4_name", "oauthId4");
+        User user5 = saveTestUser("user5_nick", "user5_name", "oauthId5");
+
+        Food food1 = saveFood("food title1", user1, saveExternalCategoryParent);
+        Food food2 = saveFood("food title2", user1, saveExternalCategoryParent);
+        Food food3 = saveFood("food title3", user1, saveExternalCategoryParent);
+        Food food4 = saveFood("food title4", user1, saveExternalCategoryParent);
+        likeService.saveLike(user2, food1.getId(), saveExternalCategoryParent.getName());
+        likeService.saveLike(user3, food1.getId(), saveExternalCategoryParent.getName());
+        likeService.saveLike(user4, food1.getId(), saveExternalCategoryParent.getName());
+        likeService.saveLike(user5, food1.getId(), saveExternalCategoryParent.getName());
+
+        likeService.saveLike(user3, food3.getId(), saveExternalCategoryParent.getName());
+        likeService.saveLike(user4, food3.getId(), saveExternalCategoryParent.getName());
+        likeService.saveLike(user5, food3.getId(), saveExternalCategoryParent.getName());
+
+        likeService.saveLike(user4, food2.getId(), saveExternalCategoryParent.getName());
+        likeService.saveLike(user5, food2.getId(), saveExternalCategoryParent.getName());
+
+        likeService.saveLike(user5, food4.getId(), saveExternalCategoryParent.getName());
+
+        // when
+        TopRankFoodResponse topRankFoods = foodService.findTopRankFoods(foodTopRankRequest, "A", past, now);
+
+        // then
+        assertEquals(0, topRankFoods.getTopRankingFoods().size());
     }
 
     @Test
