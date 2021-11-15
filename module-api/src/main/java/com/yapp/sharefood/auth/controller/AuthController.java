@@ -31,7 +31,7 @@ public class AuthController {
 
     @PostMapping("/api/v1/auth/creation")
     public ResponseEntity<URI> signUp(@RequestBody @Valid AuthCreationRequestDto creationRequestDto, HttpServletResponse response) {
-        OAuthDto oauthDto = authService.singUp(creationRequestDto);
+        OAuthDto oauthDto = authService.signUp(creationRequestDto);
         AuthUtils.setTokenInHeader(response, oauthDto.getToken());
 
         URI userCreateUri = ServletUriComponentsBuilder.fromCurrentRequest()

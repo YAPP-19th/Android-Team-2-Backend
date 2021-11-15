@@ -108,7 +108,7 @@ class AuthServiceTest {
                 .given(authenticationManager).requestOAuthUserInfo(any(OAuthType.class), anyString());
 
         // when
-        OAuthDto oAuthDto = authService.singUp(authCreationRequestDto);
+        OAuthDto oAuthDto = authService.signUp(authCreationRequestDto);
         Optional<User> kakaSingUpUser = userRepository.findByOAuthIdAndOAuthType("kakao_id", OAuthType.KAKAO);
 
         // then
@@ -135,6 +135,6 @@ class AuthServiceTest {
         // when
 
         // then
-        assertThrows(OAUthExistException.class, () -> authService.singUp(authCreationRequestDto));
+        assertThrows(OAUthExistException.class, () -> authService.signUp(authCreationRequestDto));
     }
 }
