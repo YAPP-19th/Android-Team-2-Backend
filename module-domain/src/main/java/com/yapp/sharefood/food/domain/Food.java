@@ -47,13 +47,13 @@ public class Food {
     private Category category;
 
     @Embedded
-    private FoodTags foodTags = new FoodTags();
+    private final FoodTags foodTags = new FoodTags();
 
     @Embedded
-    private Images images = new Images();
+    private final Images images = new Images();
 
     @Embedded
-    private Likes likes = new Likes();
+    private final Likes likes = new Likes();
 
     @Builder
     public Food(Long id, String foodTitle, int price, String reviewMsg, FoodStatus foodStatus, User writer, Category category) {

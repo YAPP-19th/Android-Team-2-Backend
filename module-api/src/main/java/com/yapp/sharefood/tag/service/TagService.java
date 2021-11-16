@@ -1,13 +1,16 @@
 package com.yapp.sharefood.tag.service;
 
+import com.yapp.sharefood.food.dto.FoodTagDto;
 import com.yapp.sharefood.tag.domain.Tag;
 import com.yapp.sharefood.tag.dto.TagDto;
 import com.yapp.sharefood.tag.dto.response.TagSearchResponse;
+import com.yapp.sharefood.tag.exception.TagNotFoundException;
 import com.yapp.sharefood.tag.repository.TagRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -25,5 +28,22 @@ public class TagService {
                 .collect(Collectors.toList());
 
         return TagSearchResponse.of(tagDtos);
+    }
+
+    @Transactional
+    public Tag saveTag(FoodTagDto tag) {
+        return tagRepository.save(Tag.of(tag.getName()));
+    }
+
+    public List<Tag> findByIds(List<Long> ids) {
+        if (ids.isEmpty()) {
+            return new ArrayList<>();
+        }
+        return tagRepository.findByIdIn(ids);
+    }
+
+    public Tag findByName(String name) {
+        return tagRepository.findByName(name)
+                .orElseThrow(TagNotFoundException::new);
     }
 }
