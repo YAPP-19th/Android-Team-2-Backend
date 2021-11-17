@@ -183,6 +183,19 @@ class TagServiceTest {
     }
 
     @Test
+    @DisplayName("id 값이 없는 list로 tag 조회하기 테스트")
+    void findEmptyTagTest() throws Exception {
+        // given
+        List<Long> emptyTagIds = new ArrayList<>();
+
+        // when
+        List<Tag> emptyTags = tagService.findByIds(emptyTagIds);
+
+        // then
+        assertEquals(0, emptyTags.size());
+    }
+
+    @Test
     @DisplayName("tag 이름으로 조회 기능 테스트")
     void findByNameTest() throws Exception {
         // given
