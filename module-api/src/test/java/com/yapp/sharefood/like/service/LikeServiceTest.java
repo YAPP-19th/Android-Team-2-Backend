@@ -109,7 +109,9 @@ class LikeServiceTest {
         // when
 
         // then
-        assertThrows(InvalidOperationException.class, () -> likeService.saveLike(user1, food.getId(), saveCategory.getName()));
+        long foodId = food.getId();
+        String categoryName = saveCategory.getName();
+        assertThrows(InvalidOperationException.class, () -> likeService.saveLike(user1, foodId, categoryName));
     }
 
     @Test
@@ -122,7 +124,8 @@ class LikeServiceTest {
         // when
 
         // then
-        assertThrows(FoodNotFoundException.class, () -> likeService.saveLike(user1, 1L, saveCategory.getName()));
+        String categoryName = saveCategory.getName();
+        assertThrows(FoodNotFoundException.class, () -> likeService.saveLike(user1, 1L, categoryName));
     }
 
     @Test
@@ -161,7 +164,8 @@ class LikeServiceTest {
         // when
 
         // then
-        assertThrows(ForbiddenException.class, () -> likeService.deleteLike(user2, food.getId(), "A"));
+        long foodId = food.getId();
+        assertThrows(ForbiddenException.class, () -> likeService.deleteLike(user2, foodId, "A"));
     }
 
     @Test
