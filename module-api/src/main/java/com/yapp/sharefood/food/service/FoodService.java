@@ -23,7 +23,6 @@ import com.yapp.sharefood.image.domain.Image;
 import com.yapp.sharefood.image.repository.ImageRepository;
 import com.yapp.sharefood.like.projection.TopLikeProjection;
 import com.yapp.sharefood.like.repository.LikeRepository;
-import com.yapp.sharefood.tag.service.TagService;
 import com.yapp.sharefood.user.domain.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -47,8 +46,6 @@ import static java.util.stream.Collectors.toMap;
 @Transactional(readOnly = true)
 public class FoodService {
     private static final String FOOD_FILE_PATH = "food";
-
-    private final TagService tagService;
 
     private final FoodRepository foodRepository;
     private final FoodTagRepository foodTagRepository;
