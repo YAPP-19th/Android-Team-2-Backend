@@ -42,7 +42,7 @@ public class TagService {
     }
 
     public List<Tag> findByIds(List<Long> ids) {
-        if (ids.isEmpty()) {
+        if (Objects.isNull(ids) || ids.isEmpty()) {
             return new ArrayList<>();
         }
         return tagRepository.findByIdIn(ids);
