@@ -88,26 +88,35 @@ class FoodServiceTest {
     void saveFood() {
         // given
         User saveUser = saveTestUser("nickname", "name", "oauthId");
-        Category saveCategory = saveTestCategory("A");
+        saveTestCategory("A");
+        List<TagWrapper> wrapperTags = List.of(
+                new TagWrapper(saveTag("tag1"), FoodIngredientType.MAIN),
+                new TagWrapper(saveTag("tag2"), FoodIngredientType.ADD),
+                new TagWrapper(saveTag("tag3"), FoodIngredientType.EXTRACT));
 
-//        FoodCreationRequest request = new FoodCreationRequest();
-//        request.setTitle("title");
-//        request.setPrice(1000);
-//        request.setReviewMsg("reviewMsg");
-//        request.setFoodStatus(FoodStatus.SHARED);
+        FoodCreationRequest request = FoodCreationRequest.builder()
+                .title("title")
+                .price(1000)
+                .reviewMsg("reviewMsg")
+                .foodStatus(FoodStatus.SHARED)
+                .categoryName("A")
+                .build();
 
         // when
-//        Long saveFoodId = foodService.saveFood(saveUser, request, saveCategory.getName());
-//        Food food = foodRepository.findById(saveFoodId)
-//                .orElseThrow(() -> new NotFoundException(""));
-//
-//        // then
-//        assertEquals(food.getId(), saveFoodId);
-//        assertEquals(FoodStatus.SHARED, food.getFoodStatus());
-//        assertEquals("title", food.getFoodTitle());
-//        assertEquals("reviewMsg", food.getReviewMsg());
-//        assertEquals("nickname", food.getWriterNickname());
-//        assertEquals(1000, food.getPrice());
+        Long saveFoodId = foodService.saveFood(saveUser, request, wrapperTags);
+        Food food = foodRepository.findById(saveFoodId)
+                .orElseThrow();
+
+        // then
+        assertEquals(food.getId(), saveFoodId);
+        assertEquals(FoodStatus.SHARED, food.getFoodStatus());
+        assertEquals("title", food.getFoodTitle());
+        assertEquals("reviewMsg", food.getReviewMsg());
+        assertEquals("nickname", food.getWriterNickname());
+        assertEquals(FoodStatus.SHARED, food.getFoodStatus());
+        assertEquals(1000, food.getPrice());
+        assertEquals(3, food.getFoodTags().getFoodTags().size());
+        assertEquals(0, food.getLikes().getSize());
     }
 
     @Test
