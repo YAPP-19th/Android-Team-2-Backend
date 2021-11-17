@@ -51,7 +51,7 @@ class UserControllerTest extends PreprocessController {
                         .get("/api/v1/users/nickname")
                         .build()
                         .status(status().isOk())
-                        .identifier("users-nickname/get/susccess")
+                        .identifier("user/nickname/get/success")
                         .getResponse()
                         .getContentAsString(StandardCharsets.UTF_8), new TypeReference<UserNicknameResponse>() {
                 }
@@ -73,7 +73,7 @@ class UserControllerTest extends PreprocessController {
                 .get("/api/v1/users/nickname")
                 .build()
                 .status(status().isConflict())
-                .identifier("users-nickname/get/fail")
+                .identifier("user/nickname/get/fail/alreadyExist")
                 .getResponse().getContentAsString(StandardCharsets.UTF_8);
 
         assertThat(errMsg)
@@ -95,7 +95,7 @@ class UserControllerTest extends PreprocessController {
                 .auth("token")
                 .build()
                 .status(status().isOk())
-                .identifier("users-nickname-validation/get/success")
+                .identifier("user/nickname-validation/get/success")
                 .getResponse()
                 .getContentAsString(StandardCharsets.UTF_8);
     }
@@ -111,7 +111,7 @@ class UserControllerTest extends PreprocessController {
                 .auth("token")
                 .build()
                 .status(status().isForbidden())
-                .identifier("users-nickname-validation/get/fail/forbidden")
+                .identifier("user/nickname-validation/get/fail/forbidden")
                 .getResponse()
                 .getContentAsString(StandardCharsets.UTF_8);
     }
@@ -129,7 +129,7 @@ class UserControllerTest extends PreprocessController {
                 .auth("token")
                 .build()
                 .status(status().isConflict())
-                .identifier("users-nickname-validation/get/fail/alreadyExist")
+                .identifier("user/nickname-validation/get/fail/alreadyExist")
                 .getResponse()
                 .getContentAsString(StandardCharsets.UTF_8);
     }
@@ -148,7 +148,7 @@ class UserControllerTest extends PreprocessController {
                 .auth("token")
                 .build()
                 .status(status().isOk())
-                .identifier("user-nickname/patch/success")
+                .identifier("user/nickname/patch/success")
                 .getResponse()
                 .getContentAsString(StandardCharsets.UTF_8), new TypeReference<UserNicknameResponse>() {
         });
@@ -170,7 +170,7 @@ class UserControllerTest extends PreprocessController {
                 .auth("token")
                 .build()
                 .status(status().isConflict())
-                .identifier("users-nickname/patch/fail/alreadyExist")
+                .identifier("user/nickname/patch/fail/alreadyExist")
                 .getResponse()
                 .getContentAsString(StandardCharsets.UTF_8);
     }
@@ -189,7 +189,7 @@ class UserControllerTest extends PreprocessController {
                 .auth("token")
                 .build()
                 .status(status().isForbidden())
-                .identifier("users-nickname/patch/fail/forbidden")
+                .identifier("user/nickname/patch/fail/forbidden")
                 .getResponse()
                 .getContentAsString(StandardCharsets.UTF_8);
     }
@@ -208,7 +208,7 @@ class UserControllerTest extends PreprocessController {
                 .auth("token")
                 .build()
                 .status(status().isOk())
-                .identifier("users-me/get/success")
+                .identifier("user/me/get/success")
                 .getResponse()
                 .getContentAsString(StandardCharsets.UTF_8), new TypeReference<MyUserInfoResponse>() {
         });
@@ -233,7 +233,7 @@ class UserControllerTest extends PreprocessController {
                 .auth("token")
                 .build()
                 .status(status().isNotFound())
-                .identifier("users-me/get/fail/notFound")
+                .identifier("user/me/get/fail/notFound")
                 .getResponse()
                 .getContentAsString(StandardCharsets.UTF_8);
     }
@@ -257,7 +257,7 @@ class UserControllerTest extends PreprocessController {
                 .auth("token")
                 .build()
                 .status(status().isOk())
-                .identifier("users-other/get/success")
+                .identifier("user/other/get/success")
                 .getResponse()
                 .getContentAsString(StandardCharsets.UTF_8), new TypeReference<OtherUserInfoResponse>() {
         });
@@ -289,7 +289,7 @@ class UserControllerTest extends PreprocessController {
                 .header(HttpHeaders.AUTHORIZATION, "token"));
 
         //then
-        perform.andDo(documentIdentify("users-other/get/fail/notFound"))
+        perform.andDo(documentIdentify("user/other/get/fail/notFound"))
                 .andExpect(status().isNotFound())
                 .andReturn()
                 .getResponse()
