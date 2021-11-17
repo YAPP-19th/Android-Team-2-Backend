@@ -5,6 +5,7 @@ import com.yapp.sharefood.food.dto.FoodTagDto;
 import com.yapp.sharefood.tag.domain.Tag;
 import com.yapp.sharefood.tag.dto.response.TagSearchResponse;
 import com.yapp.sharefood.tag.exception.TagConflictException;
+import com.yapp.sharefood.tag.exception.TagNotFoundException;
 import com.yapp.sharefood.tag.repository.TagRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -12,6 +13,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -136,5 +141,69 @@ class TagServiceTest {
 
         // then
         assertThrows(DataIntegrityViolationException.class, () -> tagService.saveTag(newTag));
+    }
+
+    @Test
+    @DisplayName("tag Id로 tag 조회 기능 테스트")
+    void findByIdsTest() throws Exception {
+        // given
+        List<Long> tagIds = new ArrayList<>();
+        Tag tag1 = tagRepository.save(Tag.of("tag1"));
+        Tag tag2 = tagRepository.save(Tag.of("tag2"));
+        Tag tag3 = tagRepository.save(Tag.of("tag3"));
+        Tag tag4 = tagRepository.save(Tag.of("tag4"));
+        tagRepository.flush();
+        tagIds.add(tag1.getId());
+        tagIds.add(tag2.getId());
+        tagIds.add(tag3.getId());
+        tagIds.add(tag4.getId());
+
+        // when
+        List<Tag> tags = tagService.findByIds(tagIds);
+        tags.sort(Comparator.comparingLong(Tag::getId));
+
+        // then
+        assertEquals(4, tags.size());
+        assertThat(tags)
+                .extracting("name")
+                .contains("tag1", "tag2", "tag3", "tag4");
+    }
+
+    @Test
+    @DisplayName("Id가 존재하지 않는 tag 조회 기능 테스트")
+    void findByNotExistIdsTest() throws Exception {
+        // given
+        List<Long> ids = List.of(1L, 2L, 3L);
+
+        // when
+        List<Tag> tags = tagService.findByIds(ids);
+
+        // then
+        assertEquals(0, tags.size());
+    }
+
+    @Test
+    @DisplayName("tag 이름으로 조회 기능 테스트")
+    void findByNameTest() throws Exception {
+        // given
+        tagRepository.save(Tag.of("tag1"));
+        tagRepository.flush();
+
+        // when
+        Tag tag = tagService.findByName("tag1");
+
+        // then
+        assertEquals("tag1", tag.getName());
+    }
+
+    @Test
+    @DisplayName("name이 없는 tag 조회 에러 테스트")
+    void notExistNameTest() throws Exception {
+        // given
+
+        // when
+
+        // then
+        assertThrows(TagNotFoundException.class, () -> tagService.findByName("name"));
     }
 }
