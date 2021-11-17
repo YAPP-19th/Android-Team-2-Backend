@@ -6,6 +6,7 @@ import com.yapp.sharefood.food.domain.TagWrapper;
 import com.yapp.sharefood.food.dto.FoodTagDto;
 import com.yapp.sharefood.food.dto.request.FoodCreationRequest;
 import com.yapp.sharefood.food.service.FoodService;
+import com.yapp.sharefood.tag.exception.TagConflictException;
 import com.yapp.sharefood.tag.service.TagService;
 import com.yapp.sharefood.user.domain.User;
 import lombok.RequiredArgsConstructor;
@@ -39,7 +40,7 @@ public class FoodController {
             if (Objects.isNull(foodTags.getId())) {
                 try {
                     wrapperTags.add(new TagWrapper(tagService.saveTag(foodTags), foodTags.getTagUseType()));
-                } catch (DataIntegrityViolationException e) {
+                } catch (DataIntegrityViolationException | TagConflictException exp) {
                     wrapperTags.add(new TagWrapper(tagService.findByName(foodTags.getName()), foodTags.getTagUseType()));
                 }
             } else {
