@@ -1,6 +1,7 @@
 package com.yapp.sharefood.userflavor.repository;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import com.yapp.sharefood.user.domain.User;
 import com.yapp.sharefood.userflavor.domain.UserFlavor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
@@ -15,9 +16,9 @@ public class UserFlavorQueryRepositoryImpl implements UserFlavorQueryRepository 
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public List<UserFlavor> findUserFlavorByUserId(Long userId) {
+    public List<UserFlavor> findUserFlavorByUserId(User user) {
         return queryFactory.selectFrom(userFlavor)
-                .where(userFlavor.user.id.in(userId))
+                .where(userFlavor.user.eq(user))
                 .orderBy(userFlavor.flavor.id.asc())
                 .fetch();
     }
