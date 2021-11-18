@@ -3,6 +3,7 @@ package com.yapp.sharefood.food.domain;
 import com.yapp.sharefood.category.domain.Category;
 import com.yapp.sharefood.category.exception.CategoryNotFoundException;
 import com.yapp.sharefood.common.exception.InvalidOperationException;
+import com.yapp.sharefood.flavor.domain.Flavor;
 import com.yapp.sharefood.like.domain.Like;
 import com.yapp.sharefood.oauth.exception.UserNotFoundException;
 import com.yapp.sharefood.user.domain.User;
@@ -12,6 +13,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.util.List;
 import java.util.Objects;
 
 @Entity
@@ -38,6 +40,9 @@ public class Food {
     @Column(length = 50)
     private String writerNickname;
 
+    @Column(nullable = false)
+    private long numberOfLikes;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "writer_id")
     private User writer;
@@ -55,6 +60,9 @@ public class Food {
     @Embedded
     private final Likes likes = new Likes();
 
+    @Embedded
+    private final FoodFlavors foodFlavors = new FoodFlavors();
+
     @Builder
     public Food(Long id, String foodTitle, int price, String reviewMsg, FoodStatus foodStatus, User writer, Category category) {
         this.id = id;
@@ -62,6 +70,7 @@ public class Food {
         this.price = price;
         this.reviewMsg = reviewMsg;
         this.foodStatus = foodStatus;
+        this.numberOfLikes = 0L;
         assignWriter(writer);
         assignCategory(category);
     }
@@ -87,8 +96,12 @@ public class Food {
         this.category = category;
     }
 
-    public int getLikeNumber() {
-        return this.likes.getSize();
+    public void addLike() {
+        this.numberOfLikes++;
+    }
+
+    public long getLikeNumber() {
+        return this.numberOfLikes;
     }
 
     public void assignLike(Like like) {
@@ -100,5 +113,13 @@ public class Food {
 
     public void deleteLike(User user) {
         likes.deleteLike(user.getId());
+    }
+
+    public void assignWrapperTags(List<TagWrapper> wrapperTags, Food food) {
+        getFoodTags().addAllTags(wrapperTags, food);
+    }
+
+    public void assignFlavors(List<Flavor> flavors) {
+        foodFlavors.addAllFlavors(flavors, this);
     }
 }

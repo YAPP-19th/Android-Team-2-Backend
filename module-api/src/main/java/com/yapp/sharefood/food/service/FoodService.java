@@ -52,12 +52,18 @@ public class FoodService {
     private final CategoryRepository categoryRepository;
     private final LikeRepository likeRepository;
     private final ImageRepository imageRepository;
+    private final FlavorRepository flavorRepository;
+
     private final AwsS3Uploader awsS3Uploader;
 
     @Transactional
     public Long saveFood(User user, FoodCreationRequest foodCreationRequest, List<TagWrapper> wrapperTags) {
         Category findCategory = categoryRepository.findByName(foodCreationRequest.getCategoryName())
                 .orElseThrow(CategoryNotFoundException::new);
+        List<Flavor> flavors = flavorRepository.findByFlavorTypeIsIn(
+                foodCreationRequest.getFlavors().stream()
+                        .map(flavorDto -> FlavorType.of(flavorDto.getFlavorName()))
+                        .collect(Collectors.toList()));
 
         Food food = Food.builder()
                 .foodTitle(foodCreationRequest.getTitle())
@@ -68,9 +74,10 @@ public class FoodService {
                 .category(findCategory)
                 .build();
 
-        food.getFoodTags().addAllTags(wrapperTags, food);
+        food.assignWrapperTags(wrapperTags, food);
+        food.assignFlavors(flavors);
+        uploadImage(food, foodCreationRequest.getImages());
         Food saveFood = foodRepository.save(food);
-        uploadImage(saveFood, foodCreationRequest.getImages());
 
         return saveFood.getId();
     }
