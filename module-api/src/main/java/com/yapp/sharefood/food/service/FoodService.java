@@ -3,6 +3,7 @@ package com.yapp.sharefood.food.service;
 import com.yapp.sharefood.category.domain.Category;
 import com.yapp.sharefood.category.exception.CategoryNotFoundException;
 import com.yapp.sharefood.category.repository.CategoryRepository;
+import com.yapp.sharefood.common.exception.ForbiddenException;
 import com.yapp.sharefood.common.utils.LocalDateTimePeriodUtils;
 import com.yapp.sharefood.external.s3.AwsS3Uploader;
 import com.yapp.sharefood.flavor.domain.Flavor;
@@ -118,6 +119,22 @@ public class FoodService {
                 .foodImages(FoodImageDto.toList(food.getImages().getImages()))
                 .foodTags(findFoodTagsByFoodTag(food.getFoodTags().getFoodTags()))
                 .build();
+    }
+
+    @Transactional
+    public void deleteFood(Long id, User authUser) {
+        Food findFood = foodRepository.findById(id)
+                .orElseThrow(FoodNotFoundException::new);
+
+        validateAuthUser(findFood, authUser);
+
+        foodRepository.delete(findFood);
+    }
+
+    private void validateAuthUser(Food food, User user) {
+        if (!food.isAuth(user)) {
+            throw new ForbiddenException();
+        }
     }
 
     private List<FoodTagDto> findFoodTagsByFoodTag(List<FoodTag> foodTags) {

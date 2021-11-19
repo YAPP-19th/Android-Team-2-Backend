@@ -10,6 +10,7 @@ import com.yapp.sharefood.food.service.FoodService;
 import com.yapp.sharefood.user.domain.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
@@ -36,5 +37,11 @@ public class FoodCategoryController {
     @GetMapping("/api/v1/foods/{foodId}")
     public ResponseEntity<FoodDetailResponse> findFood(@PathVariable("foodId") Long foodId) {
         return ResponseEntity.ok(foodService.findFoodDetailById(foodId));
+    }
+
+    @DeleteMapping("/api/v1/foods/{foodId}")
+    public ResponseEntity<Void> deleteFood(@AuthUser User user, @PathVariable("foodId") Long foodId) {
+        foodService.deleteFood(foodId, user);
+        return ResponseEntity.ok().build();
     }
 }

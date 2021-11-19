@@ -122,4 +122,8 @@ public class Food {
     public void assignFlavors(List<Flavor> flavors) {
         foodFlavors.addAllFlavors(flavors, this);
     }
+
+    public boolean isAuth(User user) {
+        return this.writer.getId().equals(user.getId());
+    }
 }
