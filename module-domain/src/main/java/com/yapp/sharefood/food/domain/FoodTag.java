@@ -31,7 +31,7 @@ public class FoodTag extends BaseEntity {
     private Tag tag;
 
     public boolean isSameTag(Tag tag) {
-        return Objects.equals(this.tag, tag);
+        return Objects.equals(this.tag.getName(), tag.getName());
     }
 
     public FoodTag(FoodIngredientType ingredientType, Food food, Tag tag) {

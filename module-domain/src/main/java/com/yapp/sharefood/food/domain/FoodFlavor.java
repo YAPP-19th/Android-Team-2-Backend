@@ -27,7 +27,7 @@ public class FoodFlavor extends BaseEntity {
     private Flavor flavor;
 
     public boolean isSameFlavor(Flavor flavor) {
-        return Objects.equals(this.flavor, flavor);
+        return Objects.equals(this.flavor.getFlavorType(), flavor.getFlavorType());
     }
 
     public FoodFlavor(Food food, Flavor flavor) {
