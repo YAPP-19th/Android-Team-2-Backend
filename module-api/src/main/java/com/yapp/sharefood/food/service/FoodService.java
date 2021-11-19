@@ -129,11 +129,11 @@ public class FoodService {
                 .collect(Collectors.toList());
     }
 
-    public TopRankFoodResponse findTopRankFoods(FoodTopRankRequest foodTopRankRequest, String categoryName) {
+    public TopRankFoodResponse findTopRankFoods(FoodTopRankRequest foodTopRankRequest) {
         LocalDateTime before = LocalDateTimePeriodUtils.getBeforePeriod(foodTopRankRequest.getRankDatePeriod());
         LocalDateTime now = LocalDateTimePeriodUtils.now();
 
-        List<FoodPageDto> foodPageDtos = getTopRankPageData(foodTopRankRequest.getTop(), categoryName, before, now);
+        List<FoodPageDto> foodPageDtos = getTopRankPageData(foodTopRankRequest.getTop(), foodTopRankRequest.getCategoryName(), before, now);
         return TopRankFoodResponse.of(foodPageDtos);
     }
 
@@ -163,8 +163,7 @@ public class FoodService {
         return allCategories;
     }
 
-    public RecommendationFoodResponse findFoodRecommendation(RecommendationFoodRequest recommendationFoodRequest,
-                                                             User user, String categoryName) {
+    public RecommendationFoodResponse findFoodRecommendation(RecommendationFoodRequest recommendationFoodRequest, User user) {
 
         LocalDateTime before = LocalDateTimePeriodUtils.getBeforePeriod(recommendationFoodRequest.getRankDatePeriod());
         LocalDateTime now = LocalDateTimePeriodUtils.now();
@@ -174,11 +173,11 @@ public class FoodService {
                 .collect(Collectors.toList());
 
         if (userSettingFlavors.isEmpty()) {
-            List<FoodPageDto> topRankPageData = getTopRankPageData(recommendationFoodRequest.getTop(), categoryName, before, now);
+            List<FoodPageDto> topRankPageData = getTopRankPageData(recommendationFoodRequest.getTop(), recommendationFoodRequest.getCategoryName(), before, now);
             return new RecommendationFoodResponse(topRankPageData);
         }
 
-        List<Category> categories = findCategoryWithChildrenByName(categoryName);
+        List<Category> categories = findCategoryWithChildrenByName(recommendationFoodRequest.getCategoryName());
         FoodRecommendSearch foodRecommendSearch = new FoodRecommendSearch(recommendationFoodRequest.getTop(), before, now, userSettingFlavors, categories);
         return new RecommendationFoodResponse(toList(foodRepository.findRecommendFoods(foodRecommendSearch)));
     }

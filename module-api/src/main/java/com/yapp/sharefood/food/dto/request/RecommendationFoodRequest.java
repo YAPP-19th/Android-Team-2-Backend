@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
 @Data
@@ -20,4 +21,8 @@ public class RecommendationFoodRequest {
     @Min(3)
     @NotNull
     private Integer rankDatePeriod;
+
+    @NotNull
+    @NotBlank
+    private String categoryName;
 }

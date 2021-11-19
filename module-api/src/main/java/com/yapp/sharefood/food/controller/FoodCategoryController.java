@@ -22,20 +22,18 @@ public class FoodCategoryController {
 
     private final FoodService foodService;
 
-    @GetMapping("/api/v1/categories/{categoryName}/foods/rank")
-    public ResponseEntity<TopRankFoodResponse> findFavoriteFoods(@PathVariable("categoryName") String categoryName,
-                                                                 @Valid FoodTopRankRequest foodTopRankRequest) {
-        return ResponseEntity.ok(foodService.findTopRankFoods(foodTopRankRequest, categoryName));
+    @GetMapping("/api/v1/foods/rank")
+    public ResponseEntity<TopRankFoodResponse> findFavoriteFoods(@Valid FoodTopRankRequest foodTopRankRequest) {
+        return ResponseEntity.ok(foodService.findTopRankFoods(foodTopRankRequest));
     }
 
-    @GetMapping("/api/v1/categories/{categoryName}/foods/recommendation")
+    @GetMapping("/api/v1/foods/recommendation")
     public ResponseEntity<RecommendationFoodResponse> findUserRecommendation(@AuthUser User user,
-                                                                             @PathVariable("categoryName") String categoryName,
                                                                              @Valid RecommendationFoodRequest recommendationFoodRequest) {
-        return ResponseEntity.ok(foodService.findFoodRecommendation(recommendationFoodRequest, user, categoryName));
+        return ResponseEntity.ok(foodService.findFoodRecommendation(recommendationFoodRequest, user));
     }
 
-    @GetMapping("/api/v1/categories/{categoryName}/foods/{foodId}")
+    @GetMapping("/api/v1/foods/{foodId}")
     public ResponseEntity<FoodDetailResponse> findFood(@PathVariable("foodId") Long foodId) {
         return ResponseEntity.ok(foodService.findFoodById(foodId));
     }

@@ -155,7 +155,7 @@ class FoodServiceTest {
     @DisplayName("food rank 조회 기능")
     void findTopRankFoodsTest() throws Exception {
         // given
-        FoodTopRankRequest foodTopRankRequest = FoodTopRankRequest.of(4, 7);
+        FoodTopRankRequest foodTopRankRequest = FoodTopRankRequest.of(4, 7, "A");
         Category saveCategory = saveTestCategory("A");
         User user1 = saveTestUser("user1_nick", "user1_name", "oauthId1");
         User user2 = saveTestUser("user2_nick", "user2_name", "oauthId2");
@@ -182,7 +182,7 @@ class FoodServiceTest {
         likeService.saveLike(user5, food4.getId(), saveCategory.getName());
 
         // when
-        TopRankFoodResponse topRankFoods = foodService.findTopRankFoods(foodTopRankRequest, "A");
+        TopRankFoodResponse topRankFoods = foodService.findTopRankFoods(foodTopRankRequest);
 
         // then
         assertEquals(4, topRankFoods.getTopRankingFoods().size());
@@ -196,7 +196,7 @@ class FoodServiceTest {
     @DisplayName("food rank 조회 기능 Child category 까지 조회")
     void findTopRankWithChildrensFoodsTest() throws Exception {
         // given
-        FoodTopRankRequest foodTopRankRequest = FoodTopRankRequest.of(4, 7);
+        FoodTopRankRequest foodTopRankRequest = FoodTopRankRequest.of(4, 7, "A");
         Category saveCategoryParent = saveTestCategory("A");
         Category saveCategoryChild = saveTestCategoryWithParent("B", saveCategoryParent);
         User user1 = saveTestUser("user1_nick", "user1_name", "oauthId1");
@@ -224,7 +224,7 @@ class FoodServiceTest {
         likeService.saveLike(user5, food4.getId(), saveCategoryChild.getName());
 
         // when
-        TopRankFoodResponse topRankFoods = foodService.findTopRankFoods(foodTopRankRequest, "A");
+        TopRankFoodResponse topRankFoods = foodService.findTopRankFoods(foodTopRankRequest);
 
         // then
         assertEquals(4, topRankFoods.getTopRankingFoods().size());
@@ -238,7 +238,7 @@ class FoodServiceTest {
     @DisplayName("food rank 조회 기능 카테고리 범위가 아닌 경우 테스트")
     void findTopRankNotAssociatedCategoryFoodsTest() throws Exception {
         // given
-        FoodTopRankRequest foodTopRankRequest = FoodTopRankRequest.of(4, 7);
+        FoodTopRankRequest foodTopRankRequest = FoodTopRankRequest.of(4, 7, "A");
         Category saveExternalCategoryParent = saveTestCategory("external");
         saveTestCategory("A");
         User user1 = saveTestUser("user1_nick", "user1_name", "oauthId1");
@@ -266,7 +266,7 @@ class FoodServiceTest {
         likeService.saveLike(user5, food4.getId(), saveExternalCategoryParent.getName());
 
         // when
-        TopRankFoodResponse topRankFoods = foodService.findTopRankFoods(foodTopRankRequest, "A");
+        TopRankFoodResponse topRankFoods = foodService.findTopRankFoods(foodTopRankRequest);
 
         // then
         assertEquals(0, topRankFoods.getTopRankingFoods().size());
@@ -275,7 +275,7 @@ class FoodServiceTest {
     @Test
     @DisplayName("food rank 조회할 때 전체 food 보다 작은 걍우")
     void findRankFoodLessThanAllTest() throws Exception {
-        FoodTopRankRequest foodTopRankRequest = FoodTopRankRequest.of(3, 7);
+        FoodTopRankRequest foodTopRankRequest = FoodTopRankRequest.of(4, 7, "A");
         Category saveCategory = saveTestCategory("A");
         User user1 = saveTestUser("user1_nick", "user1_name", "oauthId1");
         User user2 = saveTestUser("user2_nick", "user2_name", "oauthId2");
@@ -302,7 +302,7 @@ class FoodServiceTest {
         likeService.saveLike(user5, food4.getId(), saveCategory.getName());
 
         // when
-        TopRankFoodResponse topRankFoods = foodService.findTopRankFoods(foodTopRankRequest, "A");
+        TopRankFoodResponse topRankFoods = foodService.findTopRankFoods(foodTopRankRequest);
 
         // then
         assertEquals(3, topRankFoods.getTopRankingFoods().size());
@@ -315,7 +315,7 @@ class FoodServiceTest {
     @DisplayName("food rank 조회 기능 0개의 like를 가진 food는 재외하는 경우 테스트")
     void findFoodRankIfZeroLikeExist() throws Exception {
         // given
-        FoodTopRankRequest foodTopRankRequest = FoodTopRankRequest.of(5, 7);
+        FoodTopRankRequest foodTopRankRequest = FoodTopRankRequest.of(4, 7, "A");
         Category saveCategory = saveTestCategory("A");
         User user1 = saveTestUser("user1_nick", "user1_name", "oauthId1");
         User user2 = saveTestUser("user2_nick", "user2_name", "oauthId2");
@@ -342,7 +342,7 @@ class FoodServiceTest {
         likeService.saveLike(user5, food4.getId(), saveCategory.getName());
 
         // when
-        TopRankFoodResponse topRankFoods = foodService.findTopRankFoods(foodTopRankRequest, "A");
+        TopRankFoodResponse topRankFoods = foodService.findTopRankFoods(foodTopRankRequest);
 
         // then
         assertEquals(4, topRankFoods.getTopRankingFoods().size());
