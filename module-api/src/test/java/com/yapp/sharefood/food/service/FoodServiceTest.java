@@ -2,10 +2,15 @@ package com.yapp.sharefood.food.service;
 
 import com.yapp.sharefood.category.domain.Category;
 import com.yapp.sharefood.category.repository.CategoryRepository;
+import com.yapp.sharefood.flavor.domain.Flavor;
+import com.yapp.sharefood.flavor.domain.FlavorType;
+import com.yapp.sharefood.flavor.dto.FlavorDto;
+import com.yapp.sharefood.flavor.repository.FlavorRepository;
 import com.yapp.sharefood.food.domain.Food;
 import com.yapp.sharefood.food.domain.FoodIngredientType;
 import com.yapp.sharefood.food.domain.FoodStatus;
 import com.yapp.sharefood.food.domain.TagWrapper;
+import com.yapp.sharefood.food.dto.FoodTagDto;
 import com.yapp.sharefood.food.dto.request.FoodCreationRequest;
 import com.yapp.sharefood.food.dto.request.FoodTopRankRequest;
 import com.yapp.sharefood.food.dto.response.FoodDetailResponse;
@@ -25,6 +30,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -45,6 +51,8 @@ class FoodServiceTest {
     CategoryRepository categoryRepository;
     @Autowired
     TagRepository tagRepository;
+    @Autowired
+    FlavorRepository flavorRepository;
 
     private Category saveTestCategory(String categoryName) {
         Category category = Category.of(categoryName);
@@ -82,6 +90,10 @@ class FoodServiceTest {
         return tagRepository.save(Tag.of(tagName));
     }
 
+    private Flavor saveFlavor(FlavorType flavorType) {
+        return flavorRepository.save(Flavor.of(flavorType));
+    }
+
     @Test
     @DisplayName("food 내부 값만 저장")
     void saveFood() {
@@ -92,6 +104,19 @@ class FoodServiceTest {
                 new TagWrapper(saveTag("tag1"), FoodIngredientType.MAIN),
                 new TagWrapper(saveTag("tag2"), FoodIngredientType.ADD),
                 new TagWrapper(saveTag("tag3"), FoodIngredientType.EXTRACT));
+        List<Flavor> flavors = List.of(
+                saveFlavor(FlavorType.SWEET),
+                saveFlavor(FlavorType.SPICY),
+                saveFlavor(FlavorType.BITTER));
+
+        List<FlavorDto> flavorDtos = flavors.stream()
+                .map(flavor -> FlavorDto.of(null, flavor.getFlavorType()))
+                .collect(Collectors.toList());
+
+        List<FoodTagDto> dtoTags = wrapperTags.stream()
+                .map(wrapperTag -> FoodTagDto.of(wrapperTag.getTag().getId(), wrapperTag.getTag().getName(), wrapperTag.getIngredientType()))
+                .collect(Collectors.toList());
+
 
         FoodCreationRequest request = FoodCreationRequest.builder()
                 .title("title")
@@ -99,6 +124,9 @@ class FoodServiceTest {
                 .reviewMsg("reviewMsg")
                 .foodStatus(FoodStatus.SHARED)
                 .categoryName("A")
+                .tags(dtoTags)
+                .images(new ArrayList<>())
+                .flavors(flavorDtos)
                 .build();
 
         // when
@@ -116,6 +144,8 @@ class FoodServiceTest {
         assertEquals(1000, food.getPrice());
         assertEquals(3, food.getFoodTags().getFoodTags().size());
         assertEquals(0, food.getLikes().getSize());
+        assertEquals(0, food.getNumberOfLikes());
+        assertEquals(3, food.getFoodFlavors().getFoodFlavors().size());
     }
 
     @Test
@@ -305,10 +335,11 @@ class FoodServiceTest {
         TopRankFoodResponse topRankFoods = foodService.findTopRankFoods(foodTopRankRequest);
 
         // then
-        assertEquals(3, topRankFoods.getTopRankingFoods().size());
+        assertEquals(4, topRankFoods.getTopRankingFoods().size());
         assertEquals("food title1", topRankFoods.getTopRankingFoods().get(0).getFoodTitle());
         assertEquals("food title3", topRankFoods.getTopRankingFoods().get(1).getFoodTitle());
         assertEquals("food title2", topRankFoods.getTopRankingFoods().get(2).getFoodTitle());
+        assertEquals("food title4", topRankFoods.getTopRankingFoods().get(3).getFoodTitle());
     }
 
     @Test
