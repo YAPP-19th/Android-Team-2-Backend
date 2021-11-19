@@ -16,7 +16,6 @@ import java.util.List;
 import java.util.Objects;
 
 import static com.yapp.sharefood.category.domain.QCategory.category;
-import static com.yapp.sharefood.flavor.domain.QFlavor.flavor;
 import static com.yapp.sharefood.food.domain.QFood.food;
 import static com.yapp.sharefood.food.domain.QFoodFlavor.foodFlavor;
 
@@ -64,6 +63,6 @@ public class FoodQueryRepositoryImpl implements FoodQueryRepository {
     }
 
     public BooleanExpression containFlavors(List<Flavor> flavors) {
-        return flavors == null ? null : flavor.in(flavors);
+        return flavors == null ? null : foodFlavor.flavor.in(flavors);
     }
 }
