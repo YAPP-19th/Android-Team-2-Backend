@@ -35,6 +35,6 @@ public class FoodCategoryController {
 
     @GetMapping("/api/v1/foods/{foodId}")
     public ResponseEntity<FoodDetailResponse> findFood(@PathVariable("foodId") Long foodId) {
-        return ResponseEntity.ok(foodService.findFoodById(foodId));
+        return ResponseEntity.ok(foodService.findFoodDetailById(foodId));
     }
 }

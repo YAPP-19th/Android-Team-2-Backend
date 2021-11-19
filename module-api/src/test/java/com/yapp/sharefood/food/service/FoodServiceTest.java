@@ -243,7 +243,7 @@ class FoodServiceTest {
         Food saveFood = foodRepository.save(newFood);
 
         // when
-        FoodDetailResponse foodResponse = foodService.findFoodById(saveFood.getId());
+        FoodDetailResponse foodResponse = foodService.findFoodDetailById(saveFood.getId());
 
         // then
         assertEquals("title", foodResponse.getTitle());

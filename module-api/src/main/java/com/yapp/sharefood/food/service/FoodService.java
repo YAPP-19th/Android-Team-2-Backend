@@ -104,7 +104,7 @@ public class FoodService {
         }
     }
 
-    public FoodDetailResponse findFoodById(Long id) {
+    public FoodDetailResponse findFoodDetailById(Long id) {
         Food food = foodRepository.findById(id)
                 .orElseThrow(FoodNotFoundException::new);
 
