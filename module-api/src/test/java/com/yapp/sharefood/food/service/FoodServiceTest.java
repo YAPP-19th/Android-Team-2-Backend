@@ -1,6 +1,7 @@
 package com.yapp.sharefood.food.service;
 
 import com.yapp.sharefood.category.domain.Category;
+import com.yapp.sharefood.category.exception.CategoryNotFoundException;
 import com.yapp.sharefood.category.repository.CategoryRepository;
 import com.yapp.sharefood.flavor.domain.Flavor;
 import com.yapp.sharefood.flavor.domain.FlavorType;
@@ -33,6 +34,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest
 @Transactional
@@ -96,7 +98,7 @@ class FoodServiceTest {
 
     @Test
     @DisplayName("food 내부 값만 저장")
-    void saveFood() {
+    void saveFoodTest() {
         // given
         User saveUser = saveTestUser("nickname", "name", "oauthId");
         saveTestCategory("A");
@@ -146,6 +148,46 @@ class FoodServiceTest {
         assertEquals(0, food.getLikes().getSize());
         assertEquals(0, food.getNumberOfLikes());
         assertEquals(3, food.getFoodFlavors().getFoodFlavors().size());
+    }
+
+    @Test
+    @DisplayName("food category 일치 하지 않는 기능 테스트")
+    void saveCategoryNotMatchExceptionFoodTest() {
+        // given
+        User saveUser = saveTestUser("nickname", "name", "oauthId");
+        saveTestCategory("A");
+        List<TagWrapper> wrapperTags = List.of(
+                new TagWrapper(saveTag("tag1"), FoodIngredientType.MAIN),
+                new TagWrapper(saveTag("tag2"), FoodIngredientType.ADD),
+                new TagWrapper(saveTag("tag3"), FoodIngredientType.EXTRACT));
+        List<Flavor> flavors = List.of(
+                saveFlavor(FlavorType.SWEET),
+                saveFlavor(FlavorType.SPICY),
+                saveFlavor(FlavorType.BITTER));
+
+        List<FlavorDto> flavorDtos = flavors.stream()
+                .map(flavor -> FlavorDto.of(null, flavor.getFlavorType()))
+                .collect(Collectors.toList());
+
+        List<FoodTagDto> dtoTags = wrapperTags.stream()
+                .map(wrapperTag -> FoodTagDto.of(wrapperTag.getTag().getId(), wrapperTag.getTag().getName(), wrapperTag.getIngredientType()))
+                .collect(Collectors.toList());
+
+        FoodCreationRequest request = FoodCreationRequest.builder()
+                .title("title")
+                .price(1000)
+                .reviewMsg("reviewMsg")
+                .foodStatus(FoodStatus.SHARED)
+                .categoryName("B")
+                .tags(dtoTags)
+                .images(new ArrayList<>())
+                .flavors(flavorDtos)
+                .build();
+
+        // when
+
+        // then
+        assertThrows(CategoryNotFoundException.class, () -> foodService.saveFood(saveUser, request, wrapperTags));
     }
 
     @Test
