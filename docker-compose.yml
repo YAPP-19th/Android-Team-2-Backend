@@ -1,9 +1,22 @@
 version: "3"
 services:
   api:
-    build: .
+    image: clack2933/shared_food:latest
     ports:
-      - 8000:8000
-    command: java -jar app.jar
+      - 8000:9000
     environment:
-      - "SPRING_PROFILES_ACTIVE=local"
+      - "SPRING_PROFILES_ACTIVE=dev"
+    depends_on:
+      - mysql
+  mysql_db:
+    restart: always
+    image: mysql:5.7
+    container_name: mysql57
+    environment:
+      MYSQL_DATABASE: dev
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_ROOT_HOST: root
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./db/mysql_data:/var/lib/mysql
