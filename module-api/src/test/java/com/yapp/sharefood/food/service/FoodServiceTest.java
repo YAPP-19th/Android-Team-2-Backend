@@ -23,7 +23,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -157,8 +156,6 @@ class FoodServiceTest {
     void findTopRankFoodsTest() throws Exception {
         // given
         FoodTopRankRequest foodTopRankRequest = FoodTopRankRequest.of(4, 7);
-        LocalDateTime past = LocalDateTime.now().minusDays(5);
-        LocalDateTime now = LocalDateTime.now().plusDays(2);
         Category saveCategory = saveTestCategory("A");
         User user1 = saveTestUser("user1_nick", "user1_name", "oauthId1");
         User user2 = saveTestUser("user2_nick", "user2_name", "oauthId2");
@@ -185,7 +182,7 @@ class FoodServiceTest {
         likeService.saveLike(user5, food4.getId(), saveCategory.getName());
 
         // when
-        TopRankFoodResponse topRankFoods = foodService.findTopRankFoods(foodTopRankRequest, "A", past, now);
+        TopRankFoodResponse topRankFoods = foodService.findTopRankFoods(foodTopRankRequest, "A");
 
         // then
         assertEquals(4, topRankFoods.getTopRankingFoods().size());
@@ -200,8 +197,6 @@ class FoodServiceTest {
     void findTopRankWithChildrensFoodsTest() throws Exception {
         // given
         FoodTopRankRequest foodTopRankRequest = FoodTopRankRequest.of(4, 7);
-        LocalDateTime past = LocalDateTime.now().minusDays(5);
-        LocalDateTime now = LocalDateTime.now().plusDays(2);
         Category saveCategoryParent = saveTestCategory("A");
         Category saveCategoryChild = saveTestCategoryWithParent("B", saveCategoryParent);
         User user1 = saveTestUser("user1_nick", "user1_name", "oauthId1");
@@ -229,7 +224,7 @@ class FoodServiceTest {
         likeService.saveLike(user5, food4.getId(), saveCategoryChild.getName());
 
         // when
-        TopRankFoodResponse topRankFoods = foodService.findTopRankFoods(foodTopRankRequest, "A", past, now);
+        TopRankFoodResponse topRankFoods = foodService.findTopRankFoods(foodTopRankRequest, "A");
 
         // then
         assertEquals(4, topRankFoods.getTopRankingFoods().size());
@@ -244,8 +239,6 @@ class FoodServiceTest {
     void findTopRankNotAssociatedCategoryFoodsTest() throws Exception {
         // given
         FoodTopRankRequest foodTopRankRequest = FoodTopRankRequest.of(4, 7);
-        LocalDateTime past = LocalDateTime.now().minusDays(5);
-        LocalDateTime now = LocalDateTime.now().plusDays(2);
         Category saveExternalCategoryParent = saveTestCategory("external");
         saveTestCategory("A");
         User user1 = saveTestUser("user1_nick", "user1_name", "oauthId1");
@@ -273,7 +266,7 @@ class FoodServiceTest {
         likeService.saveLike(user5, food4.getId(), saveExternalCategoryParent.getName());
 
         // when
-        TopRankFoodResponse topRankFoods = foodService.findTopRankFoods(foodTopRankRequest, "A", past, now);
+        TopRankFoodResponse topRankFoods = foodService.findTopRankFoods(foodTopRankRequest, "A");
 
         // then
         assertEquals(0, topRankFoods.getTopRankingFoods().size());
@@ -283,8 +276,6 @@ class FoodServiceTest {
     @DisplayName("food rank 조회할 때 전체 food 보다 작은 걍우")
     void findRankFoodLessThanAllTest() throws Exception {
         FoodTopRankRequest foodTopRankRequest = FoodTopRankRequest.of(3, 7);
-        LocalDateTime past = LocalDateTime.now().minusDays(5);
-        LocalDateTime now = LocalDateTime.now().plusDays(2);
         Category saveCategory = saveTestCategory("A");
         User user1 = saveTestUser("user1_nick", "user1_name", "oauthId1");
         User user2 = saveTestUser("user2_nick", "user2_name", "oauthId2");
@@ -311,7 +302,7 @@ class FoodServiceTest {
         likeService.saveLike(user5, food4.getId(), saveCategory.getName());
 
         // when
-        TopRankFoodResponse topRankFoods = foodService.findTopRankFoods(foodTopRankRequest, "A", past, now);
+        TopRankFoodResponse topRankFoods = foodService.findTopRankFoods(foodTopRankRequest, "A");
 
         // then
         assertEquals(3, topRankFoods.getTopRankingFoods().size());
@@ -325,8 +316,6 @@ class FoodServiceTest {
     void findFoodRankIfZeroLikeExist() throws Exception {
         // given
         FoodTopRankRequest foodTopRankRequest = FoodTopRankRequest.of(5, 7);
-        LocalDateTime past = LocalDateTime.now().minusDays(5);
-        LocalDateTime now = LocalDateTime.now().plusDays(2);
         Category saveCategory = saveTestCategory("A");
         User user1 = saveTestUser("user1_nick", "user1_name", "oauthId1");
         User user2 = saveTestUser("user2_nick", "user2_name", "oauthId2");
@@ -353,7 +342,7 @@ class FoodServiceTest {
         likeService.saveLike(user5, food4.getId(), saveCategory.getName());
 
         // when
-        TopRankFoodResponse topRankFoods = foodService.findTopRankFoods(foodTopRankRequest, "A", past, now);
+        TopRankFoodResponse topRankFoods = foodService.findTopRankFoods(foodTopRankRequest, "A");
 
         // then
         assertEquals(4, topRankFoods.getTopRankingFoods().size());

@@ -1,20 +1,25 @@
 package com.yapp.sharefood.food.service;
 
 import com.yapp.sharefood.category.domain.Category;
-import com.yapp.sharefood.category.dto.CategoryDto;
 import com.yapp.sharefood.category.exception.CategoryNotFoundException;
 import com.yapp.sharefood.category.repository.CategoryRepository;
+import com.yapp.sharefood.common.utils.LocalDateTimePeriodUtils;
 import com.yapp.sharefood.external.s3.AwsS3Uploader;
+import com.yapp.sharefood.flavor.domain.Flavor;
+import com.yapp.sharefood.flavor.domain.FlavorType;
+import com.yapp.sharefood.flavor.repository.FlavorRepository;
 import com.yapp.sharefood.food.domain.Food;
 import com.yapp.sharefood.food.domain.FoodTag;
 import com.yapp.sharefood.food.domain.TagWrapper;
 import com.yapp.sharefood.food.dto.FoodImageDto;
 import com.yapp.sharefood.food.dto.FoodPageDto;
+import com.yapp.sharefood.food.dto.FoodRecommendSearch;
 import com.yapp.sharefood.food.dto.FoodTagDto;
 import com.yapp.sharefood.food.dto.request.FoodCreationRequest;
 import com.yapp.sharefood.food.dto.request.FoodTopRankRequest;
+import com.yapp.sharefood.food.dto.request.RecommendationFoodRequest;
 import com.yapp.sharefood.food.dto.response.FoodDetailResponse;
-import com.yapp.sharefood.food.dto.response.FoodPageResponse;
+import com.yapp.sharefood.food.dto.response.RecommendationFoodResponse;
 import com.yapp.sharefood.food.dto.response.TopRankFoodResponse;
 import com.yapp.sharefood.food.exception.FoodNotFoundException;
 import com.yapp.sharefood.food.repository.FoodRepository;
@@ -24,9 +29,9 @@ import com.yapp.sharefood.image.repository.ImageRepository;
 import com.yapp.sharefood.like.projection.TopLikeProjection;
 import com.yapp.sharefood.like.repository.LikeRepository;
 import com.yapp.sharefood.user.domain.User;
+import com.yapp.sharefood.userflavor.domain.UserFlavor;
+import com.yapp.sharefood.userflavor.repository.UserFlavorRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -49,6 +54,9 @@ public class FoodService {
 
     private final FoodRepository foodRepository;
     private final FoodTagRepository foodTagRepository;
+
+    private final UserFlavorRepository userFlavorRepository;
+
     private final CategoryRepository categoryRepository;
     private final LikeRepository likeRepository;
     private final ImageRepository imageRepository;
@@ -121,20 +129,18 @@ public class FoodService {
                 .collect(Collectors.toList());
     }
 
-    public FoodPageResponse findAllFoods(CategoryDto categoryDto, Pageable pageable) {
-        Category category = categoryRepository.findByName(categoryDto.getCategoryName())
-                .orElseThrow(CategoryNotFoundException::new);
-        Slice<FoodPageDto> findFoods = foodRepository.findByCategory(category, pageable)
-                .map(food -> FoodPageDto.toFoodPageDto(food, 0L));
+    public TopRankFoodResponse findTopRankFoods(FoodTopRankRequest foodTopRankRequest, String categoryName) {
+        LocalDateTime before = LocalDateTimePeriodUtils.getBeforePeriod(foodTopRankRequest.getRankDatePeriod());
+        LocalDateTime now = LocalDateTimePeriodUtils.now();
 
-        return new FoodPageResponse(findFoods);
+        List<FoodPageDto> foodPageDtos = getTopRankPageData(foodTopRankRequest.getTop(), categoryName, before, now);
+        return TopRankFoodResponse.of(foodPageDtos);
     }
 
-
-    public TopRankFoodResponse findTopRankFoods(FoodTopRankRequest foodTopRankRequest, String categoryName, LocalDateTime before, LocalDateTime now) {
+    private List<FoodPageDto> getTopRankPageData(int rank, String categoryName, LocalDateTime before, LocalDateTime now) {
         List<Category> categoryWithChildrenByName = findCategoryWithChildrenByName(categoryName);
         List<TopLikeProjection> topFoodIdsByCount =
-                likeRepository.findTopFoodIdsByCount(foodTopRankRequest.getTop(), categoryWithChildrenByName, before, now);
+                likeRepository.findTopFoodIdsByCount(rank, categoryWithChildrenByName, before, now);
 
         Map<Long, Long> foodIdKeylikeCountMap = topFoodIdsByCount.stream()
                 .collect(toMap(TopLikeProjection::getFoodId, TopLikeProjection::getCount));
@@ -142,10 +148,9 @@ public class FoodService {
                 .map(TopLikeProjection::getFoodId)
                 .collect(Collectors.toList());
 
-        List<FoodPageDto> foodPageDtos = toList(foodRepository.findFoodWithCategoryByIds(foodIds), foodIdKeylikeCountMap)
+        return toList(foodRepository.findFoodWithCategoryByIds(foodIds), foodIdKeylikeCountMap)
                 .stream().sorted(Comparator.comparing(foodPageDto -> -foodPageDto.getNumberOfLikes()))
                 .collect(Collectors.toList());
-        return TopRankFoodResponse.of(foodPageDtos);
     }
 
     private List<Category> findCategoryWithChildrenByName(String categoryName) {
@@ -156,5 +161,25 @@ public class FoodService {
         allCategories.addAll(findCategory.getChildCategories().getChildCategories());
 
         return allCategories;
+    }
+
+    public RecommendationFoodResponse findFoodRecommendation(RecommendationFoodRequest recommendationFoodRequest,
+                                                             User user, String categoryName) {
+
+        LocalDateTime before = LocalDateTimePeriodUtils.getBeforePeriod(recommendationFoodRequest.getRankDatePeriod());
+        LocalDateTime now = LocalDateTimePeriodUtils.now();
+
+        List<Flavor> userSettingFlavors = userFlavorRepository.findByUser(user)
+                .stream().map(UserFlavor::getFlavor)
+                .collect(Collectors.toList());
+
+        if (userSettingFlavors.isEmpty()) {
+            List<FoodPageDto> topRankPageData = getTopRankPageData(recommendationFoodRequest.getTop(), categoryName, before, now);
+            return new RecommendationFoodResponse(topRankPageData);
+        }
+
+        List<Category> categories = findCategoryWithChildrenByName(categoryName);
+        FoodRecommendSearch foodRecommendSearch = new FoodRecommendSearch(recommendationFoodRequest.getTop(), before, now, userSettingFlavors, categories);
+        return new RecommendationFoodResponse(toList(foodRepository.findRecommendFoods(foodRecommendSearch)));
     }
 }
