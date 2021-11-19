@@ -2,6 +2,7 @@ package com.yapp.sharefood.food.controller;
 
 import com.yapp.sharefood.auth.resolver.AuthUser;
 import com.yapp.sharefood.food.dto.request.FoodTopRankRequest;
+import com.yapp.sharefood.food.dto.request.RecommendationFoodRequest;
 import com.yapp.sharefood.food.dto.response.FoodDetailResponse;
 import com.yapp.sharefood.food.dto.response.RecommendationFoodResponse;
 import com.yapp.sharefood.food.dto.response.TopRankFoodResponse;
@@ -29,8 +30,9 @@ public class FoodCategoryController {
 
     @GetMapping("/api/v1/categories/{categoryName}/foods/recommendation")
     public ResponseEntity<RecommendationFoodResponse> findUserRecommendation(@AuthUser User user,
-                                                                             @PathVariable("categoryName") String categoryName) {
-        return null;
+                                                                             @PathVariable("categoryName") String categoryName,
+                                                                             @Valid RecommendationFoodRequest recommendationFoodRequest) {
+        return ResponseEntity.ok(foodService.findFoodRecommendation(recommendationFoodRequest, user, categoryName));
     }
 
     @GetMapping("/api/v1/categories/{categoryName}/foods/{foodId}")
