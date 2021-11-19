@@ -1,0 +1,18 @@
+ifndef::snippets[]
+:snippets: ./build/generated-snippets
+endif::[]
+
+== CURL
+include::{snippets}/user/me/get/success/curl-request.adoc[]
+
+== Request
+
+include::{snippets}/user/me/get/success/http-request.adoc[]
+
+== Response Success
+
+include::{snippets}/user/me/get/success/http-response.adoc[]
+
+== Response Fail
+
+include::{snippets}/user/me/get/fail/notFound/http-response.adoc[]
