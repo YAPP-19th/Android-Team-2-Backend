@@ -50,7 +50,8 @@ public class FoodQueryRepositoryImpl implements FoodQueryRepository {
                 .innerJoin(food.foodFlavors.foodFlavors, foodFlavor)
                 .where(
                         containCategories(foodRecommendSearch.getCategories()),
-                        containFlavors(foodRecommendSearch.getFlavors())
+                        containFlavors(foodRecommendSearch.getFlavors()),
+                        notZeroLike()
                 )
                 .groupBy(food.id)
                 .orderBy(food.numberOfLikes.desc())
@@ -64,5 +65,9 @@ public class FoodQueryRepositoryImpl implements FoodQueryRepository {
 
     public BooleanExpression containFlavors(List<Flavor> flavors) {
         return flavors == null ? null : foodFlavor.flavor.in(flavors);
+    }
+
+    public BooleanExpression notZeroLike() {
+        return food.numberOfLikes.ne(0L);
     }
 }
