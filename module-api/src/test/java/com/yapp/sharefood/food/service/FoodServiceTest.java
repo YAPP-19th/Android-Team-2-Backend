@@ -14,7 +14,9 @@ import com.yapp.sharefood.food.domain.TagWrapper;
 import com.yapp.sharefood.food.dto.FoodTagDto;
 import com.yapp.sharefood.food.dto.request.FoodCreationRequest;
 import com.yapp.sharefood.food.dto.request.FoodTopRankRequest;
+import com.yapp.sharefood.food.dto.request.RecommendationFoodRequest;
 import com.yapp.sharefood.food.dto.response.FoodDetailResponse;
+import com.yapp.sharefood.food.dto.response.RecommendationFoodResponse;
 import com.yapp.sharefood.food.dto.response.TopRankFoodResponse;
 import com.yapp.sharefood.food.repository.FoodRepository;
 import com.yapp.sharefood.like.service.LikeService;
@@ -23,12 +25,16 @@ import com.yapp.sharefood.tag.repository.TagRepository;
 import com.yapp.sharefood.user.domain.OAuthType;
 import com.yapp.sharefood.user.domain.User;
 import com.yapp.sharefood.user.repository.UserRepository;
+import com.yapp.sharefood.userflavor.domain.UserFlavor;
+import com.yapp.sharefood.userflavor.repository.UserFlavorRepository;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.EntityManager;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -39,6 +45,9 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 @SpringBootTest
 @Transactional
 class FoodServiceTest {
+
+    @Autowired
+    EntityManager em;
 
     @Autowired
     FoodService foodService;
@@ -55,6 +64,8 @@ class FoodServiceTest {
     TagRepository tagRepository;
     @Autowired
     FlavorRepository flavorRepository;
+    @Autowired
+    UserFlavorRepository userFlavorRepository;
 
     private Category saveTestCategory(String categoryName) {
         Category category = Category.of(categoryName);
@@ -88,12 +99,37 @@ class FoodServiceTest {
         return foodRepository.save(food);
     }
 
+    private Food saveFoodWithFlavors(String title, User user, Category category, List<Flavor> flavors) {
+        Food food = Food.builder()
+                .foodTitle(title)
+                .writer(user)
+                .foodStatus(FoodStatus.SHARED)
+                .category(category)
+                .build();
+        food.assignFlavors(flavors);
+
+        return foodRepository.save(food);
+    }
+
+    private void assignUserFlavor(User user, List<Flavor> flavors) {
+        for (Flavor flavor : flavors) {
+            userFlavorRepository.save(UserFlavor.of(user, flavor));
+        }
+    }
+
+    private List<Flavor> findFlavors(List<FlavorType> flavorTypes) {
+        return flavorRepository.findByFlavorTypeIsIn(flavorTypes);
+    }
+
     private Tag saveTag(String tagName) {
         return tagRepository.save(Tag.of(tagName));
     }
 
-    private Flavor saveFlavor(FlavorType flavorType) {
-        return flavorRepository.save(Flavor.of(flavorType));
+    @BeforeEach
+    void setUp() {
+        for (FlavorType flavorType : FlavorType.values()) {
+            flavorRepository.save(Flavor.of(flavorType));
+        }
     }
 
     @Test
@@ -106,10 +142,7 @@ class FoodServiceTest {
                 new TagWrapper(saveTag("tag1"), FoodIngredientType.MAIN),
                 new TagWrapper(saveTag("tag2"), FoodIngredientType.ADD),
                 new TagWrapper(saveTag("tag3"), FoodIngredientType.EXTRACT));
-        List<Flavor> flavors = List.of(
-                saveFlavor(FlavorType.SWEET),
-                saveFlavor(FlavorType.SPICY),
-                saveFlavor(FlavorType.BITTER));
+        List<Flavor> flavors = findFlavors(List.of(FlavorType.SWEET, FlavorType.SPICY, FlavorType.BITTER));
 
         List<FlavorDto> flavorDtos = flavors.stream()
                 .map(flavor -> FlavorDto.of(null, flavor.getFlavorType()))
@@ -160,10 +193,7 @@ class FoodServiceTest {
                 new TagWrapper(saveTag("tag1"), FoodIngredientType.MAIN),
                 new TagWrapper(saveTag("tag2"), FoodIngredientType.ADD),
                 new TagWrapper(saveTag("tag3"), FoodIngredientType.EXTRACT));
-        List<Flavor> flavors = List.of(
-                saveFlavor(FlavorType.SWEET),
-                saveFlavor(FlavorType.SPICY),
-                saveFlavor(FlavorType.BITTER));
+        List<Flavor> flavors = findFlavors(List.of(FlavorType.SWEET, FlavorType.SPICY, FlavorType.BITTER));
 
         List<FlavorDto> flavorDtos = flavors.stream()
                 .map(flavor -> FlavorDto.of(null, flavor.getFlavorType()))
