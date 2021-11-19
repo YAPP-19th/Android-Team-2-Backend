@@ -25,4 +25,14 @@ public class RecommendationFoodRequest {
     @NotNull
     @NotBlank
     private String categoryName;
+
+    private RecommendationFoodRequest(Integer top, Integer rankDatePeriod, String categoryName) {
+        this.top = top;
+        this.rankDatePeriod = rankDatePeriod;
+        this.categoryName = categoryName;
+    }
+
+    public static RecommendationFoodRequest of(Integer top, Integer rankDatePeriod, String categoryName) {
+        return new RecommendationFoodRequest(top, rankDatePeriod, categoryName);
+    }
 }
