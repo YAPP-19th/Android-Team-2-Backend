@@ -1,4 +1,4 @@
-package com.yapp.sharefood.bookmark;
+package com.yapp.sharefood.bookmark.domain;
 
 import com.yapp.sharefood.common.domain.BaseEntity;
 import com.yapp.sharefood.common.exception.InvalidOperationException;

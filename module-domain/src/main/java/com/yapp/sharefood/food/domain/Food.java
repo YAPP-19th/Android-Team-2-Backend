@@ -1,6 +1,6 @@
 package com.yapp.sharefood.food.domain;
 
-import com.yapp.sharefood.bookmark.Bookmark;
+import com.yapp.sharefood.bookmark.domain.Bookmark;
 import com.yapp.sharefood.category.domain.Category;
 import com.yapp.sharefood.category.exception.CategoryNotFoundException;
 import com.yapp.sharefood.common.exception.InvalidOperationException;

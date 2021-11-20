@@ -1,6 +1,6 @@
 package com.yapp.sharefood.food.domain;
 
-import com.yapp.sharefood.bookmark.Bookmark;
+import com.yapp.sharefood.bookmark.domain.Bookmark;
 import com.yapp.sharefood.bookmark.exception.BookmarkNotFoundException;
 import com.yapp.sharefood.common.exception.InvalidOperationException;
 import lombok.AccessLevel;
