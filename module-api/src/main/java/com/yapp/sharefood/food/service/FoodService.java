@@ -12,14 +12,13 @@ import com.yapp.sharefood.flavor.repository.FlavorRepository;
 import com.yapp.sharefood.food.domain.Food;
 import com.yapp.sharefood.food.domain.FoodTag;
 import com.yapp.sharefood.food.domain.TagWrapper;
-import com.yapp.sharefood.food.dto.FoodImageDto;
-import com.yapp.sharefood.food.dto.FoodPageDto;
-import com.yapp.sharefood.food.dto.FoodRecommendSearch;
-import com.yapp.sharefood.food.dto.FoodTagDto;
+import com.yapp.sharefood.food.dto.*;
 import com.yapp.sharefood.food.dto.request.FoodCreationRequest;
+import com.yapp.sharefood.food.dto.request.FoodPageSearchRequest;
 import com.yapp.sharefood.food.dto.request.FoodTopRankRequest;
 import com.yapp.sharefood.food.dto.request.RecommendationFoodRequest;
 import com.yapp.sharefood.food.dto.response.FoodDetailResponse;
+import com.yapp.sharefood.food.dto.response.FoodPageResponse;
 import com.yapp.sharefood.food.dto.response.RecommendationFoodResponse;
 import com.yapp.sharefood.food.dto.response.TopRankFoodResponse;
 import com.yapp.sharefood.food.exception.FoodNotFoundException;
@@ -29,6 +28,8 @@ import com.yapp.sharefood.image.domain.Image;
 import com.yapp.sharefood.image.repository.ImageRepository;
 import com.yapp.sharefood.like.projection.TopLikeProjection;
 import com.yapp.sharefood.like.repository.LikeRepository;
+import com.yapp.sharefood.tag.domain.Tag;
+import com.yapp.sharefood.tag.repository.TagRepository;
 import com.yapp.sharefood.user.domain.User;
 import com.yapp.sharefood.userflavor.domain.UserFlavor;
 import com.yapp.sharefood.userflavor.repository.UserFlavorRepository;
@@ -55,6 +56,7 @@ public class FoodService {
 
     private final FoodRepository foodRepository;
     private final FoodTagRepository foodTagRepository;
+    private final TagRepository tagRepository;
 
     private final UserFlavorRepository userFlavorRepository;
 
@@ -197,5 +199,32 @@ public class FoodService {
         List<Category> categories = findCategoryWithChildrenByName(recommendationFoodRequest.getCategoryName());
         FoodRecommendSearch foodRecommendSearch = new FoodRecommendSearch(recommendationFoodRequest.getTop(), before, now, userSettingFlavors, categories);
         return new RecommendationFoodResponse(toList(foodRepository.findRecommendFoods(foodRecommendSearch)));
+    }
+
+    public FoodPageResponse searchFoodsPage(FoodPageSearchRequest foodPageSearchRequest) {
+        Category category = categoryRepository.findByName(foodPageSearchRequest.getCategoryName())
+                .orElseThrow(CategoryNotFoundException::new);
+        List<Tag> tags = tagRepository.findByNameIn(foodPageSearchRequest.getTags());
+
+        FoodPageSearch foodPageSearch = FoodPageSearch.builder()
+                .minPrice(foodPageSearchRequest.getMinPrice())
+                .maxPrice(foodPageSearchRequest.getMaxPrice())
+                .lastCurosr(foodPageSearchRequest.getCursor())
+                .size(foodPageSearchRequest.getSize())
+                .sort(foodPageSearchRequest.getSort())
+                .order(foodPageSearchRequest.getOrder())
+                .lastCurosr(foodPageSearchRequest.getCursor())
+                .category(category)
+                .tags(tags)
+                .build();
+
+        List<Food> pageFoods = foodRepository.findPageFoods(foodPageSearch);
+
+        if (pageFoods.size() <= foodPageSearchRequest.getSize()) {
+            return FoodPageResponse.ofLastPage(pageFoods);
+        }
+        List<Food> content = pageFoods.subList(0, pageFoods.size());
+        
+        return FoodPageResponse.of(content, pageFoods.get(pageFoods.size() - 1).getId());
     }
 }

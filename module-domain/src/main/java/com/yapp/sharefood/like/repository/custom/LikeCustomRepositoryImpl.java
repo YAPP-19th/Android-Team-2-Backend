@@ -36,9 +36,9 @@ public class LikeCustomRepositoryImpl implements LikeCustomRepository {
                 .from(like)
                 .innerJoin(like.food, food)
                 .where(
+                        statusShared(),
                         greatherThanCreateDate(before),
                         lessThanCreateDate(now),
-                        eqFoodStatus(FoodStatus.SHARED),
                         inFoodCategories(categories)
                 )
                 .groupBy(like.food)
@@ -63,7 +63,7 @@ public class LikeCustomRepositoryImpl implements LikeCustomRepository {
         return time == null ? null : like.createDate.after(time);
     }
 
-    private BooleanExpression eqFoodStatus(FoodStatus foodStatus) {
-        return foodStatus == null ? null : like.food.foodStatus.eq(foodStatus);
+    private BooleanExpression statusShared() {
+        return food.foodStatus.eq(FoodStatus.SHARED);
     }
 }
