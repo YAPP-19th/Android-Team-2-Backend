@@ -11,7 +11,7 @@ import javax.validation.constraints.NotNull;
 
 @Data
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class FoodTopRankRequest {
+public class RecommendationFoodRequest {
     @Min(5)
     @Max(10)
     @NotNull
@@ -26,13 +26,13 @@ public class FoodTopRankRequest {
     @NotBlank
     private String categoryName;
 
-    private FoodTopRankRequest(Integer top, Integer rankDatePeriod, String categoryName) {
+    private RecommendationFoodRequest(Integer top, Integer rankDatePeriod, String categoryName) {
         this.top = top;
         this.rankDatePeriod = rankDatePeriod;
         this.categoryName = categoryName;
     }
 
-    public static FoodTopRankRequest of(Integer top, Integer rankDatePeriod, String categoryName) {
-        return new FoodTopRankRequest(top, rankDatePeriod, categoryName);
+    public static RecommendationFoodRequest of(Integer top, Integer rankDatePeriod, String categoryName) {
+        return new RecommendationFoodRequest(top, rankDatePeriod, categoryName);
     }
 }
