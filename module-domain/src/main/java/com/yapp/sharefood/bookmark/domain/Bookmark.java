@@ -35,7 +35,7 @@ public class Bookmark extends BaseEntity {
         this.user = user;
     }
 
-    public Bookmark of(User user) {
+    public static Bookmark of(User user) {
         return new Bookmark(user);
     }
 
