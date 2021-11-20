@@ -23,7 +23,6 @@ import java.util.List;
 import java.util.Objects;
 
 import static com.yapp.sharefood.category.domain.QCategory.category;
-import static com.yapp.sharefood.flavor.domain.QFlavor.flavor;
 import static com.yapp.sharefood.food.domain.QFood.food;
 import static com.yapp.sharefood.food.domain.QFoodFlavor.foodFlavor;
 import static com.yapp.sharefood.food.domain.QFoodTag.foodTag;
@@ -85,8 +84,7 @@ public class FoodQueryRepositoryImpl implements FoodQueryRepository {
 
         if (!Objects.isNull(foodPageSearch.getTags()) && !foodPageSearch.getTags().isEmpty()) {
             return queryLongFactory
-                    .innerJoin(food.foodFlavors.foodFlavors, foodFlavor)
-                    .innerJoin(foodFlavor.flavor, flavor)
+                    .innerJoin(food.foodTags.foodTags, foodTag)
                     .where(
                             lessThanId(foodPageSearch.getLastCurosr()),
                             eqCategory(foodPageSearch.getCategory()),
@@ -104,11 +102,7 @@ public class FoodQueryRepositoryImpl implements FoodQueryRepository {
     }
 
     private BooleanExpression lessThanId(Long cursor) {
-        if (cursor == null) {
-            throw new RuntimeException();
-        }
-
-        return food.id.lt(cursor);
+        return cursor == null ? null : food.id.lt(cursor);
     }
 
     private BooleanExpression statusShared() {

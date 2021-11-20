@@ -28,12 +28,12 @@ public class FoodPageSearch {
 
     private Category category;
 
-    private long lastCurosr;
+    private Long lastCurosr;
 
     private int size;
 
     @Builder
-    public FoodPageSearch(int minPrice, int maxPrice, String sort, String order, List<Flavor> flavors, List<Tag> tags, Category category, long lastCurosr, int size) {
+    public FoodPageSearch(Integer minPrice, Integer maxPrice, String sort, String order, List<Flavor> flavors, List<Tag> tags, Category category, Long lastCurosr, int size) {
         this.minPrice = minPrice;
         this.maxPrice = maxPrice;
         this.flavors = flavors;

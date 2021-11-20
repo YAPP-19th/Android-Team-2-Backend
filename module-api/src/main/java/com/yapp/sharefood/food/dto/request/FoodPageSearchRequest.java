@@ -5,6 +5,7 @@ import lombok.Data;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -14,8 +15,7 @@ public class FoodPageSearchRequest {
     @Min(0)
     private Integer maxPrice;
 
-    @NotNull
-    private List<String> tags;
+    private List<String> tags = new ArrayList<>();
 
     private String sort;
     private String order;
@@ -24,7 +24,6 @@ public class FoodPageSearchRequest {
     @NotBlank
     private String categoryName;
 
-    @NotNull
     private Long cursor;
 
     @NotNull
