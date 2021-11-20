@@ -1,5 +1,6 @@
 package com.yapp.sharefood.bookmark.advice;
 
+import com.yapp.sharefood.bookmark.exception.BookmarkAlreadyExistException;
 import com.yapp.sharefood.bookmark.exception.BookmarkNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -15,5 +16,11 @@ public class BookmarkAdviceController {
     protected ResponseEntity<Object> handleBookmarkNotFoundException(final BookmarkNotFoundException exception) {
         log.error(exception.getMessage(), exception);
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(exception.getMessage());
+    }
+
+    @ExceptionHandler(BookmarkAlreadyExistException.class)
+    protected ResponseEntity<Object> handleBookmarkAlreadyExistException(final BookmarkAlreadyExistException exception) {
+        log.error(exception.getMessage(), exception);
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(exception.getMessage());
     }
 }

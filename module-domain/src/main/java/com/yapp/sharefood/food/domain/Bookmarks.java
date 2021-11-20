@@ -1,6 +1,7 @@
 package com.yapp.sharefood.food.domain;
 
 import com.yapp.sharefood.bookmark.domain.Bookmark;
+import com.yapp.sharefood.bookmark.exception.BookmarkAlreadyExistException;
 import com.yapp.sharefood.bookmark.exception.BookmarkNotFoundException;
 import com.yapp.sharefood.common.exception.InvalidOperationException;
 import lombok.AccessLevel;
@@ -34,7 +35,7 @@ public class Bookmarks {
         validateAlreadyBookmarkUser(bookmark.getId());
 
         bookmark.assignFood(food);
-        if(!bookmarks.contains(bookmark)) {
+        if (!bookmarks.contains(bookmark)) {
             bookmarks.add(bookmark);
         }
     }
@@ -53,7 +54,7 @@ public class Bookmarks {
 
     private void validateAlreadyBookmarkUser(Long userId) {
         if (isAlreadyBookmark(userId)) {
-            throw new InvalidOperationException("이미 bookmark한 사용자 입니다.");
+            throw new BookmarkAlreadyExistException();
         }
     }
 
