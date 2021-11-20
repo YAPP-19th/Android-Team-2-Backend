@@ -48,7 +48,7 @@ public class Bookmarks {
         return this.bookmarks.stream()
                 .filter(bookmark -> bookmark.getUser().getId().equals(userId))
                 .findFirst()
-                .orElseThrow();
+                .orElseThrow(BookmarkNotFoundException::new);
     }
 
     private void validateAlreadyBookmarkUser(Long userId) {
