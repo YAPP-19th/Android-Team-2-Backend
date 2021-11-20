@@ -209,22 +209,20 @@ public class FoodService {
         FoodPageSearch foodPageSearch = FoodPageSearch.builder()
                 .minPrice(foodPageSearchRequest.getMinPrice())
                 .maxPrice(foodPageSearchRequest.getMaxPrice())
-                .lastCurosr(foodPageSearchRequest.getCursor())
-                .size(foodPageSearchRequest.getSize())
+                .size(foodPageSearchRequest.getPageSize())
                 .sort(foodPageSearchRequest.getSort())
                 .order(foodPageSearchRequest.getOrder())
-                .lastCurosr(foodPageSearchRequest.getCursor())
+                .offset(foodPageSearchRequest.getOffset())
                 .category(category)
                 .tags(tags)
                 .build();
 
         List<Food> pageFoods = foodRepository.findPageFoods(foodPageSearch);
 
-        if (pageFoods.size() <= foodPageSearchRequest.getSize()) {
-            return FoodPageResponse.ofLastPage(pageFoods);
+        if (pageFoods.size() < foodPageSearchRequest.getPageSize()) {
+            return FoodPageResponse.ofLastPage(pageFoods, foodPageSearchRequest.getPageSize());
         }
-        List<Food> content = pageFoods.subList(0, pageFoods.size());
-        
-        return FoodPageResponse.of(content, pageFoods.get(pageFoods.size() - 1).getId());
+
+        return FoodPageResponse.of(pageFoods, foodPageSearchRequest.getPageSize(), foodPageSearch.getOffset() + 1);
     }
 }

@@ -24,8 +24,10 @@ public class FoodPageSearchRequest {
     @NotBlank
     private String categoryName;
 
-    private Long cursor;
+    @NotNull
+    @NotBlank
+    private Long offset;
 
     @NotNull
-    private Integer size;
+    private Integer pageSize;
 }

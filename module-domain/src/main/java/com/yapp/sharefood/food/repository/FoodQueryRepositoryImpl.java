@@ -73,6 +73,7 @@ public class FoodQueryRepositoryImpl implements FoodQueryRepository {
         List<Long> foodsIds = queryFromByIsTags(foodPageSearch)
                 .orderBy(findCriteria(foodPageSearch.getOrder(), foodPageSearch.getSort()))
                 .limit(foodPageSearch.getSize())
+                .offset(foodPageSearch.getOffset() * foodPageSearch.getSize())
                 .fetch();
 
         return findFoodWithCategoryByIds(foodsIds);
@@ -86,7 +87,6 @@ public class FoodQueryRepositoryImpl implements FoodQueryRepository {
             return queryLongFactory
                     .innerJoin(food.foodTags.foodTags, foodTag)
                     .where(
-                            lessThanId(foodPageSearch.getLastCurosr()),
                             eqCategory(foodPageSearch.getCategory()),
                             containTags(foodPageSearch.getTags()),
                             statusShared()
@@ -95,14 +95,9 @@ public class FoodQueryRepositoryImpl implements FoodQueryRepository {
         }
 
         return queryLongFactory.where(
-                lessThanId(foodPageSearch.getLastCurosr()),
                 eqCategory(foodPageSearch.getCategory()),
                 statusShared()
         );
-    }
-
-    private BooleanExpression lessThanId(Long cursor) {
-        return cursor == null ? null : food.id.lt(cursor);
     }
 
     private BooleanExpression statusShared() {

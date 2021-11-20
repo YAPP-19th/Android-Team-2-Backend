@@ -28,12 +28,12 @@ public class FoodPageSearch {
 
     private Category category;
 
-    private Long lastCurosr;
+    private Long offset;
 
     private int size;
 
     @Builder
-    public FoodPageSearch(Integer minPrice, Integer maxPrice, String sort, String order, List<Flavor> flavors, List<Tag> tags, Category category, Long lastCurosr, int size) {
+    public FoodPageSearch(Integer minPrice, Integer maxPrice, String sort, String order, List<Flavor> flavors, List<Tag> tags, Category category, Long offset, int size) {
         this.minPrice = minPrice;
         this.maxPrice = maxPrice;
         this.flavors = flavors;
@@ -41,7 +41,7 @@ public class FoodPageSearch {
         this.category = category;
         this.sort = SortType.of(sort);
         this.order = FoodOrderType.of(order);
-        this.lastCurosr = lastCurosr;
+        this.offset = offset;
         this.size = size;
     }
 }

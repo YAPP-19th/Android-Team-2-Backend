@@ -13,21 +13,23 @@ import java.util.stream.Collectors;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class FoodPageResponse {
     private List<FoodPageDto> foods;
-    private long nextCursor;
+    private int pageSize;
+    private long offset;
 
-    private FoodPageResponse(List<FoodPageDto> foods, long nextCursor) {
+    private FoodPageResponse(List<FoodPageDto> foods, int pageSize, long offset) {
         this.foods = foods;
-        this.nextCursor = nextCursor;
+        this.pageSize = pageSize;
+        this.offset = offset;
     }
 
-    public static FoodPageResponse ofLastPage(List<Food> foods) {
-        return of(foods, -1L);
+    public static FoodPageResponse ofLastPage(List<Food> foods, int pageSize) {
+        return of(foods, pageSize, -1L);
     }
 
-    public static FoodPageResponse of(List<Food> foods, long nextCursor) {
+    public static FoodPageResponse of(List<Food> foods, int pageSize, long offset) {
         List<FoodPageDto> content = foods.stream()
                 .map(FoodPageDto::toFoodPageDto)
                 .collect(Collectors.toList());
-        return new FoodPageResponse(content, nextCursor);
+        return new FoodPageResponse(content, pageSize, offset);
     }
 }
