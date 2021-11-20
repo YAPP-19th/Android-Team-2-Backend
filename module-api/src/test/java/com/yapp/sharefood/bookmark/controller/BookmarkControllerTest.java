@@ -1,5 +1,6 @@
 package com.yapp.sharefood.bookmark.controller;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yapp.sharefood.bookmark.exception.BookmarkAlreadyExistException;
 import com.yapp.sharefood.bookmark.exception.BookmarkNotFoundException;
@@ -18,6 +19,7 @@ import org.springframework.test.web.servlet.ResultActions;
 import java.nio.charset.StandardCharsets;
 
 import static com.yapp.sharefood.common.documentation.DocumentationUtils.documentIdentify;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.willReturn;
@@ -59,7 +61,7 @@ class BookmarkControllerTest extends PreprocessController {
     @Test
     void createBookmarkTest_Fail_FoodNotFound() throws Exception {
         //given
-        willThrow(FoodNotFoundException.class)
+        willThrow(new FoodNotFoundException())
                 .given(bookmarkService).saveBookmark(any(User.class), anyLong());
 
         //when
@@ -70,18 +72,25 @@ class BookmarkControllerTest extends PreprocessController {
         ResultActions perform = mockMvc.perform(requestBuilder);
 
         //then
-        perform.andExpect(status().isNotFound())
-                .andDo(documentIdentify("bookmark/post/fail/notFound"))
+        String errMsg = perform.andExpect(status().isNotFound())
+                .andDo(documentIdentify("bookmark/post/fail/notFound/food"))
                 .andReturn()
                 .getResponse()
                 .getContentAsString(StandardCharsets.UTF_8);
+
+        String expectMsg = FoodNotFoundException.FOOD_NOT_FOUND_EXCEPTION_MSG;
+        assertThat(errMsg)
+                .isNotNull()
+                .isNotEmpty()
+                .isEqualTo(expectMsg);
     }
 
     @DisplayName("북마크를 추가했는데 또 추가하는 경우")
     @Test
     void createBookmarkTest_Fail_BookmarkAlreadyExist() throws Exception {
         //given
-        willThrow(BookmarkAlreadyExistException.class)
+
+        willThrow(new BookmarkAlreadyExistException())
                 .given(bookmarkService).saveBookmark(any(User.class), anyLong());
 
         //when
@@ -92,11 +101,17 @@ class BookmarkControllerTest extends PreprocessController {
         ResultActions perform = mockMvc.perform(requestBuilder);
 
         //then
-        perform.andExpect(status().isConflict())
+        String errMsg = perform.andExpect(status().isConflict())
                 .andDo(documentIdentify("bookmark/post/fail/alreadyExist"))
                 .andReturn()
                 .getResponse()
                 .getContentAsString(StandardCharsets.UTF_8);
+
+        String expectMsg = BookmarkAlreadyExistException.BOOKMARK_ALREADY_EXIST_MSG;
+        assertThat(errMsg)
+                .isNotNull()
+                .isNotEmpty()
+                .isEqualTo(expectMsg);
     }
 
     @DisplayName("북마크 제거 성공")
@@ -123,7 +138,7 @@ class BookmarkControllerTest extends PreprocessController {
     @Test
     void deleteBookmarkTest_Fail_FoodNotFound() throws Exception {
         //given
-        willThrow(FoodNotFoundException.class)
+        willThrow(new FoodNotFoundException())
                 .given(bookmarkService).deleteBookmark(any(User.class), anyLong());
 
         //when
@@ -134,18 +149,24 @@ class BookmarkControllerTest extends PreprocessController {
         ResultActions perform = mockMvc.perform(requestBuilder);
 
         //then
-        perform.andExpect(status().isNotFound())
+        String errMsg = perform.andExpect(status().isNotFound())
                 .andDo(documentIdentify("bookmark/delete/fail/notFound/food"))
                 .andReturn()
                 .getResponse()
                 .getContentAsString(StandardCharsets.UTF_8);
+
+        String expectMsg = FoodNotFoundException.FOOD_NOT_FOUND_EXCEPTION_MSG;
+        assertThat(errMsg)
+                .isNotNull()
+                .isNotEmpty()
+                .isEqualTo(expectMsg);
     }
 
     @DisplayName("북마크가 없는데 또 삭제를 요청한 경우")
     @Test
     void deleteBookmarkTest_Fail_BookmarkNotFound() throws Exception {
         //given
-        willThrow(BookmarkNotFoundException.class)
+        willThrow(new BookmarkNotFoundException())
                 .given(bookmarkService).deleteBookmark(any(User.class), anyLong());
 
         //when
@@ -156,11 +177,17 @@ class BookmarkControllerTest extends PreprocessController {
         ResultActions perform = mockMvc.perform(requestBuilder);
 
         //then
-        perform.andExpect(status().isNotFound())
+        String errMsg = perform.andExpect(status().isNotFound())
                 .andDo(documentIdentify("bookmark/delete/fail/notFound/bookmark"))
                 .andReturn()
                 .getResponse()
                 .getContentAsString(StandardCharsets.UTF_8);
+
+        String expectMsg = BookmarkNotFoundException.BOOKMARK_NOT_FOUND_EXCEPTION_MSG;
+        assertThat(errMsg)
+                .isNotNull()
+                .isNotEmpty()
+                .isEqualTo(expectMsg);
     }
 
 }
