@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 public class FoodAdviceController {
     @ExceptionHandler(FoodNotFoundException.class)
-    protected ResponseEntity<String> handlerCategoryNotFoundException(final FoodNotFoundException exception) {
+    protected ResponseEntity<String> handlerFoodNotFoundException(final FoodNotFoundException exception) {
         log.error(exception.getMessage(), exception);
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(exception.getMessage());
     }
