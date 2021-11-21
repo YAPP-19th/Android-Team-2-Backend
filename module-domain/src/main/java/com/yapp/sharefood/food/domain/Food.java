@@ -1,5 +1,6 @@
 package com.yapp.sharefood.food.domain;
 
+import com.yapp.sharefood.bookmark.domain.Bookmark;
 import com.yapp.sharefood.category.domain.Category;
 import com.yapp.sharefood.category.exception.CategoryNotFoundException;
 import com.yapp.sharefood.common.exception.InvalidOperationException;
@@ -61,6 +62,9 @@ public class Food {
     private final Likes likes = new Likes();
 
     @Embedded
+    private final Bookmarks bookmarks = new Bookmarks();
+
+    @Embedded
     private final FoodFlavors foodFlavors = new FoodFlavors();
 
     @Builder
@@ -113,6 +117,17 @@ public class Food {
 
     public void deleteLike(User user) {
         likes.deleteLike(user.getId());
+    }
+
+    public void assignBookmark(Bookmark bookmark) {
+        if (foodStatus == FoodStatus.MINE) {
+            throw new InvalidOperationException("나만 보기 food는 bookmark를 할 수 없습니다.");
+        }
+        this.bookmarks.assignBookmark(this, bookmark);
+    }
+
+    public void deleteBookmark(User user) {
+        bookmarks.deleteBookmark(user.getId());
     }
 
     public void assignWrapperTags(List<TagWrapper> wrapperTags, Food food) {
