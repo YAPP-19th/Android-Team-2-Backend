@@ -68,7 +68,7 @@ public class FoodService {
     private final AwsS3Uploader awsS3Uploader;
 
     @Transactional
-    public Long saveFood(User user, FoodCreationRequest foodCreationRequest, List<TagWrapper> wrapperTags) {
+    public Long saveFood(User user, FoodCreationRequest foodCreationRequest, List<TagWrapper> wrapperTags, List<MultipartFile> files) {
         Category findCategory = categoryRepository.findByName(foodCreationRequest.getCategoryName())
                 .orElseThrow(CategoryNotFoundException::new);
         List<Flavor> flavors = flavorRepository.findByFlavorTypeIsIn(
@@ -87,7 +87,7 @@ public class FoodService {
 
         food.assignWrapperTags(wrapperTags, food);
         food.assignFlavors(flavors);
-        uploadImage(food, foodCreationRequest.getImages());
+        uploadImage(food, files);
         Food saveFood = foodRepository.save(food);
 
         return saveFood.getId();

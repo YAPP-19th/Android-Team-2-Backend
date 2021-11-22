@@ -33,6 +33,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.persistence.EntityManager;
 import java.util.ArrayList;
@@ -160,12 +161,12 @@ class FoodServiceTest {
                 .foodStatus(FoodStatus.SHARED)
                 .categoryName("A")
                 .tags(dtoTags)
-                .images(new ArrayList<>())
                 .flavors(flavorDtos)
                 .build();
+        List<MultipartFile> files = new ArrayList<>();
 
         // when
-        Long saveFoodId = foodService.saveFood(saveUser, request, wrapperTags);
+        Long saveFoodId = foodService.saveFood(saveUser, request, wrapperTags, files);
         Food food = foodRepository.findById(saveFoodId)
                 .orElseThrow();
 
@@ -210,14 +211,13 @@ class FoodServiceTest {
                 .foodStatus(FoodStatus.SHARED)
                 .categoryName("B")
                 .tags(dtoTags)
-                .images(new ArrayList<>())
                 .flavors(flavorDtos)
                 .build();
 
         // when
 
         // then
-        assertThrows(CategoryNotFoundException.class, () -> foodService.saveFood(saveUser, request, wrapperTags));
+        assertThrows(CategoryNotFoundException.class, () -> foodService.saveFood(saveUser, request, wrapperTags, new ArrayList<>()));
     }
 
     @Test

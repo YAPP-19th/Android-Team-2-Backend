@@ -14,8 +14,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.validation.Valid;
@@ -27,17 +28,24 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class FoodController {
 
+    private static final int MAX_PIC_SIZE = 4;
+
     private final FoodService foodService;
     private final TagService tagService;
 
     @PostMapping("/api/v1/foods")
     public ResponseEntity<URI> saveFood(@AuthUser User user,
-                                        @Valid @RequestBody FoodCreationRequest foodCreationRequest) {
+                                        @RequestPart("images") List<MultipartFile> images,
+                                        @Valid @RequestPart("food") FoodCreationRequest foodCreationRequest) {
+        if (images.size() > MAX_PIC_SIZE) {
+            throw new BadRequestException();
+        }
+
         List<TagWrapper> wrapperTags = getSavedWrapperTags(foodCreationRequest.getTags());
 
         URI userCreateUri = ServletUriComponentsBuilder.fromCurrentRequest()
                 .path("/{id}")
-                .buildAndExpand(foodService.saveFood(user, foodCreationRequest, wrapperTags))
+                .buildAndExpand(foodService.saveFood(user, foodCreationRequest, wrapperTags, images))
                 .toUri();
 
         return ResponseEntity.created(userCreateUri).build();
