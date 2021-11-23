@@ -1,6 +1,6 @@
 package com.yapp.sharefood.food.service;
 
-import com.yapp.sharefood.external.s3.AwsS3Uploader;
+import com.yapp.sharefood.external.s3.StorageUploader;
 import com.yapp.sharefood.food.domain.Food;
 import com.yapp.sharefood.food.dto.FoodImageDto;
 import com.yapp.sharefood.food.dto.response.FoodImageCreateResponse;
@@ -24,7 +24,7 @@ public class FoodImageService {
 
     private final FoodRepository foodRepository;
     private final ImageRepository imageRepository;
-    private final AwsS3Uploader awsS3Uploader;
+    private final StorageUploader storageUploader;
 
     @Transactional
     public FoodImageCreateResponse saveImages(Long foodId, List<MultipartFile> inputImages) {
@@ -42,7 +42,7 @@ public class FoodImageService {
         if (inputImages == null || inputImages.isEmpty()) return images;
 
         for (MultipartFile file : inputImages) {
-            String uploadFileName = awsS3Uploader.upload(FOOD_FILE_PATH, file);
+            String uploadFileName = storageUploader.upload(FOOD_FILE_PATH, file);
             Image image = Image.builder()
                     .realFilename(file.getOriginalFilename())
                     .storeFilename(uploadFileName)
