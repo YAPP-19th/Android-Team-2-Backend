@@ -1,9 +1,12 @@
-package com.yapp.sharefood.image.service;
+package com.yapp.sharefood.food.service;
 
 import com.yapp.sharefood.external.s3.AwsS3Uploader;
+import com.yapp.sharefood.food.domain.Food;
+import com.yapp.sharefood.food.dto.FoodImageDto;
+import com.yapp.sharefood.food.dto.response.FoodImageCreateResponse;
+import com.yapp.sharefood.food.exception.FoodNotFoundException;
+import com.yapp.sharefood.food.repository.FoodRepository;
 import com.yapp.sharefood.image.domain.Image;
-import com.yapp.sharefood.image.dto.ImageDto;
-import com.yapp.sharefood.image.dto.response.ImageCreateResponse;
 import com.yapp.sharefood.image.repository.ImageRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -16,24 +19,29 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-public class ImageService {
+public class FoodImageService {
     private static final String FOOD_FILE_PATH = "food";
 
+    private final FoodRepository foodRepository;
     private final ImageRepository imageRepository;
     private final AwsS3Uploader awsS3Uploader;
 
-
     @Transactional
-    public ImageCreateResponse saveImages(List<MultipartFile> inputImages) {
-        return new ImageCreateResponse(ImageDto.toList(uploadImage(inputImages)));
+    public FoodImageCreateResponse saveImages(Long foodId, List<MultipartFile> inputImages) {
+        Food food = foodRepository.findById(foodId)
+                .orElseThrow(FoodNotFoundException::new);
+        List<Image> images = uploadImage(inputImages);
+        food.getImages().addImages(images, food);
+
+        return new FoodImageCreateResponse(FoodImageDto.toList(images));
     }
 
 
-    private List<Image> uploadImage(List<MultipartFile> inputimages) {
+    private List<Image> uploadImage(List<MultipartFile> inputImages) {
         List<Image> images = new ArrayList<>();
-        if (inputimages == null || inputimages.isEmpty()) return images;
+        if (inputImages == null || inputImages.isEmpty()) return images;
 
-        for (MultipartFile file : inputimages) {
+        for (MultipartFile file : inputImages) {
             String uploadFileName = awsS3Uploader.upload(FOOD_FILE_PATH, file);
             Image image = Image.builder()
                     .realFilename(file.getOriginalFilename())

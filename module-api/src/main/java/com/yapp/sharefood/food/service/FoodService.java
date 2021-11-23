@@ -5,7 +5,6 @@ import com.yapp.sharefood.category.exception.CategoryNotFoundException;
 import com.yapp.sharefood.category.repository.CategoryRepository;
 import com.yapp.sharefood.common.exception.ForbiddenException;
 import com.yapp.sharefood.common.utils.LocalDateTimePeriodUtils;
-import com.yapp.sharefood.external.s3.AwsS3Uploader;
 import com.yapp.sharefood.flavor.domain.Flavor;
 import com.yapp.sharefood.flavor.domain.FlavorType;
 import com.yapp.sharefood.flavor.repository.FlavorRepository;
@@ -24,8 +23,6 @@ import com.yapp.sharefood.food.dto.response.TopRankFoodResponse;
 import com.yapp.sharefood.food.exception.FoodNotFoundException;
 import com.yapp.sharefood.food.repository.FoodRepository;
 import com.yapp.sharefood.food.repository.FoodTagRepository;
-import com.yapp.sharefood.image.domain.Image;
-import com.yapp.sharefood.image.repository.ImageRepository;
 import com.yapp.sharefood.like.projection.TopLikeProjection;
 import com.yapp.sharefood.like.repository.LikeRepository;
 import com.yapp.sharefood.tag.domain.Tag;
@@ -36,7 +33,6 @@ import com.yapp.sharefood.userflavor.repository.UserFlavorRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -52,7 +48,6 @@ import static java.util.stream.Collectors.toMap;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class FoodService {
-    private static final String FOOD_FILE_PATH = "food";
 
     private final FoodRepository foodRepository;
     private final FoodTagRepository foodTagRepository;
@@ -62,13 +57,10 @@ public class FoodService {
 
     private final CategoryRepository categoryRepository;
     private final LikeRepository likeRepository;
-    private final ImageRepository imageRepository;
     private final FlavorRepository flavorRepository;
 
-    private final AwsS3Uploader awsS3Uploader;
-
     @Transactional
-    public Long saveFood(User user, FoodCreationRequest foodCreationRequest, List<TagWrapper> wrapperTags, List<MultipartFile> files) {
+    public Long saveFood(User user, FoodCreationRequest foodCreationRequest, List<TagWrapper> wrapperTags) {
         Category findCategory = categoryRepository.findByName(foodCreationRequest.getCategoryName())
                 .orElseThrow(CategoryNotFoundException::new);
         List<Flavor> flavors = flavorRepository.findByFlavorTypeIsIn(
@@ -87,25 +79,11 @@ public class FoodService {
 
         food.assignWrapperTags(wrapperTags, food);
         food.assignFlavors(flavors);
-        uploadImage(food, files);
         Food saveFood = foodRepository.save(food);
 
         return saveFood.getId();
     }
 
-    private void uploadImage(Food food, List<MultipartFile> images) {
-        if (images == null || images.isEmpty()) return;
-
-        for (MultipartFile file : images) {
-            String uploadFileName = awsS3Uploader.upload(FOOD_FILE_PATH, file);
-            Image image = Image.builder()
-                    .realFilename(file.getOriginalFilename())
-                    .storeFilename(uploadFileName)
-                    .build();
-            image.assignFood(food);
-            imageRepository.save(image);
-        }
-    }
 
     public FoodDetailResponse findFoodDetailById(Long id) {
         Food food = foodRepository.findById(id)
