@@ -100,8 +100,12 @@ public class Food {
         this.category = category;
     }
 
-    public void addLike() {
+    public void addNumberOfLike() {
         this.numberOfLikes++;
+    }
+
+    public void deleteNumberOfLike() {
+        this.numberOfLikes--;
     }
 
     public long getLikeNumber() {
@@ -116,7 +120,7 @@ public class Food {
     }
 
     public void deleteLike(User user) {
-        likes.deleteLike(user.getId());
+        likes.deleteLike(user.getId(), this);
     }
 
     public void assignBookmark(Bookmark bookmark) {
