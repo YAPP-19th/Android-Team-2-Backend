@@ -2,9 +2,9 @@ package com.yapp.sharefood.food.repository;
 
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.BooleanExpression;
-import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.yapp.sharefood.category.domain.Category;
+import com.yapp.sharefood.common.exception.InvalidOperationException;
 import com.yapp.sharefood.common.order.SortType;
 import com.yapp.sharefood.common.utils.QueryUtils;
 import com.yapp.sharefood.flavor.domain.Flavor;
@@ -17,12 +17,14 @@ import com.yapp.sharefood.tag.domain.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
 import static com.yapp.sharefood.category.domain.QCategory.category;
+import static com.yapp.sharefood.common.domain.QBaseEntity.baseEntity;
 import static com.yapp.sharefood.food.domain.QFood.food;
 import static com.yapp.sharefood.food.domain.QFoodFlavor.foodFlavor;
 import static com.yapp.sharefood.food.domain.QFoodTag.foodTag;
@@ -69,8 +71,14 @@ public class FoodQueryRepositoryImpl implements FoodQueryRepository {
     }
 
     @Override
-    public List<Food> findPageFoods(FoodPageSearch foodPageSearch) {
-        List<Long> foodsIds = queryFromByIsTags(foodPageSearch)
+    public List<Food> findFoodNormalSearch(FoodPageSearch foodPageSearch) {
+        List<Long> foodsIds = queryFactory.select(food.id)
+                .from(food)
+                .where(
+                        lessThanCreateTime(foodPageSearch.getSearchTime()),
+                        eqCategory(foodPageSearch.getCategory()),
+                        statusShared()
+                )
                 .orderBy(findCriteria(foodPageSearch.getOrder(), foodPageSearch.getSort()))
                 .limit(foodPageSearch.getSize())
                 .offset(foodPageSearch.getOffset() * foodPageSearch.getSize())
@@ -79,25 +87,30 @@ public class FoodQueryRepositoryImpl implements FoodQueryRepository {
         return findFoodWithCategoryByIds(foodsIds);
     }
 
-    private JPAQuery<Long> queryFromByIsTags(FoodPageSearch foodPageSearch) {
-        JPAQuery<Long> queryLongFactory = queryFactory.select(food.id)
-                .from(food);
-
-        if (!Objects.isNull(foodPageSearch.getTags()) && !foodPageSearch.getTags().isEmpty()) {
-            return queryLongFactory
-                    .innerJoin(food.foodTags.foodTags, foodTag)
-                    .where(
-                            eqCategory(foodPageSearch.getCategory()),
-                            containTags(foodPageSearch.getTags()),
-                            statusShared()
-                    )
-                    .groupBy(food.id);
+    public List<Food> findFoodFilterWithTag(FoodPageSearch foodPageSearch) {
+        if (Objects.isNull(foodPageSearch.getTags()) || foodPageSearch.getTags().isEmpty()) {
+            throw new InvalidOperationException("tag 정보가 없습니다.");
         }
 
-        return queryLongFactory.where(
-                eqCategory(foodPageSearch.getCategory()),
-                statusShared()
-        );
+        List<Long> searchFoodIds = queryFactory.select(food.id)
+                .from(food).innerJoin(food.foodTags.foodTags, foodTag)
+                .where(
+                        lessThanCreateTime(foodPageSearch.getSearchTime()),
+                        eqCategory(foodPageSearch.getCategory()),
+                        containTags(foodPageSearch.getTags()),
+                        statusShared()
+                )
+                .groupBy(food.id)
+                .orderBy(findCriteria(foodPageSearch.getOrder(), foodPageSearch.getSort()))
+                .limit(foodPageSearch.getSize())
+                .offset(foodPageSearch.getOffset() * foodPageSearch.getSize())
+                .fetch();
+
+        return findFoodWithCategoryByIds(searchFoodIds);
+    }
+
+    private BooleanExpression lessThanCreateTime(LocalDateTime searchTime) {
+        return baseEntity.createDate.loe(searchTime);
     }
 
     private BooleanExpression statusShared() {

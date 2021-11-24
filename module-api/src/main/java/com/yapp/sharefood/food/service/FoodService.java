@@ -195,12 +195,20 @@ public class FoodService {
                 .tags(tags)
                 .build();
 
-        List<Food> pageFoods = foodRepository.findPageFoods(foodPageSearch);
+        List<Food> pageFoods = findFoodPageBySearch(foodPageSearch);
 
         if (pageFoods.size() < foodPageSearchRequest.getPageSize()) {
             return FoodPageResponse.ofLastPage(pageFoods, foodPageSearchRequest.getPageSize());
         }
 
         return FoodPageResponse.of(pageFoods, foodPageSearchRequest.getPageSize(), foodPageSearch.getOffset() + 1);
+    }
+
+    private List<Food> findFoodPageBySearch(FoodPageSearch foodPageSearch) {
+        if (!foodPageSearch.getTags().isEmpty()) {
+            return foodRepository.findFoodFilterWithTag(foodPageSearch);
+        }
+
+        return foodRepository.findFoodNormalSearch(foodPageSearch);
     }
 }
