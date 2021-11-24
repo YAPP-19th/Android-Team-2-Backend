@@ -29,8 +29,6 @@ import com.yapp.sharefood.like.repository.LikeRepository;
 import com.yapp.sharefood.tag.domain.Tag;
 import com.yapp.sharefood.tag.repository.TagRepository;
 import com.yapp.sharefood.user.domain.User;
-import com.yapp.sharefood.userflavor.domain.UserFlavor;
-import com.yapp.sharefood.userflavor.repository.UserFlavorRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -53,8 +51,6 @@ public class FoodService {
     private final FoodRepository foodRepository;
     private final FoodTagRepository foodTagRepository;
     private final TagRepository tagRepository;
-
-    private final UserFlavorRepository userFlavorRepository;
 
     private final CategoryRepository categoryRepository;
     private final LikeRepository likeRepository;
@@ -166,9 +162,7 @@ public class FoodService {
         LocalDateTime before = LocalDateTimePeriodUtils.getBeforePeriod(recommendationFoodRequest.getRankDatePeriod());
         LocalDateTime now = LocalDateTimePeriodUtils.now();
 
-        List<Flavor> userSettingFlavors = userFlavorRepository.findByUser(user)
-                .stream().map(UserFlavor::getFlavor)
-                .collect(Collectors.toList());
+        List<Flavor> userSettingFlavors = flavorRepository.findByUser(user);
 
         if (userSettingFlavors.isEmpty()) {
             List<FoodPageDto> topRankPageData = getTopRankPageData(recommendationFoodRequest.getTop(), recommendationFoodRequest.getCategoryName(), before, now);
