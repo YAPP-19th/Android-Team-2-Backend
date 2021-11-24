@@ -77,7 +77,7 @@ public class UserFlavorControllerTest extends PreprocessController {
         assertEquals(1L, response.getFlavors().get(0).getId());
         assertEquals("매운맛", response.getFlavors().get(0).getFlavorName());
         assertEquals(2L, response.getFlavors().get(1).getId());
-        assertEquals("단 맛", response.getFlavors().get(1).getFlavorName());
+        assertEquals("단맛", response.getFlavors().get(1).getFlavorName());
     }
 
     @DisplayName("입맛 찾기 요청 중 유저 정보가 일치하지 않는 경우")

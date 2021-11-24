@@ -42,9 +42,25 @@ public class FoodPageDto {
                 .build();
     }
 
+    public static FoodPageDto toFoodPageDto(Food food) {
+        return FoodPageDto.builder()
+                .foodTitle(food.getFoodTitle())
+                .categoryName(food.getCategory().getName())
+                .price(food.getPrice())
+                .numberOfLikes(food.getNumberOfLikes())
+                .foodImages(FoodImageDto.toList(food.getImages().getImages()))
+                .build();
+    }
+
     public static List<FoodPageDto> toList(List<Food> foods, Map<Long, Long> foodIdKeylikeCountMap) {
         return foods.stream()
                 .map(food -> FoodPageDto.toFoodPageDto(food, foodIdKeylikeCountMap.get(food.getId())))
+                .collect(Collectors.toList());
+    }
+
+    public static List<FoodPageDto> toList(List<Food> foods) {
+        return foods.stream()
+                .map(FoodPageDto::toFoodPageDto)
                 .collect(Collectors.toList());
     }
 }

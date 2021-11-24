@@ -36,6 +36,7 @@ public class Likes {
         like.assignFood(food);
         if (!likes.contains(like)) {
             likes.add(like);
+            food.addLike();
         }
     }
 

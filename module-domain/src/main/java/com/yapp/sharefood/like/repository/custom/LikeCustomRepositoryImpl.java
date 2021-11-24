@@ -15,6 +15,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 
+import static com.yapp.sharefood.food.domain.QFood.food;
 import static com.yapp.sharefood.like.domain.QLike.like;
 
 @Repository
@@ -33,10 +34,11 @@ public class LikeCustomRepositoryImpl implements LikeCustomRepository {
                         like.food.id
                 ))
                 .from(like)
+                .innerJoin(like.food, food)
                 .where(
+                        statusShared(),
                         greatherThanCreateDate(before),
                         lessThanCreateDate(now),
-                        eqFoodStatus(FoodStatus.SHARED),
                         inFoodCategories(categories)
                 )
                 .groupBy(like.food)
@@ -61,7 +63,7 @@ public class LikeCustomRepositoryImpl implements LikeCustomRepository {
         return time == null ? null : like.createDate.after(time);
     }
 
-    private BooleanExpression eqFoodStatus(FoodStatus foodStatus) {
-        return foodStatus == null ? null : like.food.foodStatus.eq(foodStatus);
+    private BooleanExpression statusShared() {
+        return food.foodStatus.eq(FoodStatus.SHARED);
     }
 }

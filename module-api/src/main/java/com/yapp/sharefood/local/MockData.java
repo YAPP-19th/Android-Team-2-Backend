@@ -2,6 +2,9 @@ package com.yapp.sharefood.local;
 
 import com.yapp.sharefood.category.domain.Category;
 import com.yapp.sharefood.category.repository.CategoryRepository;
+import com.yapp.sharefood.flavor.domain.Flavor;
+import com.yapp.sharefood.flavor.domain.FlavorType;
+import com.yapp.sharefood.flavor.repository.FlavorRepository;
 import com.yapp.sharefood.tag.domain.Tag;
 import com.yapp.sharefood.tag.repository.TagRepository;
 import lombok.RequiredArgsConstructor;
@@ -12,9 +15,10 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.annotation.PostConstruct;
 
 @Component
-@Profile({"local", "dev"})
+@Profile({"local"})
 @RequiredArgsConstructor
 public class MockData {
+    private final FlavorMock flavorMock;
     private final TagMock tagMock;
     private final CategoryMock categoryMock;
 
@@ -23,6 +27,8 @@ public class MockData {
         tagMock.initTag();
 
         categoryMock.initCategory();
+
+        flavorMock.initFlavor();
     }
 
     @Component
@@ -40,6 +46,19 @@ public class MockData {
             tagRepository.save(tag2);
             tagRepository.save(tag3);
             tagRepository.save(tag4);
+        }
+    }
+
+    @Component
+    @Transactional
+    @RequiredArgsConstructor
+    private static class FlavorMock {
+        private final FlavorRepository flavorRepository;
+
+        public void initFlavor() {
+            for (FlavorType flavorType : FlavorType.values()) {
+                flavorRepository.save(Flavor.of(flavorType));
+            }
         }
     }
 

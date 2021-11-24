@@ -1,0 +1,17 @@
+ifndef::snippets[]
+:snippets: ./build/generated-snippets
+endif::[]
+
+== CURL
+include::{snippets}/bookmark/delete/success/curl-request.adoc[]
+
+== REQUEST
+include::{snippets}/bookmark/delete/success/http-request.adoc[]
+
+== RESPONSE SUCCESS
+include::{snippets}/bookmark/delete/success/http-response.adoc[]
+
+== RESPONSE FAIL
+include::{snippets}/bookmark/delete/fail/notFound/food/http-response.adoc[]
+
+include::{snippets}/bookmark/delete/fail/notFound/bookmark/http-response.adoc[]

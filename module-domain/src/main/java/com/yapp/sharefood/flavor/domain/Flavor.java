@@ -10,6 +10,9 @@ import javax.persistence.*;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Table(uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"flavorType"})
+})
 public class Flavor extends BaseEntity {
     @Id
     @Column(name = "flavor_id")

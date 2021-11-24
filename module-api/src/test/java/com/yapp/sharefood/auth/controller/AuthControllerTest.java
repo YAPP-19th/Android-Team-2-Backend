@@ -154,7 +154,7 @@ class AuthControllerTest {
     void singUpSuccessTest() throws Exception {
         // given
         willReturn(OAuthDto.of(1L, "jwtToken", OAuthType.KAKAO))
-                .given(authService).singUp(any(AuthCreationRequestDto.class));
+                .given(authService).signUp(any(AuthCreationRequestDto.class));
 
         // when
         AuthCreationRequestDto authCreationRequestDto = new AuthCreationRequestDto(OAuthType.KAKAO, "kkh", "accessToken");
@@ -180,7 +180,7 @@ class AuthControllerTest {
     void singUpErrorCuzOfExistDataTest() throws Exception {
         // given
         willThrow(new OAUthExistException("존재하는 사용자 입니다."))
-                .given(authService).singUp(any(AuthCreationRequestDto.class));
+                .given(authService).signUp(any(AuthCreationRequestDto.class));
 
         // when
         AuthCreationRequestDto authCreationRequestDto = new AuthCreationRequestDto(OAuthType.KAKAO, "kkh", "accessToken");

@@ -1,0 +1,20 @@
+ifndef::snippets[]
+:snippets: ./build/generated-snippets
+endif::[]
+
+== CURL
+include::{snippets}/user/nickname-validation/get/success/curl-request.adoc[]
+
+== Request
+
+include::{snippets}/user/nickname-validation/get/success/http-request.adoc[]
+
+== Response Success
+
+include::{snippets}/user/nickname-validation/get/success/http-response.adoc[]
+
+== Response Fail
+- 유저 정보가 잘못된 경우
+include::{snippets}/user/nickname-validation/get/fail/forbidden/http-response.adoc[]
+- 이미 존재하는 nickname인 경우
+include::{snippets}/user/nickname-validation/get/fail/alreadyExist/http-response.adoc[]

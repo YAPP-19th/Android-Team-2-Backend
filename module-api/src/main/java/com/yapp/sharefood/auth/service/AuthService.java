@@ -35,7 +35,7 @@ public class AuthService {
     }
 
     @Transactional
-    public OAuthDto singUp(AuthCreationRequestDto creationRequestDto) {
+    public OAuthDto signUp(AuthCreationRequestDto creationRequestDto) {
         OAuthProfile profile = authenticationManager.requestOAuthUserInfo(creationRequestDto.getOauthType(), creationRequestDto.getAccessToken());
         // check redis logic
         Optional<User> optionalExistUser = userRepository.findByOAuthIdAndOAuthType(profile.getOauthId(), creationRequestDto.getOauthType());

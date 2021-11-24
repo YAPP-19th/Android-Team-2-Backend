@@ -1,5 +1,6 @@
 package com.yapp.sharefood.common.advice;
 
+import com.yapp.sharefood.common.exception.BadRequestException;
 import com.yapp.sharefood.common.exception.file.FileTypeValidationException;
 import com.yapp.sharefood.common.exception.file.FileUploadException;
 import lombok.extern.slf4j.Slf4j;
@@ -27,7 +28,7 @@ public class CommonAdviceController {
      * 400 Bad Request
      * file format 실패
      */
-    @ExceptionHandler(FileTypeValidationException.class)
+    @ExceptionHandler({FileTypeValidationException.class, BadRequestException.class})
     protected ResponseEntity<Object> handleFileTypeValidationException(final RuntimeException exception) {
         log.error(exception.getMessage(), exception);
 

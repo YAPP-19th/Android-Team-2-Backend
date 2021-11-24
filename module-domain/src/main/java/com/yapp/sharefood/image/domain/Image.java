@@ -4,7 +4,10 @@ import com.yapp.sharefood.common.domain.BaseEntity;
 import com.yapp.sharefood.common.exception.InvalidOperationException;
 import com.yapp.sharefood.food.domain.Food;
 import com.yapp.sharefood.food.exception.FoodNotFoundException;
+import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.util.Collections;
@@ -12,6 +15,7 @@ import java.util.Objects;
 
 @Entity
 @Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Image extends BaseEntity {
     @Id
     @Column(name = "image_id")
@@ -27,6 +31,14 @@ public class Image extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "food_id")
     private Food food;
+
+    @Builder
+    public Image(Long id, String storeFilename, String realFilename) {
+        this.id = id;
+        this.storeFilename = storeFilename;
+        this.realFilename = realFilename;
+    }
+
 
     public void assignFood(Food food) {
         if (Objects.isNull(food)) {

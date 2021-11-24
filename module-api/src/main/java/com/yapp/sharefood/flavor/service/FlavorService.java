@@ -51,8 +51,8 @@ public class FlavorService {
 
     public FlavorsResponse findUserFlavors(User user) {
         User findUser = userRepository.findById(user.getId()).orElseThrow(UserNotFoundException::new);
-        List<FlavorDto> list = userFlavorRepository.findUserFlavorByUserId(findUser.getId()).stream()
-                .map(userFlavor -> userFlavor.getFlavor())
+        List<FlavorDto> list = userFlavorRepository.findUserFlavorByUserId(findUser).stream()
+                .map(UserFlavor::getFlavor)
                 .map(flavor -> FlavorDto.of(flavor.getId(), flavor.getFlavorType())).collect(Collectors.toList());
 
         return new FlavorsResponse(list);
