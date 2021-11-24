@@ -160,7 +160,6 @@ class FoodServiceTest {
                 .foodStatus(FoodStatus.SHARED)
                 .categoryName("A")
                 .tags(dtoTags)
-                .images(new ArrayList<>())
                 .flavors(flavorDtos)
                 .build();
 
@@ -210,7 +209,6 @@ class FoodServiceTest {
                 .foodStatus(FoodStatus.SHARED)
                 .categoryName("B")
                 .tags(dtoTags)
-                .images(new ArrayList<>())
                 .flavors(flavorDtos)
                 .build();
 

@@ -7,11 +7,9 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 import java.util.List;
 
 @Data
@@ -37,10 +35,6 @@ public class FoodCreationRequest {
     private List<FlavorDto> flavors;
 
     @NotNull
-    @Size(max = 3)
-    private List<MultipartFile> images;
-
-    @NotNull
     @NotBlank
     private String reviewMsg;
 
@@ -48,13 +42,12 @@ public class FoodCreationRequest {
     private FoodStatus foodStatus;
 
     @Builder
-    public FoodCreationRequest(String categoryName, String title, List<FoodTagDto> tags, Integer price, List<FlavorDto> flavors, List<MultipartFile> images, String reviewMsg, FoodStatus foodStatus) {
+    public FoodCreationRequest(String categoryName, String title, List<FoodTagDto> tags, Integer price, List<FlavorDto> flavors, String reviewMsg, FoodStatus foodStatus) {
         this.categoryName = categoryName;
         this.title = title;
         this.tags = tags;
         this.price = price;
         this.flavors = flavors;
-        this.images = images;
         this.reviewMsg = reviewMsg;
         this.foodStatus = foodStatus;
     }
