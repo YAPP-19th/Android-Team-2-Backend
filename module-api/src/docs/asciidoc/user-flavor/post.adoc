@@ -1,0 +1,16 @@
+ifndef::snippets[]
+:snippets: ./build/generated-snippets
+endif::[]
+
+== CURL
+include::{snippets}/user-flavor/post/success/curl-request.adoc[]
+
+== REQUEST
+include::{snippets}/user-flavor/post/success/http-request.adoc[]
+
+== RESPONSE SUCCESS
+include::{snippets}/user-flavor/post/success/http-response.adoc[]
+
+== RESPONSE FAIL
+include::{snippets}/user-flavor/post/fail/forbidden/http-response.adoc[]
+include::{snippets}/user-flavor/post/fail/flavorNotFound/http-response.adoc[]
