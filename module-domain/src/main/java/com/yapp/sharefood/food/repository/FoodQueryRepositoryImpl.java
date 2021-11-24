@@ -4,7 +4,6 @@ import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.yapp.sharefood.category.domain.Category;
-import com.yapp.sharefood.common.exception.InvalidOperationException;
 import com.yapp.sharefood.common.order.SortType;
 import com.yapp.sharefood.common.utils.QueryUtils;
 import com.yapp.sharefood.flavor.domain.Flavor;
@@ -24,7 +23,6 @@ import java.util.List;
 import java.util.Objects;
 
 import static com.yapp.sharefood.category.domain.QCategory.category;
-import static com.yapp.sharefood.common.domain.QBaseEntity.baseEntity;
 import static com.yapp.sharefood.food.domain.QFood.food;
 import static com.yapp.sharefood.food.domain.QFoodFlavor.foodFlavor;
 import static com.yapp.sharefood.food.domain.QFoodTag.foodTag;
@@ -32,6 +30,8 @@ import static com.yapp.sharefood.food.domain.QFoodTag.foodTag;
 @Repository
 @RequiredArgsConstructor
 public class FoodQueryRepositoryImpl implements FoodQueryRepository {
+    private static final Long EMPTY_LIKE_NUMBER = 0L;
+
     private final JPAQueryFactory queryFactory;
 
     @Override
@@ -87,10 +87,9 @@ public class FoodQueryRepositoryImpl implements FoodQueryRepository {
         return findFoodWithCategoryByIds(foodsIds);
     }
 
+    @Override
     public List<Food> findFoodFilterWithTag(FoodPageSearch foodPageSearch) {
-        if (Objects.isNull(foodPageSearch.getTags()) || foodPageSearch.getTags().isEmpty()) {
-            throw new InvalidOperationException("tag 정보가 없습니다.");
-        }
+        QueryUtils.validateNotEmptyList(foodPageSearch.getTags());
 
         List<Long> searchFoodIds = queryFactory.select(food.id)
                 .from(food).innerJoin(food.foodTags.foodTags, foodTag)
@@ -109,8 +108,29 @@ public class FoodQueryRepositoryImpl implements FoodQueryRepository {
         return findFoodWithCategoryByIds(searchFoodIds);
     }
 
+    @Override
+    public List<Food> findFoodFilterWithFlavor(FoodPageSearch foodPageSearch) {
+        QueryUtils.validateNotEmptyList(foodPageSearch.getFlavors());
+
+        List<Long> searchFoodIds = queryFactory.select(food.id)
+                .from(food).innerJoin(food.foodFlavors.foodFlavors, foodFlavor)
+                .where(
+                        lessThanCreateTime(foodPageSearch.getSearchTime()),
+                        eqCategory(foodPageSearch.getCategory()),
+                        containFlavors(foodPageSearch.getFlavors()),
+                        statusShared()
+                )
+                .groupBy(food.id)
+                .orderBy(findCriteria(foodPageSearch.getOrder(), foodPageSearch.getSort()))
+                .limit(foodPageSearch.getSize())
+                .offset(foodPageSearch.getOffset() * foodPageSearch.getSize())
+                .fetch();
+
+        return findFoodWithCategoryByIds(searchFoodIds);
+    }
+
     private BooleanExpression lessThanCreateTime(LocalDateTime searchTime) {
-        return baseEntity.createDate.loe(searchTime);
+        return food._super.createDate.loe(searchTime);
     }
 
     private BooleanExpression statusShared() {
@@ -122,7 +142,7 @@ public class FoodQueryRepositoryImpl implements FoodQueryRepository {
     }
 
     private BooleanExpression containCategories(List<Category> categories) {
-        if (categories == null || categories.isEmpty()) {
+        if (QueryUtils.isEmpty(categories)) {
             return null;
         }
 
@@ -130,7 +150,7 @@ public class FoodQueryRepositoryImpl implements FoodQueryRepository {
     }
 
     public BooleanExpression containTags(List<Tag> tags) {
-        if (tags == null || tags.isEmpty()) {
+        if (QueryUtils.isEmpty(tags)) {
             return null;
         }
 
@@ -138,7 +158,7 @@ public class FoodQueryRepositoryImpl implements FoodQueryRepository {
     }
 
     public BooleanExpression containFlavors(List<Flavor> flavors) {
-        if (flavors == null || flavors.isEmpty()) {
+        if (QueryUtils.isEmpty(flavors)) {
             return null;
         }
 
@@ -146,7 +166,7 @@ public class FoodQueryRepositoryImpl implements FoodQueryRepository {
     }
 
     public BooleanExpression notZeroLike() {
-        return food.numberOfLikes.ne(0L);
+        return food.numberOfLikes.ne(EMPTY_LIKE_NUMBER);
     }
 
     private OrderSpecifier<?> findCriteria(FoodOrderType foodOrderType, SortType sortType) {

@@ -4,6 +4,7 @@ import com.yapp.sharefood.category.domain.Category;
 import com.yapp.sharefood.category.exception.CategoryNotFoundException;
 import com.yapp.sharefood.category.repository.CategoryRepository;
 import com.yapp.sharefood.common.exception.ForbiddenException;
+import com.yapp.sharefood.common.exception.InvalidOperationException;
 import com.yapp.sharefood.common.utils.LocalDateTimePeriodUtils;
 import com.yapp.sharefood.flavor.domain.Flavor;
 import com.yapp.sharefood.flavor.domain.FlavorType;
@@ -183,6 +184,7 @@ public class FoodService {
         Category category = categoryRepository.findByName(foodPageSearchRequest.getCategoryName())
                 .orElseThrow(CategoryNotFoundException::new);
         List<Tag> tags = tagRepository.findByNameIn(foodPageSearchRequest.getTags());
+        List<Flavor> flavors = flavorRepository.findByFlavorTypeIsIn(FlavorType.toList(foodPageSearchRequest.getFlavors()));
 
         FoodPageSearch foodPageSearch = FoodPageSearch.builder()
                 .minPrice(foodPageSearchRequest.getMinPrice())
@@ -193,6 +195,8 @@ public class FoodService {
                 .offset(foodPageSearchRequest.getOffset())
                 .category(category)
                 .tags(tags)
+                .flavors(flavors)
+                .searchTime(foodPageSearchRequest.getFirstSearchTime())
                 .build();
 
         List<Food> pageFoods = findFoodPageBySearch(foodPageSearch);
@@ -205,8 +209,14 @@ public class FoodService {
     }
 
     private List<Food> findFoodPageBySearch(FoodPageSearch foodPageSearch) {
+        if (!foodPageSearch.getTags().isEmpty() && !foodPageSearch.getFlavors().isEmpty()) {
+            throw new InvalidOperationException("flavor와 tag는 중복으로 filter 할 수 없습니다.");
+        }
+
         if (!foodPageSearch.getTags().isEmpty()) {
             return foodRepository.findFoodFilterWithTag(foodPageSearch);
+        } else if (!foodPageSearch.getFlavors().isEmpty()) {
+            return foodRepository.findFoodFilterWithFlavor(foodPageSearch);
         }
 
         return foodRepository.findFoodNormalSearch(foodPageSearch);

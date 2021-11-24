@@ -14,4 +14,6 @@ public interface FoodQueryRepository {
     List<Food> findFoodNormalSearch(FoodPageSearch foodPageSearch);
 
     List<Food> findFoodFilterWithTag(FoodPageSearch foodPageSearch);
+
+    List<Food> findFoodFilterWithFlavor(FoodPageSearch foodPageSearch);
 }

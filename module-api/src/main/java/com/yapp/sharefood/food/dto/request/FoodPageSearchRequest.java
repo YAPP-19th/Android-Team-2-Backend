@@ -1,6 +1,7 @@
 package com.yapp.sharefood.food.dto.request;
 
 import lombok.Data;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
@@ -17,6 +18,7 @@ public class FoodPageSearchRequest {
     private Integer maxPrice;
 
     private List<String> tags = new ArrayList<>();
+    private List<String> flavors = new ArrayList<>();
 
     private String sort;
     private String order;
@@ -26,12 +28,12 @@ public class FoodPageSearchRequest {
     private String categoryName;
 
     @NotNull
-    @NotBlank
     private Long offset;
 
     @NotNull
     private Integer pageSize;
 
     @NotNull
+    @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime firstSearchTime;
 }
