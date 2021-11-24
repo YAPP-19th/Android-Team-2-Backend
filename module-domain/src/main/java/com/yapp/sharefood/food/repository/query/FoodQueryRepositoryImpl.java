@@ -1,4 +1,4 @@
-package com.yapp.sharefood.food.repository;
+package com.yapp.sharefood.food.repository.query;
 
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.BooleanExpression;
@@ -130,7 +130,7 @@ public class FoodQueryRepositoryImpl implements FoodQueryRepository {
     }
 
     private BooleanExpression lessThanCreateTime(LocalDateTime searchTime) {
-        return food._super.createDate.loe(searchTime);
+        return food.createDate.loe(searchTime);
     }
 
     private BooleanExpression statusShared() {

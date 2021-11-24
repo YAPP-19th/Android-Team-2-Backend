@@ -1,4 +1,4 @@
-package com.yapp.sharefood.food.repository;
+package com.yapp.sharefood.food.repository.query;
 
 import com.yapp.sharefood.food.domain.Food;
 import com.yapp.sharefood.food.dto.FoodPageSearch;
