@@ -19,12 +19,17 @@ gralde -> build
 
 ## Complete Docs
 
+- auth
 - user
   - nickname-get
   - nickname-patch
   - nickname-validation-get
   - me-get
   - other-get
+- userFlavor
+- bookmark
+- category
+- tag
 
 ---
 
