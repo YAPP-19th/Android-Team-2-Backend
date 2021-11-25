@@ -20,6 +20,7 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -82,5 +83,59 @@ class FoodImageServiceTest {
 
         // then
         assertThrows(FoodNotFoundException.class, () -> foodImageService.saveImages(1L, files));
+    }
+
+    @Test
+    void saveFoodImageNullImages_Success() throws Exception {
+        // given
+        User saveUser = userRepository.save(User.builder()
+                .oauthId("1234")
+                .name("name")
+                .nickname("owaowa")
+                .oAuthType(OAuthType.KAKAO)
+                .build());
+        Category category = categoryRepository.save(Category.of("category"));
+        Food food = Food.builder()
+                .foodTitle("title")
+                .reviewMsg("msg")
+                .writer(saveUser)
+                .category(category)
+                .foodStatus(FoodStatus.SHARED)
+                .build();
+        Food saveFood = foodRepository.save(food);
+        List<MultipartFile> files = null;
+
+        // when
+        FoodImageCreateResponse foodImageCreateResponse = foodImageService.saveImages(saveFood.getId(), files);
+
+        // then
+        assertThat(foodImageCreateResponse.getImages()).hasSize(0);
+    }
+
+    @Test
+    void saveFoodImageEmptyImages_Success() throws Exception {
+        // given
+        User saveUser = userRepository.save(User.builder()
+                .oauthId("1234")
+                .name("name")
+                .nickname("owaowa")
+                .oAuthType(OAuthType.KAKAO)
+                .build());
+        Category category = categoryRepository.save(Category.of("category"));
+        Food food = Food.builder()
+                .foodTitle("title")
+                .reviewMsg("msg")
+                .writer(saveUser)
+                .category(category)
+                .foodStatus(FoodStatus.SHARED)
+                .build();
+        Food saveFood = foodRepository.save(food);
+        List<MultipartFile> files = new ArrayList<>();
+
+        // when
+        FoodImageCreateResponse foodImageCreateResponse = foodImageService.saveImages(saveFood.getId(), files);
+
+        // then
+        assertThat(foodImageCreateResponse.getImages()).hasSize(0);
     }
 }

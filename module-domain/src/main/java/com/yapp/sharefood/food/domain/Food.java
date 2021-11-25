@@ -3,6 +3,7 @@ package com.yapp.sharefood.food.domain;
 import com.yapp.sharefood.bookmark.domain.Bookmark;
 import com.yapp.sharefood.category.domain.Category;
 import com.yapp.sharefood.category.exception.CategoryNotFoundException;
+import com.yapp.sharefood.common.domain.BaseEntity;
 import com.yapp.sharefood.common.exception.InvalidOperationException;
 import com.yapp.sharefood.flavor.domain.Flavor;
 import com.yapp.sharefood.like.domain.Like;
@@ -20,7 +21,7 @@ import java.util.Objects;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Food {
+public class Food extends BaseEntity {
     @Id
     @Column(name = "food_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -100,8 +101,12 @@ public class Food {
         this.category = category;
     }
 
-    public void addLike() {
+    public void addNumberOfLike() {
         this.numberOfLikes++;
+    }
+
+    public void deleteNumberOfLike() {
+        this.numberOfLikes--;
     }
 
     public long getLikeNumber() {
@@ -116,7 +121,7 @@ public class Food {
     }
 
     public void deleteLike(User user) {
-        likes.deleteLike(user.getId());
+        likes.deleteLike(user.getId(), this);
     }
 
     public void assignBookmark(Bookmark bookmark) {

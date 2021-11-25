@@ -9,6 +9,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter
@@ -32,8 +33,11 @@ public class FoodPageSearch {
 
     private int size;
 
+    private LocalDateTime searchTime;
+
     @Builder
-    public FoodPageSearch(Integer minPrice, Integer maxPrice, String sort, String order, List<Flavor> flavors, List<Tag> tags, Category category, Long offset, int size) {
+    public FoodPageSearch(Integer minPrice, Integer maxPrice, String sort, String order, List<Flavor> flavors,
+                          List<Tag> tags, Category category, Long offset, int size, LocalDateTime searchTime) {
         this.minPrice = minPrice;
         this.maxPrice = maxPrice;
         this.flavors = flavors;
@@ -43,5 +47,6 @@ public class FoodPageSearch {
         this.order = FoodOrderType.of(order);
         this.offset = offset;
         this.size = size;
+        this.searchTime = searchTime;
     }
 }

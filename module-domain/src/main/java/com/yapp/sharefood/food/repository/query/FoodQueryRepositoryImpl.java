@@ -1,8 +1,7 @@
-package com.yapp.sharefood.food.repository;
+package com.yapp.sharefood.food.repository.query;
 
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.BooleanExpression;
-import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.yapp.sharefood.category.domain.Category;
 import com.yapp.sharefood.common.order.SortType;
@@ -17,6 +16,7 @@ import com.yapp.sharefood.tag.domain.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -30,6 +30,8 @@ import static com.yapp.sharefood.food.domain.QFoodTag.foodTag;
 @Repository
 @RequiredArgsConstructor
 public class FoodQueryRepositoryImpl implements FoodQueryRepository {
+    private static final Long EMPTY_LIKE_NUMBER = 0L;
+
     private final JPAQueryFactory queryFactory;
 
     @Override
@@ -69,8 +71,14 @@ public class FoodQueryRepositoryImpl implements FoodQueryRepository {
     }
 
     @Override
-    public List<Food> findPageFoods(FoodPageSearch foodPageSearch) {
-        List<Long> foodsIds = queryFromByIsTags(foodPageSearch)
+    public List<Food> findFoodNormalSearch(FoodPageSearch foodPageSearch) {
+        List<Long> foodsIds = queryFactory.select(food.id)
+                .from(food)
+                .where(
+                        lessThanCreateTime(foodPageSearch.getSearchTime()),
+                        eqCategory(foodPageSearch.getCategory()),
+                        statusShared()
+                )
                 .orderBy(findCriteria(foodPageSearch.getOrder(), foodPageSearch.getSort()))
                 .limit(foodPageSearch.getSize())
                 .offset(foodPageSearch.getOffset() * foodPageSearch.getSize())
@@ -79,25 +87,50 @@ public class FoodQueryRepositoryImpl implements FoodQueryRepository {
         return findFoodWithCategoryByIds(foodsIds);
     }
 
-    private JPAQuery<Long> queryFromByIsTags(FoodPageSearch foodPageSearch) {
-        JPAQuery<Long> queryLongFactory = queryFactory.select(food.id)
-                .from(food);
+    @Override
+    public List<Food> findFoodFilterWithTag(FoodPageSearch foodPageSearch) {
+        QueryUtils.validateNotEmptyList(foodPageSearch.getTags());
 
-        if (!Objects.isNull(foodPageSearch.getTags()) && !foodPageSearch.getTags().isEmpty()) {
-            return queryLongFactory
-                    .innerJoin(food.foodTags.foodTags, foodTag)
-                    .where(
-                            eqCategory(foodPageSearch.getCategory()),
-                            containTags(foodPageSearch.getTags()),
-                            statusShared()
-                    )
-                    .groupBy(food.id);
-        }
+        List<Long> searchFoodIds = queryFactory.select(food.id)
+                .from(food).innerJoin(food.foodTags.foodTags, foodTag)
+                .where(
+                        lessThanCreateTime(foodPageSearch.getSearchTime()),
+                        eqCategory(foodPageSearch.getCategory()),
+                        containTags(foodPageSearch.getTags()),
+                        statusShared()
+                )
+                .groupBy(food.id)
+                .orderBy(findCriteria(foodPageSearch.getOrder(), foodPageSearch.getSort()))
+                .limit(foodPageSearch.getSize())
+                .offset(foodPageSearch.getOffset() * foodPageSearch.getSize())
+                .fetch();
 
-        return queryLongFactory.where(
-                eqCategory(foodPageSearch.getCategory()),
-                statusShared()
-        );
+        return findFoodWithCategoryByIds(searchFoodIds);
+    }
+
+    @Override
+    public List<Food> findFoodFilterWithFlavor(FoodPageSearch foodPageSearch) {
+        QueryUtils.validateNotEmptyList(foodPageSearch.getFlavors());
+
+        List<Long> searchFoodIds = queryFactory.select(food.id)
+                .from(food).innerJoin(food.foodFlavors.foodFlavors, foodFlavor)
+                .where(
+                        lessThanCreateTime(foodPageSearch.getSearchTime()),
+                        eqCategory(foodPageSearch.getCategory()),
+                        containFlavors(foodPageSearch.getFlavors()),
+                        statusShared()
+                )
+                .groupBy(food.id)
+                .orderBy(findCriteria(foodPageSearch.getOrder(), foodPageSearch.getSort()))
+                .limit(foodPageSearch.getSize())
+                .offset(foodPageSearch.getOffset() * foodPageSearch.getSize())
+                .fetch();
+
+        return findFoodWithCategoryByIds(searchFoodIds);
+    }
+
+    private BooleanExpression lessThanCreateTime(LocalDateTime searchTime) {
+        return food.createDate.loe(searchTime);
     }
 
     private BooleanExpression statusShared() {
@@ -109,7 +142,7 @@ public class FoodQueryRepositoryImpl implements FoodQueryRepository {
     }
 
     private BooleanExpression containCategories(List<Category> categories) {
-        if (categories == null || categories.isEmpty()) {
+        if (QueryUtils.isEmpty(categories)) {
             return null;
         }
 
@@ -117,7 +150,7 @@ public class FoodQueryRepositoryImpl implements FoodQueryRepository {
     }
 
     public BooleanExpression containTags(List<Tag> tags) {
-        if (tags == null || tags.isEmpty()) {
+        if (QueryUtils.isEmpty(tags)) {
             return null;
         }
 
@@ -125,7 +158,7 @@ public class FoodQueryRepositoryImpl implements FoodQueryRepository {
     }
 
     public BooleanExpression containFlavors(List<Flavor> flavors) {
-        if (flavors == null || flavors.isEmpty()) {
+        if (QueryUtils.isEmpty(flavors)) {
             return null;
         }
 
@@ -133,7 +166,7 @@ public class FoodQueryRepositoryImpl implements FoodQueryRepository {
     }
 
     public BooleanExpression notZeroLike() {
-        return food.numberOfLikes.ne(0L);
+        return food.numberOfLikes.ne(EMPTY_LIKE_NUMBER);
     }
 
     private OrderSpecifier<?> findCriteria(FoodOrderType foodOrderType, SortType sortType) {
