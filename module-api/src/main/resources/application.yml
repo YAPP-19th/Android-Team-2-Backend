@@ -8,4 +8,4 @@ spring:
       - external
       - oauth
       - aws-local
-      - aws
+      - aws-dev
