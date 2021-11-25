@@ -6,7 +6,7 @@ spring:
       - domain-local
       - external
       - oauth
-      - aws
+      - aws-local
 
 server:
   port: 8100

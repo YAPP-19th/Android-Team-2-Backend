@@ -1,0 +1,63 @@
+spring:
+  config:
+    activate:
+      on-profile: local
+
+cloud:
+  aws:
+    credentials:
+      instanceProfile: true
+      access-key: 1234
+      secret-key: 1234
+    stack:
+      auto: false
+    region:
+      static: ap-northeast-2
+    s3:
+      bucket: kkh-bucket
+      cloud-front-url: https://localhost:10000
+      directory:
+        path:
+          foods: foods/
+      mock:
+        port: 10000
+
+logging:
+  level:
+    com:
+      amazonaws:
+        util:
+          EC2MetadataUtils: error
+
+---
+
+spring:
+  config:
+    activate:
+      on-profile: test
+
+cloud:
+  aws:
+    credentials:
+      instanceProfile: true
+      access-key: 1234
+      secret-key: 1234
+    stack:
+      auto: false
+    region:
+      static: ap-northeast-2
+    s3:
+      bucket: kkh-bucket
+      cloud-front-url: https://localhost:10000
+      directory:
+        path:
+          foods: foods/
+      mock:
+        port: 10000
+
+logging:
+  level:
+    com:
+      amazonaws:
+        util:
+          EC2MetadataUtils: error
