@@ -50,3 +50,6 @@ jobs:
 
       - name: Upload to S3
         run: aws s3 cp --region ap-northeast-2 ./$GITHUB_SHA.zip s3://kkh-bucket/$GITHUB_SHA.zip
+
+      - name: Code Deploy
+        run: aws deploy create-deployment --application-name github-action-deploy --deployment-config-name CodeDeployDefault.AllAtOnce --deployment-group-name shared-food-github-action-group --s3-location bucket=kkh-bucket,bundleType=zip,key=$GITHUB_SHA.zip
