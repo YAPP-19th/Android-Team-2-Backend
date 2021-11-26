@@ -22,7 +22,7 @@ fi
 
 DEPLOY_JAR=$DEPLOY_PATH$JAR_NAME
 echo "> DEPLOY_JAR 배포"    >> /home/ec2-user/action/deploy.log
-nohup java -jar \
-  -Dspring.config.location=classpath:../application-aws-dev.yml \
-  $DEPLOY_JAR --spring.profiles.active=dev \
-  --spring.datasource.url=jdbc:mysql://172.17.0.2:3306/dev?serverTimezone=UTC >> /home/ec2-user/deploy.log 2>/home/ec2-user/action/deploy_err.log &
+# nohup java -jar \
+#  -Dspring.config.location=classpath:../application-aws-dev.yml \
+#  $DEPLOY_JAR --spring.profiles.active=dev \
+#  --spring.datasource.url=jdbc:mysql://172.17.0.2:3306/dev?serverTimezone=UTC >> /home/ec2-user/deploy.log 2>/home/ec2-user/action/deploy_err.log &
