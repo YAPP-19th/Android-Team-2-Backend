@@ -19,16 +19,22 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.ResultActions;
 
 import java.nio.charset.StandardCharsets;
 
 import static com.yapp.sharefood.common.documentation.DocumentationUtils.documentIdentify;
+import static com.yapp.sharefood.common.exception.ForbiddenException.FORBIDDEN_EXCEPTION_MSG;
+import static com.yapp.sharefood.oauth.exception.UserNotFoundException.USER_NOT_FOUND_EXCEPTION_MSG;
+import static com.yapp.sharefood.user.exception.UserNicknameExistException.NICKNAME_EXIST_EXCEPTION_MSG;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.mockito.BDDMockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(controllers = UserController.class)
@@ -45,13 +51,16 @@ class UserControllerTest extends PreprocessController {
         willReturn(new UserNicknameResponse("냠냠박사 unique닉네임"))
                 .given(userService).createUniqueNickname();
 
-        // when, then
+        // when
+        RequestBuilder requestBuilder = get("/api/v1/users/nickname");
+
+        ResultActions perform = mockMvc.perform(requestBuilder);
+
+        // then
         UserNicknameResponse userNicknameResponse = objectMapper.readValue(
-                document()
-                        .get("/api/v1/users/nickname")
-                        .build()
-                        .status(status().isOk())
-                        .identifier("user/nickname/get/success")
+                perform.andExpect(status().isOk())
+                        .andDo(documentIdentify("user/nickname/get/success"))
+                        .andReturn()
                         .getResponse()
                         .getContentAsString(StandardCharsets.UTF_8), new TypeReference<UserNicknameResponse>() {
                 }
@@ -65,21 +74,25 @@ class UserControllerTest extends PreprocessController {
     @DisplayName("새로 생성된 user nickname이 이미 존재할 경우 예외 테스트")
     void findExistUserNicknameExceptionTest() throws Exception {
         // given
-        willThrow(new UserNicknameExistException("해당 nickname은 이미 존재합니다."))
+        willThrow(new UserNicknameExistException())
                 .given(userService).createUniqueNickname();
 
-        // when, then
-        String errMsg = document()
-                .get("/api/v1/users/nickname")
-                .build()
-                .status(status().isConflict())
-                .identifier("user/nickname/get/fail/alreadyExist")
-                .getResponse().getContentAsString(StandardCharsets.UTF_8);
+        //when
+        RequestBuilder requestBuilder = get("/api/v1/users/nickname");
+
+        ResultActions perform = mockMvc.perform(requestBuilder);
+
+        //then
+        String errMsg = perform.andExpect(status().isConflict())
+                .andDo(documentIdentify("user/nickname/get/fail/alreadyExist"))
+                .andReturn()
+                .getResponse()
+                .getContentAsString(StandardCharsets.UTF_8);
 
         assertThat(errMsg)
                 .isNotNull()
                 .isNotEmpty()
-                .isEqualTo("해당 nickname은 이미 존재합니다.");
+                .isEqualTo(NICKNAME_EXIST_EXCEPTION_MSG);
     }
 
     @Test
@@ -89,13 +102,17 @@ class UserControllerTest extends PreprocessController {
         willDoNothing()
                 .given(userService).checkNicknameDuplicate(any(String.class));
 
-        // when, then
-        document()
-                .get(String.format("/api/v1/users/%d/nickname/validation?nickname=%s", authUserId, "newNickname"))
-                .auth("token")
-                .build()
-                .status(status().isOk())
-                .identifier("user/nickname-validation/get/success")
+        //when
+        RequestBuilder requestBuilder = get(String.format("/api/v1/users/%d/nickname/validation", authUserId))
+                .header(HttpHeaders.AUTHORIZATION, "token")
+                .param("nickname", "newNickname");
+
+        ResultActions perform = mockMvc.perform(requestBuilder);
+
+        //then
+        perform.andExpect(status().isOk())
+                .andDo(documentIdentify("user/nickname-validation/get/success"))
+                .andReturn()
                 .getResponse()
                 .getContentAsString(StandardCharsets.UTF_8);
     }
@@ -105,15 +122,24 @@ class UserControllerTest extends PreprocessController {
     void checkNicknameNotMeTest() throws Exception {
         // given
 
-        // when, then
-        document()
-                .get(String.format("/api/v1/users/%d/nickname/validation?nickname=%s", 2L, "newNickname"))
-                .auth("token")
-                .build()
-                .status(status().isForbidden())
-                .identifier("user/nickname-validation/get/fail/forbidden")
+        // when
+        RequestBuilder requestBuilder = get(String.format("/api/v1/users/%d/nickname/validation", 2L))
+                .header(HttpHeaders.AUTHORIZATION, "token")
+                .param("nickname", "newNickname");
+
+        ResultActions perform = mockMvc.perform(requestBuilder);
+
+        //then
+        String errMsg = perform.andExpect(status().isForbidden())
+                .andDo(documentIdentify("user/nickname-validation/get/fail/forbidden"))
+                .andReturn()
                 .getResponse()
                 .getContentAsString(StandardCharsets.UTF_8);
+
+        assertThat(errMsg)
+                .isNotNull()
+                .isNotEmpty()
+                .isEqualTo(FORBIDDEN_EXCEPTION_MSG);
     }
 
     @Test
@@ -123,15 +149,24 @@ class UserControllerTest extends PreprocessController {
         willThrow(new UserNicknameExistException())
                 .given(userService).checkNicknameDuplicate(any(String.class));
 
-        // when, then
-        document()
-                .get(String.format("/api/v1/users/%d/nickname/validation?nickname=%s", authUserId, "newNickname"))
-                .auth("token")
-                .build()
-                .status(status().isConflict())
-                .identifier("user/nickname-validation/get/fail/alreadyExist")
+        //when
+        RequestBuilder requestBuilder = get(String.format("/api/v1/users/%d/nickname/validation", authUserId))
+                .header(HttpHeaders.AUTHORIZATION, "token")
+                .param("nickname", "newNickname");
+
+        ResultActions perform = mockMvc.perform(requestBuilder);
+
+        //then
+        String errMsg = perform.andExpect(status().isConflict())
+                .andDo(documentIdentify("user/nickname-validation/get/fail/alreadyExist"))
+                .andReturn()
                 .getResponse()
                 .getContentAsString(StandardCharsets.UTF_8);
+
+        assertThat(errMsg)
+                .isNotNull()
+                .isNotEmpty()
+                .isEqualTo(NICKNAME_EXIST_EXCEPTION_MSG);
     }
 
     @Test
@@ -142,13 +177,18 @@ class UserControllerTest extends PreprocessController {
         willReturn(new UserNicknameResponse("newNickname"))
                 .given(userService).changeUserNickname(anyLong(), any(UserNicknameRequest.class));
 
-        // when, then
-        UserNicknameResponse response = objectMapper.readValue(document()
-                .patch(String.format("/api/v1/users/%d/nickname", authUserId), request)
-                .auth("token")
-                .build()
-                .status(status().isOk())
-                .identifier("user/nickname/patch/success")
+        //when
+        RequestBuilder requestBuilder = patch(String.format("/api/v1/users/%d/nickname", authUserId))
+                .header(HttpHeaders.AUTHORIZATION, "token")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request));
+
+        ResultActions perform = mockMvc.perform(requestBuilder);
+
+        //then
+        UserNicknameResponse response = objectMapper.readValue(perform.andExpect(status().isOk())
+                .andDo(documentIdentify("user/nickname/patch/success"))
+                .andReturn()
                 .getResponse()
                 .getContentAsString(StandardCharsets.UTF_8), new TypeReference<UserNicknameResponse>() {
         });
@@ -161,18 +201,28 @@ class UserControllerTest extends PreprocessController {
     void userNicknameChangeFailTest() throws Exception {
         // given
         UserNicknameRequest request = new UserNicknameRequest("newNickname");
-        willThrow(UserNicknameExistException.class)
+        willThrow(new UserNicknameExistException())
                 .given(userService).changeUserNickname(anyLong(), any(UserNicknameRequest.class));
 
-        // when, then
-        document()
-                .patch(String.format("/api/v1/users/%d/nickname", authUserId), request)
-                .auth("token")
-                .build()
-                .status(status().isConflict())
-                .identifier("user/nickname/patch/fail/alreadyExist")
+        //when
+        RequestBuilder requestBuilder = patch(String.format("/api/v1/users/%d/nickname", authUserId))
+                .header(HttpHeaders.AUTHORIZATION, "token")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request));
+
+        ResultActions perform = mockMvc.perform(requestBuilder);
+
+        //then
+        String errMsg = perform.andExpect(status().isConflict())
+                .andDo(documentIdentify("user/nickname/patch/fail/alreadyExist"))
+                .andReturn()
                 .getResponse()
                 .getContentAsString(StandardCharsets.UTF_8);
+
+        assertThat(errMsg)
+                .isNotNull()
+                .isNotEmpty()
+                .isEqualTo(NICKNAME_EXIST_EXCEPTION_MSG);
     }
 
     @Test
@@ -183,15 +233,25 @@ class UserControllerTest extends PreprocessController {
         willReturn(new UserNicknameResponse("newNickname"))
                 .given(userService).changeUserNickname(anyLong(), any(UserNicknameRequest.class));
 
-        // when, then
-        document()
-                .patch(String.format("/api/v1/users/%d/nickname", 2L), request)
-                .auth("token")
-                .build()
-                .status(status().isForbidden())
-                .identifier("user/nickname/patch/fail/forbidden")
+        //when
+        RequestBuilder requestBuilder = patch(String.format("/api/v1/users/%d/nickname", 2L))
+                .header(HttpHeaders.AUTHORIZATION, "token")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request));
+
+        ResultActions perform = mockMvc.perform(requestBuilder);
+
+        //then
+        String errMsg = perform.andExpect(status().isForbidden())
+                .andDo(documentIdentify("user/nickname/patch/fail/forbidden"))
+                .andReturn()
                 .getResponse()
                 .getContentAsString(StandardCharsets.UTF_8);
+
+        assertThat(errMsg)
+                .isNotNull()
+                .isNotEmpty()
+                .isEqualTo(FORBIDDEN_EXCEPTION_MSG);
     }
 
     @Test
@@ -202,13 +262,16 @@ class UserControllerTest extends PreprocessController {
         willReturn(new MyUserInfoResponse(UserInfoDto.of(user)))
                 .given(userService).findUserInfo(user.getId());
 
-        // when, then
-        MyUserInfoResponse response = objectMapper.readValue(document()
-                .get("/api/v1/users/me")
-                .auth("token")
-                .build()
-                .status(status().isOk())
-                .identifier("user/me/get/success")
+        //when
+        RequestBuilder requestBuilder = get("/api/v1/users/me")
+                .header(HttpHeaders.AUTHORIZATION, "token");
+
+        ResultActions perform = mockMvc.perform(requestBuilder);
+
+        //then
+        MyUserInfoResponse response = objectMapper.readValue(perform.andExpect(status().isOk())
+                .andDo(documentIdentify("user/me/get/success"))
+                .andReturn()
                 .getResponse()
                 .getContentAsString(StandardCharsets.UTF_8), new TypeReference<MyUserInfoResponse>() {
         });
@@ -224,18 +287,26 @@ class UserControllerTest extends PreprocessController {
     void userInfoFindingFailTest() throws Exception {
         // given
         Long userId = authUserId;
-        willThrow(UserNotFoundException.class)
+        willThrow(new UserNotFoundException())
                 .given(userService).findUserInfo(userId);
 
-        // when, then
-        document()
-                .get("/api/v1/users/me")
-                .auth("token")
-                .build()
-                .status(status().isNotFound())
-                .identifier("user/me/get/fail/notFound")
+        //when
+        RequestBuilder requestBuilder = get("/api/v1/users/me")
+                .header(HttpHeaders.AUTHORIZATION, "token");
+
+        ResultActions perform = mockMvc.perform(requestBuilder);
+
+        //then
+        String errMsg = perform.andExpect(status().isNotFound())
+                .andDo(documentIdentify("user/me/get/success"))
+                .andReturn()
                 .getResponse()
                 .getContentAsString(StandardCharsets.UTF_8);
+
+        assertThat(errMsg)
+                .isNotNull()
+                .isNotEmpty()
+                .isEqualTo(USER_NOT_FOUND_EXCEPTION_MSG);
     }
 
     @Test
@@ -251,13 +322,19 @@ class UserControllerTest extends PreprocessController {
         willReturn(new OtherUserInfoResponse(OtherUserInfoDto.of(givenUser.getId(), givenUser.getNickname())))
                 .given(userService).findOtherUserInfo(anyLong());
 
+        //when
+        RequestBuilder requestBuilder = get(String.format("/api/v1/users/%d", 100L))
+                .header(HttpHeaders.AUTHORIZATION, "token");
+
+        ResultActions perform = mockMvc.perform(requestBuilder);
+
+        //then
+
+
         // when, then
-        OtherUserInfoResponse response = objectMapper.readValue(document()
-                .get(String.format("/api/v1/users/%d", 100L))
-                .auth("token")
-                .build()
-                .status(status().isOk())
-                .identifier("user/other/get/success")
+        OtherUserInfoResponse response = objectMapper.readValue(perform.andExpect(status().isOk())
+                .andDo(documentIdentify("user/other/get/success"))
+                .andReturn()
                 .getResponse()
                 .getContentAsString(StandardCharsets.UTF_8), new TypeReference<OtherUserInfoResponse>() {
         });
@@ -270,29 +347,23 @@ class UserControllerTest extends PreprocessController {
     @Test
     @DisplayName("없는 다른 사용자 이름 검사 테스트")
     void findOtherUserInfoFailTest() throws Exception {
-        willThrow(UserNotFoundException.class)
+        willThrow(new UserNotFoundException())
                 .given(userService).findOtherUserInfo(anyLong());
 
-//        // when, then
-//        document()
-//                .get(String.format("/api/v1/users/%d", 100L))
-//                .auth("token")
-//                .build()
-//                .status(status().isNotFound())
-//                .identifier("users-other/get/fail/notFound")
-//                .getResponse()
-//                .getContentAsString(StandardCharsets.UTF_8);
-//        assertNotEquals(100L, authUserId);
-
         //when
-        ResultActions perform = mockMvc.perform(get(String.format("/api/v1/uesrs/%d", 100L))
+        ResultActions perform = mockMvc.perform(get(String.format("/api/v1/users/%d", 100L))
                 .header(HttpHeaders.AUTHORIZATION, "token"));
 
         //then
-        perform.andDo(documentIdentify("user/other/get/fail/notFound"))
+        String errMsg = perform.andDo(documentIdentify("user/other/get/fail/notFound"))
                 .andExpect(status().isNotFound())
                 .andReturn()
                 .getResponse()
                 .getContentAsString(StandardCharsets.UTF_8);
+
+        assertThat(errMsg)
+                .isNotNull()
+                .isNotEmpty()
+                .isEqualTo(USER_NOT_FOUND_EXCEPTION_MSG);
     }
 }

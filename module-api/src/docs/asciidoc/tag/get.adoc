@@ -1,0 +1,16 @@
+ifndef::snippets[]
+:snippets: ./build/generated-snippets
+endif::[]
+
+== CURL
+include::{snippets}/tag/get/success/empty/curl-request.adoc[]
+
+== REQUEST
+include::{snippets}/tag/get/success/empty/http-request.adoc[]
+
+== RESPONSE SUCCESS
+include::{snippets}/tag/get/success/empty/http-response.adoc[]
+include::{snippets}/tag/get/success/not_empty/http-response.adoc[]
+
+== RESPONSE FAIL
+- 현재 의도된 실패 사례는 없습니다.

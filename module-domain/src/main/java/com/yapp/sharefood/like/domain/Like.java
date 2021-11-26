@@ -53,7 +53,7 @@ public class Like extends BaseEntity {
         }
         this.food = food;
         food.getLikes().getLikes().add(this);
-        food.addLike();
+        food.addNumberOfLike();
     }
 }
 

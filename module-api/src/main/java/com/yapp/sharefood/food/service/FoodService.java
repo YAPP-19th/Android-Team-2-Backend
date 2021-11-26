@@ -4,6 +4,7 @@ import com.yapp.sharefood.category.domain.Category;
 import com.yapp.sharefood.category.exception.CategoryNotFoundException;
 import com.yapp.sharefood.category.repository.CategoryRepository;
 import com.yapp.sharefood.common.exception.ForbiddenException;
+import com.yapp.sharefood.common.exception.InvalidOperationException;
 import com.yapp.sharefood.common.utils.LocalDateTimePeriodUtils;
 import com.yapp.sharefood.flavor.domain.Flavor;
 import com.yapp.sharefood.flavor.domain.FlavorType;
@@ -28,8 +29,6 @@ import com.yapp.sharefood.like.repository.LikeRepository;
 import com.yapp.sharefood.tag.domain.Tag;
 import com.yapp.sharefood.tag.repository.TagRepository;
 import com.yapp.sharefood.user.domain.User;
-import com.yapp.sharefood.userflavor.domain.UserFlavor;
-import com.yapp.sharefood.userflavor.repository.UserFlavorRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -52,8 +51,6 @@ public class FoodService {
     private final FoodRepository foodRepository;
     private final FoodTagRepository foodTagRepository;
     private final TagRepository tagRepository;
-
-    private final UserFlavorRepository userFlavorRepository;
 
     private final CategoryRepository categoryRepository;
     private final LikeRepository likeRepository;
@@ -165,9 +162,7 @@ public class FoodService {
         LocalDateTime before = LocalDateTimePeriodUtils.getBeforePeriod(recommendationFoodRequest.getRankDatePeriod());
         LocalDateTime now = LocalDateTimePeriodUtils.now();
 
-        List<Flavor> userSettingFlavors = userFlavorRepository.findByUser(user)
-                .stream().map(UserFlavor::getFlavor)
-                .collect(Collectors.toList());
+        List<Flavor> userSettingFlavors = flavorRepository.findByUser(user);
 
         if (userSettingFlavors.isEmpty()) {
             List<FoodPageDto> topRankPageData = getTopRankPageData(recommendationFoodRequest.getTop(), recommendationFoodRequest.getCategoryName(), before, now);
@@ -183,6 +178,7 @@ public class FoodService {
         Category category = categoryRepository.findByName(foodPageSearchRequest.getCategoryName())
                 .orElseThrow(CategoryNotFoundException::new);
         List<Tag> tags = tagRepository.findByNameIn(foodPageSearchRequest.getTags());
+        List<Flavor> flavors = flavorRepository.findByFlavorTypeIsIn(FlavorType.toList(foodPageSearchRequest.getFlavors()));
 
         FoodPageSearch foodPageSearch = FoodPageSearch.builder()
                 .minPrice(foodPageSearchRequest.getMinPrice())
@@ -193,14 +189,30 @@ public class FoodService {
                 .offset(foodPageSearchRequest.getOffset())
                 .category(category)
                 .tags(tags)
+                .flavors(flavors)
+                .searchTime(foodPageSearchRequest.getFirstSearchTime())
                 .build();
 
-        List<Food> pageFoods = foodRepository.findPageFoods(foodPageSearch);
+        List<Food> pageFoods = findFoodPageBySearch(foodPageSearch);
 
         if (pageFoods.size() < foodPageSearchRequest.getPageSize()) {
             return FoodPageResponse.ofLastPage(pageFoods, foodPageSearchRequest.getPageSize());
         }
 
         return FoodPageResponse.of(pageFoods, foodPageSearchRequest.getPageSize(), foodPageSearch.getOffset() + 1);
+    }
+
+    private List<Food> findFoodPageBySearch(FoodPageSearch foodPageSearch) {
+        if (!foodPageSearch.getTags().isEmpty() && !foodPageSearch.getFlavors().isEmpty()) {
+            throw new InvalidOperationException("flavor와 tag는 중복으로 filter 할 수 없습니다.");
+        }
+
+        if (!foodPageSearch.getTags().isEmpty()) {
+            return foodRepository.findFoodFilterWithTag(foodPageSearch);
+        } else if (!foodPageSearch.getFlavors().isEmpty()) {
+            return foodRepository.findFoodFilterWithFlavor(foodPageSearch);
+        }
+
+        return foodRepository.findFoodNormalSearch(foodPageSearch);
     }
 }

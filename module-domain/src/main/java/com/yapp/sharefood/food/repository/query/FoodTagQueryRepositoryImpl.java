@@ -1,4 +1,4 @@
-package com.yapp.sharefood.food.repository;
+package com.yapp.sharefood.food.repository.query;
 
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
