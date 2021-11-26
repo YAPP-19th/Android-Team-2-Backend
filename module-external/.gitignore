@@ -37,4 +37,4 @@ out/
 .vscode/
 
 application-oauth.yml
-application-aws.yml
+application-aws-dev.yml

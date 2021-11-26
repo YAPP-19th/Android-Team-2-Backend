@@ -5,3 +5,4 @@ spring:
       - external
       - aws
       - oauth
+      - aws-local

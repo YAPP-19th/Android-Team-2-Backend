@@ -3,6 +3,8 @@ package com.yapp.sharefood.flavor.domain;
 import com.yapp.sharefood.flavor.exception.FlavorNotFoundException;
 
 import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public enum FlavorType {
     SWEET("단맛"), SPICY("매운맛"), SALTY("짠맛"), BITTER("쓴맛"), SOUR("씬맛"),
@@ -24,5 +26,11 @@ public enum FlavorType {
                 .filter(flavorType -> flavorType.getFlavorName().equals(name))
                 .findAny()
                 .orElseThrow(FlavorNotFoundException::new);
+    }
+
+    public static List<FlavorType> toList(List<String> flavorTypeName) {
+        return flavorTypeName.stream()
+                .map(FlavorType::of)
+                .collect(Collectors.toList());
     }
 }

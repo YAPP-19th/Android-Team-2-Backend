@@ -1,4 +1,4 @@
-package com.yapp.sharefood.food.repository;
+package com.yapp.sharefood.food.repository.query;
 
 import com.yapp.sharefood.food.domain.Food;
 import com.yapp.sharefood.food.dto.FoodPageSearch;
@@ -11,5 +11,9 @@ public interface FoodQueryRepository {
 
     List<Food> findRecommendFoods(FoodRecommendSearch foodRecommendSearch);
 
-    List<Food> findPageFoods(FoodPageSearch foodPageSearch);
+    List<Food> findFoodNormalSearch(FoodPageSearch foodPageSearch);
+
+    List<Food> findFoodFilterWithTag(FoodPageSearch foodPageSearch);
+
+    List<Food> findFoodFilterWithFlavor(FoodPageSearch foodPageSearch);
 }
