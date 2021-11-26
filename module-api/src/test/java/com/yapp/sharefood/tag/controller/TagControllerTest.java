@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import static com.yapp.sharefood.common.documentation.DocumentationUtils.documentIdentify;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -56,7 +57,7 @@ class TagControllerTest extends PreprocessController {
         TagSearchResponse tagSearchResponse = objectMapper
                 .readValue(perform
                         .andExpect(status().isOk())
-                        .andDo(print())
+                        .andDo(documentIdentify("tag/get/success/empty"))
                         .andReturn()
                         .getResponse()
                         .getContentAsString(StandardCharsets.UTF_8), new TypeReference<>() {
@@ -91,7 +92,7 @@ class TagControllerTest extends PreprocessController {
         TagSearchResponse tagSearchResponse = objectMapper
                 .readValue(perform
                         .andExpect(status().isOk())
-                        .andDo(print())
+                        .andDo(documentIdentify("tag/get/success/not_empty"))
                         .andReturn()
                         .getResponse()
                         .getContentAsString(StandardCharsets.UTF_8), new TypeReference<>() {
