@@ -52,4 +52,8 @@ public class FoodImageService {
 
         return images;
     }
+
+    public void deleteImages(List<Image> foodImages) {
+        foodImages.forEach(image -> storageUploader.delete(FOOD_FILE_PATH, image.getStoreFilename()));
+    }
 }
