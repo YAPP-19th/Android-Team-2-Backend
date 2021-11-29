@@ -206,4 +206,35 @@ class FoodFindPageTest {
         FoodPageDto lastSearchFood = foodPageResponse.getFoods().get(foodPageResponse.getFoods().size() - 1);
         assertEquals(lastFoodId, lastSearchFood.getId());
     }
+
+    @Test
+    @DisplayName("min max price 값으로 filter 적용")
+    void foodPageSearchByPriceTest_Success() throws Exception {
+        // given
+        FoodPageSearchRequest foodPageSearchRequest = FoodPageSearchRequest
+                .builder()
+                .minPrice(3)
+                .maxPrice(5)
+                .sort("id")
+                .order("desc")
+                .categoryName("category")
+                .offset(0L)
+                .pageSize(5)
+                .tags(new ArrayList<>())
+                .flavors(new ArrayList<>())
+                .firstSearchTime(LocalDateTime.now())
+                .build();
+
+        // when
+        FoodPageResponse foodPageResponse = foodService.searchFoodsPage(foodPageSearchRequest);
+
+        // then
+        assertEquals(5, foodPageResponse.getPageSize());
+        assertEquals(-1L, foodPageResponse.getOffset());
+        assertThat(foodPageResponse.getFoods())
+                .hasSize(3);
+
+        FoodPageDto lastSearchFood = foodPageResponse.getFoods().get(foodPageResponse.getFoods().size() - 1);
+        assertEquals(6L, lastSearchFood.getId());
+    }
 }

@@ -75,6 +75,8 @@ public class FoodQueryRepositoryImpl implements FoodQueryRepository {
         List<Long> foodsIds = queryFactory.select(food.id)
                 .from(food)
                 .where(
+                        goeMinPrice(foodPageSearch.getMinPrice()),
+                        loeMaxPrice(foodPageSearch.getMaxPrice()),
                         lessThanCreateTime(foodPageSearch.getSearchTime()),
                         eqCategory(foodPageSearch.getCategory()),
                         statusShared()
@@ -94,6 +96,8 @@ public class FoodQueryRepositoryImpl implements FoodQueryRepository {
         List<Long> searchFoodIds = queryFactory.select(food.id)
                 .from(food).innerJoin(food.foodTags.foodTags, foodTag)
                 .where(
+                        goeMinPrice(foodPageSearch.getMinPrice()),
+                        loeMaxPrice(foodPageSearch.getMaxPrice()),
                         lessThanCreateTime(foodPageSearch.getSearchTime()),
                         eqCategory(foodPageSearch.getCategory()),
                         containTags(foodPageSearch.getTags()),
@@ -115,6 +119,8 @@ public class FoodQueryRepositoryImpl implements FoodQueryRepository {
         List<Long> searchFoodIds = queryFactory.select(food.id)
                 .from(food).innerJoin(food.foodFlavors.foodFlavors, foodFlavor)
                 .where(
+                        goeMinPrice(foodPageSearch.getMinPrice()),
+                        loeMaxPrice(foodPageSearch.getMaxPrice()),
                         lessThanCreateTime(foodPageSearch.getSearchTime()),
                         eqCategory(foodPageSearch.getCategory()),
                         containFlavors(foodPageSearch.getFlavors()),
@@ -131,6 +137,14 @@ public class FoodQueryRepositoryImpl implements FoodQueryRepository {
 
     private BooleanExpression lessThanCreateTime(LocalDateTime searchTime) {
         return food.createDate.loe(searchTime);
+    }
+
+    private BooleanExpression loeMaxPrice(Integer maxPrice) {
+        return maxPrice == null ? null : food.price.loe(maxPrice);
+    }
+
+    private BooleanExpression goeMinPrice(Integer minPrice) {
+        return minPrice == null ? null : food.price.goe(minPrice);
     }
 
     private BooleanExpression statusShared() {
