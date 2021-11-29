@@ -23,6 +23,9 @@ import com.yapp.sharefood.userflavor.repository.UserFlavorRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,6 +34,7 @@ import javax.persistence.EntityManager;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -207,14 +211,14 @@ class FoodFindPageTest {
         assertEquals(lastFoodId, lastSearchFood.getId());
     }
 
-    @Test
-    @DisplayName("min max price 값으로 filter 적용")
-    void foodPageSearchByPriceTest_Success() throws Exception {
+    @MethodSource
+    @ParameterizedTest(name = "price로 filter를 정한 경우 id로 order - 성공")
+    void foodPageSearchByPriceTest_Success(Integer minPrice, Integer maxPrice, long expectedPageOffset, int expectedPageSize, List<String> extractTitles) throws Exception {
         // given
         FoodPageSearchRequest foodPageSearchRequest = FoodPageSearchRequest
                 .builder()
-                .minPrice(3)
-                .maxPrice(5)
+                .minPrice(minPrice)
+                .maxPrice(maxPrice)
                 .sort("id")
                 .order("desc")
                 .categoryName("category")
@@ -229,12 +233,20 @@ class FoodFindPageTest {
         FoodPageResponse foodPageResponse = foodService.searchFoodsPage(foodPageSearchRequest);
 
         // then
-        assertEquals(5, foodPageResponse.getPageSize());
-        assertEquals(-1L, foodPageResponse.getOffset());
+        assertEquals(expectedPageSize, foodPageResponse.getPageSize());
+        assertEquals(expectedPageOffset, foodPageResponse.getOffset());
         assertThat(foodPageResponse.getFoods())
-                .hasSize(3);
+                .isNotNull()
+                .extracting("foodTitle")
+                .containsExactlyInAnyOrderElementsOf(extractTitles);
+    }
 
-        FoodPageDto lastSearchFood = foodPageResponse.getFoods().get(foodPageResponse.getFoods().size() - 1);
-        assertEquals(6L, lastSearchFood.getId());
+    static Stream<Arguments> foodPageSearchByPriceTest_Success() {
+        return Stream.of(
+                Arguments.of(null, null, 0L, 5, List.of("title_9", "title_8", "title_7", "title_6", "title_5")),
+                Arguments.of(null, 8, 0L, 5, List.of("title_8", "title_7", "title_6", "title_5", "title_4")),
+                Arguments.of(7, null, -1L, 5, List.of("title_9", "title_8", "title_7")),
+                Arguments.of(2, 4, -1L, 5, List.of("title_4", "title_3", "title_2"))
+        );
     }
 }
