@@ -201,7 +201,7 @@ public class FoodService {
             return FoodPageResponse.ofLastPage(pageFoods, foodPageSearchRequest.getPageSize());
         }
 
-        return FoodPageResponse.of(pageFoods, foodPageSearchRequest.getPageSize(), foodPageSearch.getOffset() + 1);
+        return FoodPageResponse.of(pageFoods, foodPageSearchRequest.getPageSize(), foodPageSearch.getOffset());
     }
 
     private List<Food> findFoodPageBySearch(FoodPageSearch foodPageSearch) {

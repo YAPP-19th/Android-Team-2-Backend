@@ -9,7 +9,7 @@ import com.yapp.sharefood.common.utils.QueryUtils;
 import com.yapp.sharefood.flavor.domain.Flavor;
 import com.yapp.sharefood.food.domain.Food;
 import com.yapp.sharefood.food.domain.FoodStatus;
-import com.yapp.sharefood.food.dto.FoodOrderType;
+import com.yapp.sharefood.food.dto.OrderType;
 import com.yapp.sharefood.food.dto.FoodPageSearch;
 import com.yapp.sharefood.food.dto.FoodRecommendSearch;
 import com.yapp.sharefood.tag.domain.Tag;
@@ -169,17 +169,17 @@ public class FoodQueryRepositoryImpl implements FoodQueryRepository {
         return food.numberOfLikes.ne(EMPTY_LIKE_NUMBER);
     }
 
-    private OrderSpecifier<?> findCriteria(FoodOrderType foodOrderType, SortType sortType) {
-        if (foodOrderType == FoodOrderType.ID) {
+    private OrderSpecifier<?> findCriteria(OrderType orderType, SortType sortType) {
+        if (sortType == SortType.ID) {
             return food.id.desc();
         }
 
-        if (foodOrderType == FoodOrderType.LIKE) {
+        if (sortType == SortType.LIKE) {
             return food.numberOfLikes.desc();
         }
 
-        if (foodOrderType == FoodOrderType.PRICE) {
-            if (sortType == SortType.ASC) {
+        if (sortType == SortType.PRICE) {
+            if (orderType == OrderType.ASC) {
                 return food.price.asc();
             }
 
