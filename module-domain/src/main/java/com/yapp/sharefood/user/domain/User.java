@@ -27,6 +27,9 @@ public class User extends BaseEntity {
     @Column(length = 20, unique = true)
     private String nickname;
 
+    @Column(name = "user_point", columnDefinition = "integer default 0")
+    private Integer point;
+
     @Embedded
     private OAuthInfo oAuthInfo = new OAuthInfo();
 
