@@ -30,6 +30,10 @@ public class User extends BaseEntity {
     @Column(name = "user_point", columnDefinition = "integer default 0")
     private Integer point;
 
+    @Column(name = "user_grade")
+    @Enumerated(EnumType.STRING)
+    private Grade grade;
+
     @Embedded
     private OAuthInfo oAuthInfo = new OAuthInfo();
 
