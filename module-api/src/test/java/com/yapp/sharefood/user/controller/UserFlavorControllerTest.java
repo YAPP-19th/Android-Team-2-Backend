@@ -29,13 +29,17 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import static com.yapp.sharefood.common.documentation.DocumentationUtils.documentIdentify;
+import static com.yapp.sharefood.common.exception.ForbiddenException.FORBIDDEN_EXCEPTION_MSG;
+import static com.yapp.sharefood.flavor.exception.FlavorNotFoundException.FLAVOR_NOT_FOUND_EXCEPTION_MSG;
+import static com.yapp.sharefood.oauth.exception.UserNotFoundException.USER_NOT_FOUND_EXCEPTION_MSG;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.willReturn;
 import static org.mockito.BDDMockito.willThrow;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(controllers = UserFlavorController.class)
@@ -67,7 +71,7 @@ public class UserFlavorControllerTest extends PreprocessController {
 
         //then
         FlavorsResponse response = objectMapper.readValue(perform.andExpect(status().isOk())
-                .andDo(print())
+                .andDo(documentIdentify("user-flavor/get/success"))
                 .andReturn()
                 .getResponse()
                 .getContentAsString(StandardCharsets.UTF_8), new TypeReference<>() {
@@ -84,7 +88,7 @@ public class UserFlavorControllerTest extends PreprocessController {
     @Test
     void findUserFlavorFailValidUserIdPathTest() throws Exception {
         //given
-        willThrow(ForbiddenException.class)
+        willThrow(new ForbiddenException())
                 .given(flavorService).findUserFlavors(any(User.class));
 
         //when
@@ -92,18 +96,23 @@ public class UserFlavorControllerTest extends PreprocessController {
                 .header(HttpHeaders.AUTHORIZATION, "token"));
 
         //then
-        perform.andExpect(status().isForbidden())
-                .andDo(print())
+        String errMsg = perform.andExpect(status().isForbidden())
+                .andDo(documentIdentify("user-flavor/get/fail/forbidden"))
                 .andReturn()
                 .getResponse()
                 .getContentAsString(StandardCharsets.UTF_8);
+
+        assertThat(errMsg)
+                .isNotNull()
+                .isNotEmpty()
+                .isEqualTo(FORBIDDEN_EXCEPTION_MSG);
     }
 
     @DisplayName("입맛 찾기 요청 중 유저가 없는 경우")
     @Test
     void findUserFlavorFailUserNotFoundTest() throws Exception {
         //given
-        willThrow(UserNotFoundException.class)
+        willThrow(new UserNotFoundException())
                 .given(flavorService).findUserFlavors(any(User.class));
 
         //when
@@ -111,11 +120,16 @@ public class UserFlavorControllerTest extends PreprocessController {
                 .header(HttpHeaders.AUTHORIZATION, "token"));
 
         //then
-        perform.andExpect(status().isNotFound())
-                .andDo(print())
+        String errMsg = perform.andExpect(status().isNotFound())
+                .andDo(documentIdentify("user-flavor/get/fail/userNotFound"))
                 .andReturn()
                 .getResponse()
                 .getContentAsString(StandardCharsets.UTF_8);
+
+        assertThat(errMsg)
+                .isNotNull()
+                .isNotEmpty()
+                .isEqualTo(USER_NOT_FOUND_EXCEPTION_MSG);
     }
 
     @DisplayName("입맛 등록 성공")
@@ -139,7 +153,7 @@ public class UserFlavorControllerTest extends PreprocessController {
 
         //then
         UpdateUserFlavorResponse response = objectMapper.readValue(perform.andExpect(status().isOk())
-                .andDo(print())
+                .andDo(documentIdentify("user-flavor/post/success"))
                 .andReturn()
                 .getResponse()
                 .getContentAsString(StandardCharsets.UTF_8), new TypeReference<>() {
@@ -155,7 +169,7 @@ public class UserFlavorControllerTest extends PreprocessController {
         UserFlavorRequest request = new UserFlavorRequest();
         request.setFlavors(Collections.emptyList());
 
-        willThrow(ForbiddenException.class)
+        willThrow(new ForbiddenException())
                 .given(flavorService).updateUserFlavors(any(User.class), any(UserFlavorRequest.class));
 
         //when
@@ -165,11 +179,16 @@ public class UserFlavorControllerTest extends PreprocessController {
                 .content(objectMapper.writeValueAsString(request)));
 
         //then
-        perform.andExpect(status().isForbidden())
-                .andDo(print())
+        String errMsg = perform.andExpect(status().isForbidden())
+                .andDo(documentIdentify("user-flavor/post/fail/forbidden"))
                 .andReturn()
                 .getResponse()
                 .getContentAsString(StandardCharsets.UTF_8);
+
+        assertThat(errMsg)
+                .isNotNull()
+                .isNotEmpty()
+                .isEqualTo(FORBIDDEN_EXCEPTION_MSG);
     }
 
     @DisplayName("입맛 등록 요청 중 입맛 정보를 찾을 수 없는 경우")
@@ -179,7 +198,7 @@ public class UserFlavorControllerTest extends PreprocessController {
         UserFlavorRequest request = new UserFlavorRequest();
         request.setFlavors(Collections.emptyList());
 
-        willThrow(FlavorNotFoundException.class)
+        willThrow(new FlavorNotFoundException())
                 .given(flavorService).updateUserFlavors(any(User.class), any(UserFlavorRequest.class));
 
         //when
@@ -189,10 +208,15 @@ public class UserFlavorControllerTest extends PreprocessController {
                 .content(objectMapper.writeValueAsString(request)));
 
         //then
-        perform.andExpect(status().isNotFound())
-                .andDo(print())
+        String errMsg = perform.andExpect(status().isNotFound())
+                .andDo(documentIdentify("user-flavor/post/fail/flavorNotFound"))
                 .andReturn()
                 .getResponse()
                 .getContentAsString(StandardCharsets.UTF_8);
+
+        assertThat(errMsg)
+                .isNotNull()
+                .isNotEmpty()
+                .isEqualTo(FLAVOR_NOT_FOUND_EXCEPTION_MSG);
     }
 }

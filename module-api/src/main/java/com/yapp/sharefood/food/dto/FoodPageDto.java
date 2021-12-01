@@ -15,6 +15,7 @@ import java.util.stream.Collectors;
 public class FoodPageDto {
     private static final int FIRST_IMAGE_INDEX = 0;
 
+    private Long id;
     private String foodTitle;
     private String categoryName;
     private int price;
@@ -23,7 +24,8 @@ public class FoodPageDto {
     private List<FoodImageDto> foodimages;
 
     @Builder
-    public FoodPageDto(String foodTitle, String categoryName, int price, boolean isBookmark, long numberOfLikes, List<FoodImageDto> foodImages) {
+    public FoodPageDto(Long id, String foodTitle, String categoryName, int price, boolean isBookmark, long numberOfLikes, List<FoodImageDto> foodImages) {
+        this.id = id;
         this.foodTitle = foodTitle;
         this.categoryName = categoryName;
         this.price = price;
@@ -34,6 +36,7 @@ public class FoodPageDto {
 
     public static FoodPageDto toFoodPageDto(Food food, long numberOfLikes) {
         return FoodPageDto.builder()
+                .id(food.getId())
                 .foodTitle(food.getFoodTitle())
                 .categoryName(food.getCategory().getName())
                 .price(food.getPrice())
@@ -44,6 +47,7 @@ public class FoodPageDto {
 
     public static FoodPageDto toFoodPageDto(Food food) {
         return FoodPageDto.builder()
+                .id(food.getId())
                 .foodTitle(food.getFoodTitle())
                 .categoryName(food.getCategory().getName())
                 .price(food.getPrice())

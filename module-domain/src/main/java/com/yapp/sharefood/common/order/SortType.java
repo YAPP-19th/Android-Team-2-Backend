@@ -10,18 +10,17 @@ import java.util.Objects;
 @Getter
 @AllArgsConstructor
 public enum SortType {
-    DESC("desc"),
-    ASC("asc");
+    ID("id"), PRICE("price"), LIKE("like"), BOOKMARK("bookmark");
 
-    private String order;
+    private final String value;
 
     public static SortType of(String value) {
         if (Objects.isNull(value)) {
-            return DESC;
+            return ID;
         }
 
         return Arrays.stream(values())
-                .filter(sortType -> sortType.order.equalsIgnoreCase(value))
+                .filter(sortType -> sortType.value.equalsIgnoreCase(value))
                 .findFirst()
                 .orElseThrow(ParameterException::new);
     }

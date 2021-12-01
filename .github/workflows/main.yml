@@ -1,10 +1,6 @@
 name: shared-food-action
 
 on:
-  push:
-    branches:
-      - main
-
   pull_request:
     branches:
       - main

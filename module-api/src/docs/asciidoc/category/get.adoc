@@ -1,0 +1,15 @@
+ifndef::snippets[]
+:snippets: ./build/generated-snippets
+endif::[]
+
+== CURL
+include::{snippets}/category/get/success/curl-request.adoc[]
+
+== REQUEST
+include::{snippets}/category/get/success/http-request.adoc[]
+
+== RESPONSE SUCCESS
+include::{snippets}/category/get/success/http-response.adoc[]
+
+== RESPONSE FAIL
+- 해당 기능은 FAIL인 경우가 존재하지 않습니다.

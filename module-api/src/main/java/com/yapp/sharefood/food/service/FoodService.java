@@ -56,6 +56,8 @@ public class FoodService {
     private final LikeRepository likeRepository;
     private final FlavorRepository flavorRepository;
 
+    private final FoodImageService foodImageService;
+
     @Transactional
     public Long saveFood(User user, FoodCreationRequest foodCreationRequest, List<TagWrapper> wrapperTags) {
         Category findCategory = categoryRepository.findByName(foodCreationRequest.getCategoryName())
@@ -104,7 +106,7 @@ public class FoodService {
                 .orElseThrow(FoodNotFoundException::new);
 
         validateAuthUser(findFood, authUser);
-
+        foodImageService.deleteImages(findFood.getImages().getImages());
         foodRepository.delete(findFood);
     }
 
@@ -199,7 +201,7 @@ public class FoodService {
             return FoodPageResponse.ofLastPage(pageFoods, foodPageSearchRequest.getPageSize());
         }
 
-        return FoodPageResponse.of(pageFoods, foodPageSearchRequest.getPageSize(), foodPageSearch.getOffset() + 1);
+        return FoodPageResponse.of(pageFoods, foodPageSearchRequest.getPageSize(), foodPageSearch.getOffset());
     }
 
     private List<Food> findFoodPageBySearch(FoodPageSearch foodPageSearch) {

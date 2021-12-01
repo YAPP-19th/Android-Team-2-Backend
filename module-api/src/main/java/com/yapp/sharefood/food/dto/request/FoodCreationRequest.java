@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -26,13 +27,13 @@ public class FoodCreationRequest {
     private String title;
 
     @NotNull
-    private List<FoodTagDto> tags;
+    private List<FoodTagDto> tags = new ArrayList<>();
 
     @NotNull
     private Integer price;
 
     @NotNull
-    private List<FlavorDto> flavors;
+    private List<FlavorDto> flavors = new ArrayList<>();
 
     @NotNull
     @NotBlank
