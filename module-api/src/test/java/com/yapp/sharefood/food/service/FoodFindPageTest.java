@@ -315,13 +315,13 @@ class FoodFindPageTest {
 
     @MethodSource
     @ParameterizedTest(name = "food flavor 로 조회한 케이스 테스트")
-    void foodSearchWithFlavorsTest_Success(List<FlavorType> flavorTypes, List<Long> findFoodIds, List<String> flavorRequset, List<String> matchTitles) throws Exception {
+    void foodSearchWithFlavorsTest_Success(List<FlavorType> flavorTypes, List<Integer> foodIndex, List<String> flavorRequset, List<String> matchTitles) throws Exception {
         // given
         List<Flavor> flavors = flavorTypes.stream().map(this::findFlavor)
                 .collect(Collectors.toList());
 
-        for (Long id : findFoodIds) {
-            Food food = findFoodById(id);
+        for (int index : foodIndex) {
+            Food food = this.foods.get(index);
             for (Flavor flavor : flavors) {
                 foodFlavorRepository.save(new FoodFlavor(food, flavor));
             }
@@ -356,8 +356,8 @@ class FoodFindPageTest {
 
     static Stream<Arguments> foodSearchWithFlavorsTest_Success() {
         return Stream.of(
-                Arguments.of(List.of(FlavorType.BITTER, FlavorType.COOL_DETAIL), List.of(1L, 2L, 3L, 4L, 5L, 6L), List.of("쓴맛", "시원한"),
-                        List.of("title_5", "title_4", "title_3", "title_2", "title_1"))
+                Arguments.of(List.of(FlavorType.BITTER, FlavorType.COOL_DETAIL), List.of(1, 2, 3, 4, 5, 6), List.of("쓴맛", "시원한"),
+                        List.of("title_6", "title_5", "title_4", "title_3", "title_2"))
         );
     }
 }
