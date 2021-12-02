@@ -15,6 +15,7 @@ import com.yapp.sharefood.food.repository.FoodRepository;
 import com.yapp.sharefood.like.domain.Like;
 import com.yapp.sharefood.like.repository.LikeRepository;
 import com.yapp.sharefood.like.service.LikeService;
+import com.yapp.sharefood.tag.domain.Tag;
 import com.yapp.sharefood.tag.repository.TagRepository;
 import com.yapp.sharefood.user.domain.OAuthType;
 import com.yapp.sharefood.user.domain.User;
@@ -38,6 +39,7 @@ import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest
 @Transactional
@@ -98,10 +100,12 @@ class FoodFindPageTest {
     private Category category;
     private List<Food> foods;
     private List<Flavor> flavors;
+    private List<Tag> tags;
 
     @BeforeEach
     void init() {
         this.flavors = setUpFlavors();
+        this.tags = setUpTags();
         this.category = saveTestCategory("category");
         this.ownerUser = saveTestUser("owner_nickname", "owner_name", "oauthId");
         this.otherUser = saveTestUser("other_nickanem", "other_name", "other_oauth_id");
@@ -113,6 +117,20 @@ class FoodFindPageTest {
 
         em.flush();
         em.clear();
+    }
+
+    private List<Tag> setUpTags() {
+        List<Tag> tags = new ArrayList<>();
+        Tag tag1 = Tag.of("카푸치노");
+        Tag tag2 = Tag.of("시럽");
+        Tag tag3 = Tag.of("샷추가");
+        Tag tag4 = Tag.of("크림");
+        tags.add(tagRepository.save(tag1));
+        tags.add(tagRepository.save(tag2));
+        tags.add(tagRepository.save(tag3));
+        tags.add(tagRepository.save(tag4));
+
+        return tags;
     }
 
     private List<User> initUser() {
@@ -248,5 +266,38 @@ class FoodFindPageTest {
                 Arguments.of(7, null, -1L, 5, List.of("title_9", "title_8", "title_7")),
                 Arguments.of(2, 4, -1L, 5, List.of("title_4", "title_3", "title_2"))
         );
+    }
+
+    @Test
+    @DisplayName("Tag와 Flavor 로 동시에 조회할 경우 에러 발생")
+    void foodFlavorTagSameRequset_Exception() throws Exception {
+        // given
+        List<String> tagRequset = new ArrayList<>();
+        for (Tag tag : this.tags) {
+            tagRequset.add(tag.getName());
+        }
+        List<String> flavorsRequest = new ArrayList<>();
+        for (Flavor flavor : this.flavors) {
+            flavorsRequest.add(flavor.getFlavorType().getFlavorName());
+        }
+
+        FoodPageSearchRequest foodPageSearchRequest = FoodPageSearchRequest
+                .builder()
+                .minPrice(null)
+                .maxPrice(null)
+                .sort("id")
+                .order("desc")
+                .categoryName("category")
+                .offset(0L)
+                .pageSize(5)
+                .tags(tagRequset)
+                .flavors(flavorsRequest)
+                .firstSearchTime(LocalDateTime.now())
+                .build();
+
+        // when
+
+        // then
+        assertThrows(InvalidOperationException.class, () -> foodService.searchFoodsPage(foodPageSearchRequest));
     }
 }
