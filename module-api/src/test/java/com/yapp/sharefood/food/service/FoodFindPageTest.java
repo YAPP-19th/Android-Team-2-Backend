@@ -7,10 +7,12 @@ import com.yapp.sharefood.flavor.domain.Flavor;
 import com.yapp.sharefood.flavor.domain.FlavorType;
 import com.yapp.sharefood.flavor.repository.FlavorRepository;
 import com.yapp.sharefood.food.domain.Food;
+import com.yapp.sharefood.food.domain.FoodFlavor;
 import com.yapp.sharefood.food.domain.FoodStatus;
 import com.yapp.sharefood.food.dto.FoodPageDto;
 import com.yapp.sharefood.food.dto.request.FoodPageSearchRequest;
 import com.yapp.sharefood.food.dto.response.FoodPageResponse;
+import com.yapp.sharefood.food.repository.FoodFlavorRepository;
 import com.yapp.sharefood.food.repository.FoodRepository;
 import com.yapp.sharefood.like.domain.Like;
 import com.yapp.sharefood.like.repository.LikeRepository;
@@ -35,6 +37,8 @@ import javax.persistence.EntityManager;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -67,6 +71,8 @@ class FoodFindPageTest {
     UserFlavorRepository userFlavorRepository;
     @Autowired
     LikeRepository likeRepository;
+    @Autowired
+    FoodFlavorRepository foodFlavorRepository;
 
     private Category saveTestCategory(String categoryName) {
         Category category = Category.of(categoryName);
@@ -145,6 +151,12 @@ class FoodFindPageTest {
         }
 
         return userRepository.saveAll(users);
+    }
+
+    private Food findFoodById(Long id) {
+        return this.foods.stream().filter(food -> Objects.equals(food.getId(), id))
+                .findAny()
+                .orElseThrow();
     }
 
     private List<Flavor> setUpFlavors() {
@@ -299,5 +311,53 @@ class FoodFindPageTest {
 
         // then
         assertThrows(InvalidOperationException.class, () -> foodService.searchFoodsPage(foodPageSearchRequest));
+    }
+
+    @MethodSource
+    @ParameterizedTest(name = "food flavor 로 조회한 케이스 테스트")
+    void foodSearchWithFlavorsTest_Success(List<FlavorType> flavorTypes, List<Long> findFoodIds, List<String> flavorRequset, List<String> matchTitles) throws Exception {
+        // given
+        List<Flavor> flavors = flavorTypes.stream().map(this::findFlavor)
+                .collect(Collectors.toList());
+
+        for (Long id : findFoodIds) {
+            Food food = findFoodById(id);
+            for (Flavor flavor : flavors) {
+                foodFlavorRepository.save(new FoodFlavor(food, flavor));
+            }
+        }
+
+        FoodPageSearchRequest foodPageSearchRequest = FoodPageSearchRequest
+                .builder()
+                .minPrice(null)
+                .maxPrice(null)
+                .sort("id")
+                .order("desc")
+                .categoryName("category")
+                .offset(0L)
+                .pageSize(5)
+                .tags(new ArrayList<>())
+                .flavors(flavorRequset)
+                .firstSearchTime(LocalDateTime.now())
+                .build();
+
+        em.flush();
+        em.clear();
+
+        // when
+        FoodPageResponse foodPageResponse = foodService.searchFoodsPage(foodPageSearchRequest);
+
+        // then
+        assertThat(foodPageResponse.getFoods())
+                .isNotNull()
+                .extracting("foodTitle")
+                .containsExactlyInAnyOrderElementsOf(matchTitles);
+    }
+
+    static Stream<Arguments> foodSearchWithFlavorsTest_Success() {
+        return Stream.of(
+                Arguments.of(List.of(FlavorType.BITTER, FlavorType.COOL_DETAIL), List.of(1L, 2L, 3L, 4L, 5L, 6L), List.of("쓴맛", "시원한"),
+                        List.of("title_5", "title_4", "title_3", "title_2", "title_1"))
+        );
     }
 }
