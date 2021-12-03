@@ -9,7 +9,7 @@ import com.yapp.sharefood.common.utils.QueryUtils;
 import com.yapp.sharefood.flavor.domain.Flavor;
 import com.yapp.sharefood.food.domain.Food;
 import com.yapp.sharefood.food.domain.FoodStatus;
-import com.yapp.sharefood.food.dto.FoodOrderType;
+import com.yapp.sharefood.food.dto.OrderType;
 import com.yapp.sharefood.food.dto.FoodPageSearch;
 import com.yapp.sharefood.food.dto.FoodRecommendSearch;
 import com.yapp.sharefood.tag.domain.Tag;
@@ -75,6 +75,8 @@ public class FoodQueryRepositoryImpl implements FoodQueryRepository {
         List<Long> foodsIds = queryFactory.select(food.id)
                 .from(food)
                 .where(
+                        goeMinPrice(foodPageSearch.getMinPrice()),
+                        loeMaxPrice(foodPageSearch.getMaxPrice()),
                         lessThanCreateTime(foodPageSearch.getSearchTime()),
                         eqCategory(foodPageSearch.getCategory()),
                         statusShared()
@@ -94,6 +96,8 @@ public class FoodQueryRepositoryImpl implements FoodQueryRepository {
         List<Long> searchFoodIds = queryFactory.select(food.id)
                 .from(food).innerJoin(food.foodTags.foodTags, foodTag)
                 .where(
+                        goeMinPrice(foodPageSearch.getMinPrice()),
+                        loeMaxPrice(foodPageSearch.getMaxPrice()),
                         lessThanCreateTime(foodPageSearch.getSearchTime()),
                         eqCategory(foodPageSearch.getCategory()),
                         containTags(foodPageSearch.getTags()),
@@ -115,6 +119,8 @@ public class FoodQueryRepositoryImpl implements FoodQueryRepository {
         List<Long> searchFoodIds = queryFactory.select(food.id)
                 .from(food).innerJoin(food.foodFlavors.foodFlavors, foodFlavor)
                 .where(
+                        goeMinPrice(foodPageSearch.getMinPrice()),
+                        loeMaxPrice(foodPageSearch.getMaxPrice()),
                         lessThanCreateTime(foodPageSearch.getSearchTime()),
                         eqCategory(foodPageSearch.getCategory()),
                         containFlavors(foodPageSearch.getFlavors()),
@@ -131,6 +137,14 @@ public class FoodQueryRepositoryImpl implements FoodQueryRepository {
 
     private BooleanExpression lessThanCreateTime(LocalDateTime searchTime) {
         return food.createDate.loe(searchTime);
+    }
+
+    private BooleanExpression loeMaxPrice(Integer maxPrice) {
+        return maxPrice == null ? null : food.price.loe(maxPrice);
+    }
+
+    private BooleanExpression goeMinPrice(Integer minPrice) {
+        return minPrice == null ? null : food.price.goe(minPrice);
     }
 
     private BooleanExpression statusShared() {
@@ -169,17 +183,17 @@ public class FoodQueryRepositoryImpl implements FoodQueryRepository {
         return food.numberOfLikes.ne(EMPTY_LIKE_NUMBER);
     }
 
-    private OrderSpecifier<?> findCriteria(FoodOrderType foodOrderType, SortType sortType) {
-        if (foodOrderType == FoodOrderType.ID) {
+    private OrderSpecifier<?> findCriteria(OrderType orderType, SortType sortType) {
+        if (sortType == SortType.ID) {
             return food.id.desc();
         }
 
-        if (foodOrderType == FoodOrderType.LIKE) {
+        if (sortType == SortType.LIKE) {
             return food.numberOfLikes.desc();
         }
 
-        if (foodOrderType == FoodOrderType.PRICE) {
-            if (sortType == SortType.ASC) {
+        if (sortType == SortType.PRICE) {
+            if (orderType == OrderType.ASC) {
                 return food.price.asc();
             }
 

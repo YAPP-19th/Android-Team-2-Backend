@@ -19,8 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 @Transactional
 @SpringBootTest
@@ -64,7 +63,7 @@ class LikeServiceTest {
     }
 
     @Test
-    void saveLikeTest() {
+    void saveLikeTest_Success() {
         Category saveCategory = saveTestCategory("A");
         User user1 = saveTestUser("user1_nick", "user1_name", "oauthId1");
         User user2 = saveTestUser("user2_nick", "user2_name", "oauthId2");
@@ -83,7 +82,7 @@ class LikeServiceTest {
 
     @Test
     @DisplayName("자기꺼 like 버튼 클릭하기")
-    void saveLikeMyTest() throws Exception {
+    void saveLikeMyTest_Success() throws Exception {
         Category saveCategory = saveTestCategory("A");
         User user1 = saveTestUser("user1_nick", "user1_name", "oauthId1");
 
@@ -101,7 +100,7 @@ class LikeServiceTest {
 
     @Test
     @DisplayName("food가 private일 때 like 불가 기능 테스트")
-    void saveLikeExceptionWhenFoodIsPrivateTest() throws Exception {
+    void saveLikeExceptionWhenFoodIsPrivateTest_InvalidError() throws Exception {
         Category saveCategory = saveTestCategory("A");
         User user1 = saveTestUser("user1_nick", "user1_name", "oauthId1");
         Food food = saveFood("food title", user1, saveCategory, FoodStatus.MINE);
@@ -116,7 +115,7 @@ class LikeServiceTest {
 
     @Test
     @DisplayName("없는 food를 like 추가 하는 경우")
-    void saveFoodNotFoundExceptionTest() throws Exception {
+    void saveFoodNotFoundExceptionTest_NotFoundException() throws Exception {
         // given
         Category saveCategory = saveTestCategory("A");
         User user1 = saveTestUser("user1_nick", "user1_name", "oauthId1");
@@ -129,8 +128,25 @@ class LikeServiceTest {
     }
 
     @Test
+    @DisplayName("food category가 적절하지 않는 경우")
+    void saveFoodValidateCategory_NotFoundException() throws Exception {
+        // given
+        Category saveCategory = saveTestCategory("A");
+        User user1 = saveTestUser("user1_nick", "user1_name", "oauthId1");
+        Food food = saveFood("food title", user1, saveCategory, FoodStatus.MINE);
+
+        // when
+
+        // then
+        String categoryName = "B";
+        Long foodId = food.getId();
+        assertNotNull(foodId);
+        assertThrows(FoodNotFoundException.class, () -> likeService.saveLike(user1, foodId, categoryName));
+    }
+
+    @Test
     @DisplayName("like 삭제 기능 테스트")
-    void deleteLikeTest() {
+    void deleteLikeTest_Success() {
         // given
         Category saveCategory = saveTestCategory("A");
         User user1 = saveTestUser("user1_nick", "user1_name", "oauthId1");
@@ -150,7 +166,7 @@ class LikeServiceTest {
 
     @Test
     @DisplayName("like 버튼을 누르지 않은 food에 like 취소 요청을 보낸 경우")
-    void deleteLikeFailTest() throws Exception {
+    void deleteLikeFailTest_ForbiddenException() throws Exception {
         // given
         Category saveCategory = saveTestCategory("A");
         User user1 = saveTestUser("user1_nick", "user1_name", "oauthId1");
@@ -170,7 +186,7 @@ class LikeServiceTest {
 
     @Test
     @DisplayName("없는 food를 like 삭제 하는 경우")
-    void deleteFoodNotFoundExceptionTest() throws Exception {
+    void deleteFoodNotFoundExceptionTest_NotFoundException() throws Exception {
         // given
         User user1 = saveTestUser("user1_nick", "user1_name", "oauthId1");
 
@@ -178,5 +194,22 @@ class LikeServiceTest {
 
         // then
         assertThrows(FoodNotFoundException.class, () -> likeService.deleteLike(user1, 1L, "A"));
+    }
+
+    @Test
+    @DisplayName("like 취소시 food category가 적절하지 않는 경우")
+    void deleteFoodValidateCategory_NotFoundException() throws Exception {
+        // given
+        Category saveCategory = saveTestCategory("A");
+        User user1 = saveTestUser("user1_nick", "user1_name", "oauthId1");
+        Food food = saveFood("food title", user1, saveCategory, FoodStatus.MINE);
+
+        // when
+
+        // then
+        String categoryName = "B";
+        Long foodId = food.getId();
+        assertNotNull(foodId);
+        assertThrows(FoodNotFoundException.class, () -> likeService.deleteLike(user1, foodId, categoryName));
     }
 }

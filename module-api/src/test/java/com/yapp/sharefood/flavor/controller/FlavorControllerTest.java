@@ -18,6 +18,7 @@ import org.springframework.test.web.servlet.ResultActions;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
+import static com.yapp.sharefood.common.documentation.DocumentationUtils.documentIdentify;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.BDDMockito.willReturn;
@@ -47,7 +48,7 @@ class FlavorControllerTest extends PreprocessController {
         FlavorsResponse flavors = objectMapper
                 .readValue(perform
                         .andExpect(status().isOk())
-                        .andDo(print())
+                        .andDo(documentIdentify("flavor/get/success/not_empty"))
                         .andReturn()
                         .getResponse()
                         .getContentAsString(StandardCharsets.UTF_8), new TypeReference<>() {
@@ -73,7 +74,7 @@ class FlavorControllerTest extends PreprocessController {
         FlavorsResponse flavors = objectMapper
                 .readValue(perform
                         .andExpect(status().isOk())
-                        .andDo(print())
+                        .andDo(documentIdentify("flavor/get/success/empty"))
                         .andReturn()
                         .getResponse()
                         .getContentAsString(StandardCharsets.UTF_8), new TypeReference<>() {
