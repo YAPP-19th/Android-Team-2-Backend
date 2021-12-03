@@ -15,6 +15,7 @@ import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.yapp.sharefood.user.domain.Grade.POINT_OPEN_FOOD;
 import static com.yapp.sharefood.user.domain.Grade.POINT_REGISTER_FOOD;
 
 @Getter
@@ -65,5 +66,15 @@ public class User extends BaseEntity {
         }
 
         this.point += POINT_REGISTER_FOOD;
+    }
+
+    public void addPointByOpenFood(Food food) {
+        if (food == null) throw new FoodNotFoundException();
+
+        if (food.getWriter().getId() != this.id) {
+            throw new InvalidOperationException("내가 작성한 Food가 아닙니다.");
+        }
+
+        this.point += (food.getFoodStatus().isShared()) ? POINT_OPEN_FOOD : 0;
     }
 }

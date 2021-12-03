@@ -79,6 +79,7 @@ public class FoodService {
         Food saveFood = foodRepository.save(food);
 
         user.addPointByRegisterFood(food);
+        user.addPointByOpenFood(food);
 
         return saveFood.getId();
     }
