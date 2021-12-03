@@ -4,6 +4,6 @@ public enum FoodStatus {
     SHARED, MINE;
 
     public boolean isShared() {
-        return this.name().equals(SHARED.name());
+        return this == FoodStatus.SHARED;
     }
 }
