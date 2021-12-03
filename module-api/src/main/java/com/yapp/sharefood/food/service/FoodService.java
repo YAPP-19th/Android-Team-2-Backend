@@ -76,7 +76,7 @@ public class FoodService {
                 .category(findCategory)
                 .build();
 
-        food.assignWrapperTags(wrapperTags, food);
+        food.assignWrapperTags(wrapperTags);
         food.assignFlavors(flavors);
         Food saveFood = foodRepository.save(food);
 

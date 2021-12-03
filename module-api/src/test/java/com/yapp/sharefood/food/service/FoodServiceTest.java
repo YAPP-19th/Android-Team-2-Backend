@@ -473,6 +473,45 @@ class FoodServiceTest {
         Food food1 = saveFoodWithFlavors("food title1", user1, saveCategory, findFlavors(List.of(FlavorType.BITTER, FlavorType.SWEET)));
         Food food2 = saveFoodWithFlavors("food title2", user1, saveCategory, findFlavors(List.of(FlavorType.BITTER, FlavorType.COOL_DETAIL)));
         Food food3 = saveFoodWithFlavors("food title3", user1, saveCategory, findFlavors(List.of(FlavorType.BITTER, FlavorType.REFRESH_DETAIL)));
+        Food food4 = saveFoodWithFlavors("food title4", user1, saveCategory, findFlavors(List.of(FlavorType.SOUR)));
+        likeService.saveLike(user2, food1.getId(), saveCategory.getName());
+        likeService.saveLike(user3, food1.getId(), saveCategory.getName());
+        likeService.saveLike(user4, food1.getId(), saveCategory.getName());
+        likeService.saveLike(user5, food1.getId(), saveCategory.getName());
+
+        likeService.saveLike(user3, food3.getId(), saveCategory.getName());
+        likeService.saveLike(user4, food3.getId(), saveCategory.getName());
+        likeService.saveLike(user5, food3.getId(), saveCategory.getName());
+
+        likeService.saveLike(user4, food2.getId(), saveCategory.getName());
+        likeService.saveLike(user5, food2.getId(), saveCategory.getName());
+
+        likeService.saveLike(user5, food4.getId(), saveCategory.getName());
+
+        // when
+        RecommendationFoodResponse foodRecommendation = foodService.findFoodRecommendation(request, user1);
+
+        // then
+        assertEquals(3, foodRecommendation.getRecommendationFoods().size());
+    }
+
+    @Test
+    @DisplayName("food 추천 기능 User가 flavor설정 하지 않은 경우 테스트")
+    void foodRecommendataionUserFlavorIsEmptyTest_Success() throws Exception {
+        // given
+        RecommendationFoodRequest request = RecommendationFoodRequest.of(4, 7, "A");
+
+        Category saveCategory = saveTestCategory("A");
+        User user1 = saveTestUser("user1_nick", "user1_name", "oauthId1");
+
+        User user2 = saveTestUser("user2_nick", "user2_name", "oauthId2");
+        User user3 = saveTestUser("user3_nick", "user3_name", "oauthId3");
+        User user4 = saveTestUser("user4_nick", "user4_name", "oauthId4");
+        User user5 = saveTestUser("user5_nick", "user5_name", "oauthId5");
+
+        Food food1 = saveFoodWithFlavors("food title1", user1, saveCategory, findFlavors(List.of(FlavorType.BITTER, FlavorType.SWEET)));
+        Food food2 = saveFoodWithFlavors("food title2", user1, saveCategory, findFlavors(List.of(FlavorType.BITTER, FlavorType.COOL_DETAIL)));
+        Food food3 = saveFoodWithFlavors("food title3", user1, saveCategory, findFlavors(List.of(FlavorType.BITTER, FlavorType.REFRESH_DETAIL)));
         Food food4 = saveFoodWithFlavors("food title4", user1, saveCategory, findFlavors(List.of(FlavorType.BITTER, FlavorType.SOUR)));
         likeService.saveLike(user2, food1.getId(), saveCategory.getName());
         likeService.saveLike(user3, food1.getId(), saveCategory.getName());

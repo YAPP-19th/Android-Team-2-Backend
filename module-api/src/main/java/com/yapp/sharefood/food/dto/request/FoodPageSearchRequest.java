@@ -21,7 +21,9 @@ public class FoodPageSearchRequest {
     @Min(0)
     private Integer maxPrice;
 
+    @NotNull
     private List<String> tags = new ArrayList<>();
+    @NotNull
     private List<String> flavors = new ArrayList<>();
 
     private String sort;
