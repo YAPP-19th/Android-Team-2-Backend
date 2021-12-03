@@ -15,8 +15,7 @@ import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.yapp.sharefood.user.domain.Grade.POINT_OPEN_FOOD;
-import static com.yapp.sharefood.user.domain.Grade.POINT_REGISTER_FOOD;
+import static com.yapp.sharefood.user.domain.Grade.*;
 
 @Getter
 @Entity
@@ -65,6 +64,8 @@ public class User extends BaseEntity {
             throw new InvalidOperationException("내가 작성한 Food가 아닙니다.");
         }
 
+        if(!canEarnPoint(food.getWriter().getGrade())) return;
+
         this.point += POINT_REGISTER_FOOD;
     }
 
@@ -75,6 +76,13 @@ public class User extends BaseEntity {
             throw new InvalidOperationException("내가 작성한 Food가 아닙니다.");
         }
 
+        if(!canEarnPoint(food.getWriter().getGrade())) return;
+
         this.point += (food.getFoodStatus().isShared()) ? POINT_OPEN_FOOD : 0;
+    }
+
+    public void upgrade() {
+        int point = this.point != null ? this.point.intValue() : -1;
+        this.grade = Grade.upgrade(point);
     }
 }

@@ -80,6 +80,7 @@ public class FoodService {
 
         user.addPointByRegisterFood(food);
         user.addPointByOpenFood(food);
+        user.upgrade();
 
         return saveFood.getId();
     }
