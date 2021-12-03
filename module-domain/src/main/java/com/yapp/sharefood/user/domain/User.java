@@ -3,7 +3,6 @@ package com.yapp.sharefood.user.domain;
 import com.yapp.sharefood.common.domain.BaseEntity;
 import com.yapp.sharefood.common.exception.InvalidOperationException;
 import com.yapp.sharefood.food.domain.Food;
-import com.yapp.sharefood.food.domain.FoodStatus;
 import com.yapp.sharefood.food.exception.FoodNotFoundException;
 import com.yapp.sharefood.userflavor.domain.UserFlavor;
 import lombok.AccessLevel;
@@ -83,6 +82,6 @@ public class User extends BaseEntity {
 
     public void upgrade() {
         int point = this.point != null ? this.point.intValue() : -1;
-        this.grade = Grade.upgrade(point);
+        this.grade = Grade.gradeByPoint(point);
     }
 }

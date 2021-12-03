@@ -15,7 +15,7 @@ public enum Grade {
 
     private int condition;
 
-    public static Grade upgrade(int point) {
+    public static Grade gradeByPoint(int point) {
         for(Grade grade : Arrays.stream(values()).sorted(Collections.reverseOrder()).toArray(Grade[]::new)) {
             if(point >= grade.condition) return grade;
         }
