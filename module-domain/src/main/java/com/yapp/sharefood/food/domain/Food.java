@@ -135,8 +135,8 @@ public class Food extends BaseEntity {
         bookmarks.deleteBookmark(user.getId());
     }
 
-    public void assignWrapperTags(List<TagWrapper> wrapperTags, Food food) {
-        getFoodTags().addAllTags(wrapperTags, food);
+    public void assignWrapperTags(List<TagWrapper> wrapperTags) {
+        getFoodTags().addAllTags(wrapperTags, this);
     }
 
     public void assignFlavors(List<Flavor> flavors) {

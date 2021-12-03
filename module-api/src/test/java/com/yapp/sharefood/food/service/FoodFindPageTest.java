@@ -6,14 +6,13 @@ import com.yapp.sharefood.common.exception.InvalidOperationException;
 import com.yapp.sharefood.flavor.domain.Flavor;
 import com.yapp.sharefood.flavor.domain.FlavorType;
 import com.yapp.sharefood.flavor.repository.FlavorRepository;
-import com.yapp.sharefood.food.domain.Food;
-import com.yapp.sharefood.food.domain.FoodFlavor;
-import com.yapp.sharefood.food.domain.FoodStatus;
+import com.yapp.sharefood.food.domain.*;
 import com.yapp.sharefood.food.dto.FoodPageDto;
 import com.yapp.sharefood.food.dto.request.FoodPageSearchRequest;
 import com.yapp.sharefood.food.dto.response.FoodPageResponse;
 import com.yapp.sharefood.food.repository.FoodFlavorRepository;
 import com.yapp.sharefood.food.repository.FoodRepository;
+import com.yapp.sharefood.food.repository.FoodTagRepository;
 import com.yapp.sharefood.like.domain.Like;
 import com.yapp.sharefood.like.repository.LikeRepository;
 import com.yapp.sharefood.like.service.LikeService;
@@ -73,6 +72,8 @@ class FoodFindPageTest {
     LikeRepository likeRepository;
     @Autowired
     FoodFlavorRepository foodFlavorRepository;
+    @Autowired
+    FoodTagRepository foodTagRepository;
 
     private Category saveTestCategory(String categoryName) {
         Category category = Category.of(categoryName);
@@ -357,7 +358,57 @@ class FoodFindPageTest {
     static Stream<Arguments> foodSearchWithFlavorsTest_Success() {
         return Stream.of(
                 Arguments.of(List.of(FlavorType.BITTER, FlavorType.COOL_DETAIL), List.of(1, 2, 3, 4, 5, 6), List.of("쓴맛", "시원한"),
-                        List.of("title_6", "title_5", "title_4", "title_3", "title_2"))
+                        List.of("title_6", "title_5", "title_4", "title_3", "title_2")),
+                Arguments.of(List.of(FlavorType.BITTER, FlavorType.COOL_DETAIL), new ArrayList<>(), List.of("쓴맛", "시원한"),
+                        new ArrayList<>())
+        );
+    }
+
+    @MethodSource
+    @ParameterizedTest(name = "food tag로 조회한 케이스 테스트")
+    void foodSearchFromTag_Success(List<String> tagNames, List<Integer> foodIndexs, List<String> matchTitles) throws Exception {
+        // given
+        List<TagWrapper> findTags = tagRepository.findByNameIn(tagNames)
+                .stream().map(tag -> new TagWrapper(tag, FoodIngredientType.ADD))
+                .collect(Collectors.toList());
+
+        for (int foodIndex : foodIndexs) {
+            Food findFood = this.foods.get(foodIndex);
+            findFood.assignWrapperTags(findTags);
+            foodTagRepository.saveAll(findFood.getFoodTags().getFoodTags());
+        }
+
+        FoodPageSearchRequest foodPageSearchRequest = FoodPageSearchRequest
+                .builder()
+                .minPrice(null)
+                .maxPrice(null)
+                .sort("id")
+                .order("desc")
+                .categoryName("category")
+                .offset(0L)
+                .pageSize(5)
+                .tags(tagNames)
+                .flavors(new ArrayList<>())
+                .firstSearchTime(LocalDateTime.now())
+                .build();
+
+        em.flush();
+        em.clear();
+
+        // when
+        FoodPageResponse foodPageResponse = foodService.searchFoodsPage(foodPageSearchRequest);
+
+        // then
+        assertThat(foodPageResponse.getFoods())
+                .isNotNull()
+                .extracting("foodTitle")
+                .containsExactlyInAnyOrderElementsOf(matchTitles);
+    }
+
+    static Stream<Arguments> foodSearchFromTag_Success() {
+        return Stream.of(
+                Arguments.of(List.of("카푸치노", "시럽", "크림"), List.of(1, 2, 3, 4, 5, 6), List.of("title_6", "title_5", "title_4", "title_3", "title_2")),
+                Arguments.of(List.of("카푸치노", "시럽", "크림"), new ArrayList<>(), new ArrayList<>())
         );
     }
 }
