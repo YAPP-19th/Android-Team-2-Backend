@@ -1,5 +1,8 @@
 package com.yapp.sharefood.user.domain;
 
+import java.util.Arrays;
+import java.util.Collections;
+
 public enum Grade {
     STUDENT(0), BACHELOR(300), MASTER(700), EXPERT(1200), PROFESSOR(1800);
 
@@ -13,10 +16,10 @@ public enum Grade {
     private int condition;
 
     public static Grade upgrade(int point) {
-        for(Grade grade : values()) {
+        for(Grade grade : Arrays.stream(values()).sorted(Collections.reverseOrder()).toArray(Grade[]::new)) {
             if(point >= grade.condition) return grade;
         }
-        return values()[0];
+        return STUDENT;
     }
 
     public static boolean canEarnPoint(Grade grade) {
