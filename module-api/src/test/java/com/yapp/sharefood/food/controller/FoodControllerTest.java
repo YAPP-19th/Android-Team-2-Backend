@@ -3,6 +3,7 @@ package com.yapp.sharefood.food.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yapp.sharefood.category.exception.CategoryNotFoundException;
 import com.yapp.sharefood.common.PreprocessController;
+import com.yapp.sharefood.common.exception.BadRequestException;
 import com.yapp.sharefood.common.exception.InvalidOperationException;
 import com.yapp.sharefood.flavor.domain.FlavorType;
 import com.yapp.sharefood.flavor.dto.FlavorDto;
@@ -181,6 +182,40 @@ class FoodControllerTest extends PreprocessController {
         // then
         String errorMsg = perform.andExpect(status().isInternalServerError())
                 .andDo(documentIdentify("food/post/fail/invalidOperationException"))
+                .andReturn()
+                .getResponse()
+                .getContentAsString(StandardCharsets.UTF_8);
+
+        assertThat(errorMsg)
+                .isNotNull();
+    }
+
+    @Test
+    @DisplayName("Main을 추가 할지 않는 경우 - 실패")
+    void foodSaveTest_MainNotExist_Exception() throws Exception {
+        willThrow(new BadRequestException())
+                .given(foodService).saveFood(any(User.class), any(FoodCreationRequest.class), anyList());
+
+        FoodCreationRequest foodCreationRequest = FoodCreationRequest.builder()
+                .categoryName("샌드위치")
+                .title("title")
+                .price(10000)
+                .flavors(List.of(FlavorDto.of(1L, FlavorType.SWEET), FlavorDto.of(2L, FlavorType.BITTER)))
+                .tags(List.of(FoodTagDto.of(1L, "샷추가", FoodIngredientType.EXTRACT), FoodTagDto.of(2L, "커피", FoodIngredientType.ADD)))
+                .reviewMsg("review msg")
+                .foodStatus(FoodStatus.SHARED)
+                .build();
+
+        // when
+        String requestBodyStr = objectMapper.writeValueAsString(foodCreationRequest);
+        ResultActions perform = mockMvc.perform(post("/api/v1/foods")
+                .header(HttpHeaders.AUTHORIZATION, "token")
+                .content(requestBodyStr)
+                .contentType(MediaType.APPLICATION_JSON_VALUE));
+
+        // then
+        String errorMsg = perform.andExpect(status().isBadRequest())
+                .andDo(documentIdentify("food/post/fail/badRequest"))
                 .andReturn()
                 .getResponse()
                 .getContentAsString(StandardCharsets.UTF_8);
