@@ -10,7 +10,7 @@ import java.util.Objects;
 @Getter
 @AllArgsConstructor
 public enum SortType {
-    ID("id"), PRICE("price"), LIKE("like"), BOOKMARK("bookmark");
+    ID("id"), PRICE("price"), LIKE("like");
 
     private final String value;
 
