@@ -13,7 +13,24 @@ spring:
     activate:
       on-profile: dev
   datasource:
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/dev?serverTimezone=UTC
-    username: root
-    password: root
+    hikari:
+      maximum-pool-size: 40
+      max-lifetime: 60000
+      jdbc-url: jdbc:mysql://localhost:3306/dev?serverTimezone=UTC
+      username: root
+      password: root
+      driver-class-name: com.mysql.cj.jdbc.Driver
+      connection-timeout: 5000
+      pool-name: Spring-HikariPool
+
+userlock:
+  datasource:
+    hikari:
+      maximum-pool-size: 20
+      max-lifetime: 60000
+      jdbc-url: jdbc:mysql://localhost:3306/dev?serverTimezone=UTC
+      username: root
+      password: root
+      driver-class-name: com.mysql.cj.jdbc.Driver
+      connection-timeout: 5000
+      pool-name: UserLock-HikariPool

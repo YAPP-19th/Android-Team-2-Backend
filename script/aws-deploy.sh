@@ -1,6 +1,6 @@
 #!/bin/bash
 
-BUILD_JAR=$(ls /home/ec2-user/action/build/libs/*.jar)
+BUILD_JAR=$(ls /home/ec2-user/action/module-api/build/libs/*.jar)
 JAR_NAME=$(basename $BUILD_JAR)
 echo "> build 파일명: $JAR_NAME" >> /home/ec2-user/action/deploy.log
 
@@ -21,8 +21,7 @@ else
 fi
 
 DEPLOY_JAR=$DEPLOY_PATH$JAR_NAME
+
 echo "> DEPLOY_JAR 배포"    >> /home/ec2-user/action/deploy.log
-# nohup java -jar \
-#  -Dspring.config.location=classpath:../application-aws-dev.yml \
-#  $DEPLOY_JAR --spring.profiles.active=dev \
-#  --spring.datasource.url=jdbc:mysql://172.17.0.2:3306/dev?serverTimezone=UTC >> /home/ec2-user/deploy.log 2>/home/ec2-user/action/deploy_err.log &
+
+nohup java -jar $DEPLOY_JAR --spring.profiles.active=dev --spring.datasource.url=jdbc:mysql://172.17.0.2:3306/dev?serverTimezone=UTC --spring.config.additional-location=/home/ec2-user/application-aws-dev.yml 2>&1 &

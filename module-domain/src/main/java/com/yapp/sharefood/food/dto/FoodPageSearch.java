@@ -21,7 +21,7 @@ public class FoodPageSearch {
 
     private SortType sort;
 
-    private FoodOrderType order;
+    private OrderType order;
 
     private List<Flavor> flavors;
 
@@ -44,7 +44,7 @@ public class FoodPageSearch {
         this.tags = tags;
         this.category = category;
         this.sort = SortType.of(sort);
-        this.order = FoodOrderType.of(order);
+        this.order = OrderType.of(order);
         this.offset = offset;
         this.size = size;
         this.searchTime = searchTime;

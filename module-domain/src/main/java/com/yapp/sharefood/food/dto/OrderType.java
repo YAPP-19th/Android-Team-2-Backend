@@ -9,18 +9,19 @@ import java.util.Objects;
 
 @Getter
 @AllArgsConstructor
-public enum FoodOrderType {
-    ID("id"), PRICE("price"), LIKE("like"), BOOKMARK("bookmark");
+public enum OrderType {
+    DESC("desc"),
+    ASC("asc");
 
-    private final String value;
+    private String order;
 
-    public static FoodOrderType of(String value) {
+    public static OrderType of(String value) {
         if (Objects.isNull(value)) {
-            return ID;
+            return DESC;
         }
 
         return Arrays.stream(values())
-                .filter(foodOrderType -> foodOrderType.value.equalsIgnoreCase(value))
+                .filter(orderType -> orderType.order.equalsIgnoreCase(value))
                 .findFirst()
                 .orElseThrow(ParameterException::new);
     }

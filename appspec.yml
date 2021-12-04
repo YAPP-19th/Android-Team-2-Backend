@@ -13,6 +13,6 @@ permissions:
 
 hooks:
   ApplicationStart:
-    - location: scripts/aws-deploy.sh
+    - location: script/aws-deploy.sh
       timeout: 60
       runas: ec2-user

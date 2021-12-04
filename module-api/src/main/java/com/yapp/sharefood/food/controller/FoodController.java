@@ -68,7 +68,7 @@ public class FoodController {
                 foodIngredientTypeMap.put(foodTag.getId(), foodTag.getTagUseType());
             }
 
-            isMain = isMainIngredentType(isMain, foodTag);
+            isMain = isMainIngredientType(isMain, foodTag);
         }
 
         if (!isMain) {
@@ -83,7 +83,7 @@ public class FoodController {
         return wrapperTags;
     }
 
-    private boolean isMainIngredentType(boolean isMain, FoodTagDto foodTags) {
+    private boolean isMainIngredientType(boolean isMain, FoodTagDto foodTags) {
         if (foodTags.getTagUseType() == FoodIngredientType.MAIN) {
             return true;
         }

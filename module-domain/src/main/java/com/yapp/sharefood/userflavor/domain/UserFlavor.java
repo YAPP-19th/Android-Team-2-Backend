@@ -34,4 +34,8 @@ public class UserFlavor {
     public static UserFlavor of(User user, Flavor flavor) {
         return new UserFlavor(user, flavor);
     }
+
+    public boolean isSame(Flavor flavor) {
+        return flavor.getFlavorType() == this.flavor.getFlavorType();
+    }
 }
