@@ -34,8 +34,9 @@ public class AuthController {
         OAuthDto oauthDto = authService.signUp(creationRequestDto);
         AuthUtils.setTokenInHeader(response, oauthDto.getToken());
 
-        URI userCreateUri = ServletUriComponentsBuilder.fromCurrentRequest()
-                .path("/{id}")
+        URI userCreateUri = ServletUriComponentsBuilder
+                .fromCurrentServletMapping()
+                .path("/api/v1/users/{id}")
                 .buildAndExpand(oauthDto.getUserId())
                 .toUri();
 
