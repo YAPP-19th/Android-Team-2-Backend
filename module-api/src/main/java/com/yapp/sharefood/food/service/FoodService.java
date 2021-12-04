@@ -80,6 +80,10 @@ public class FoodService {
         food.assignFlavors(flavors);
         Food saveFood = foodRepository.save(food);
 
+        user.addPointByRegisterFood(food);
+        user.addPointByOpenFood(food);
+        user.upgrade();
+
         return saveFood.getId();
     }
 

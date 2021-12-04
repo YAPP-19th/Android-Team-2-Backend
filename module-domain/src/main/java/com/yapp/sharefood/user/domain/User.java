@@ -2,6 +2,8 @@ package com.yapp.sharefood.user.domain;
 
 import com.yapp.sharefood.common.domain.BaseEntity;
 import com.yapp.sharefood.common.exception.InvalidOperationException;
+import com.yapp.sharefood.food.domain.Food;
+import com.yapp.sharefood.food.exception.FoodNotFoundException;
 import com.yapp.sharefood.flavor.domain.Flavor;
 import com.yapp.sharefood.flavor.exception.FlavorNotFoundException;
 import com.yapp.sharefood.userflavor.domain.UserFlavor;
@@ -14,6 +16,8 @@ import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+
+import static com.yapp.sharefood.user.domain.Grade.*;
 
 @Getter
 @Entity
@@ -31,6 +35,13 @@ public class User extends BaseEntity {
     @Column(length = 20, unique = true)
     private String nickname;
 
+    @Column(name = "user_point", columnDefinition = "integer default 0")
+    private Integer point;
+
+    @Column(name = "user_grade")
+    @Enumerated(EnumType.STRING)
+    private Grade grade;
+
     @Embedded
     private OAuthInfo oAuthInfo = new OAuthInfo();
 
@@ -47,6 +58,34 @@ public class User extends BaseEntity {
     public void changeNickname(String newNickname) {
         this.nickname = newNickname;
     }
+
+    public void addPointByRegisterFood(Food food) {
+        if (food == null) throw new FoodNotFoundException();
+
+        if (food.getWriter().getId() != this.id) {
+            throw new InvalidOperationException("내가 작성한 Food가 아닙니다.");
+        }
+
+        if(!canEarnPoint(food.getWriter().getGrade())) return;
+
+        this.point += POINT_REGISTER_FOOD;
+    }
+
+    public void addPointByOpenFood(Food food) {
+        if (food == null) throw new FoodNotFoundException();
+
+        if (food.getWriter().getId() != this.id) {
+            throw new InvalidOperationException("내가 작성한 Food가 아닙니다.");
+        }
+
+        if(!canEarnPoint(food.getWriter().getGrade())) return;
+
+        this.point += (food.getFoodStatus().isShared()) ? POINT_OPEN_FOOD : 0;
+    }
+
+    public void upgrade() {
+        int point = this.point != null ? this.point.intValue() : -1;
+        this.grade = Grade.gradeByPoint(point);
 
     public void assignFlavors(List<Flavor> flavors) {
         if (Objects.isNull(flavors)) {
