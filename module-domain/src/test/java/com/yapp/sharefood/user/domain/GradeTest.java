@@ -9,7 +9,7 @@ class GradeTest {
 
     @DisplayName("등급 구하기 로직 성공 : 정상적인 경우")
     @Test
-    void gradeByPointTest_Success_Normar() {
+    void gradeByPointTest_Success_Normal() {
         //given
         int point1 = 1700;
         int point2 = 1000;
