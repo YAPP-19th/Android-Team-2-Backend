@@ -13,16 +13,16 @@ public enum Grade {
     public static final int POINT_REGISTER_FOOD = 50;
     public static final int POINT_OPEN_FOOD = 10;
 
-    private int condition;
+    private final int condition;
 
     public static Grade gradeByPoint(int point) {
-        for(Grade grade : Arrays.stream(values()).sorted(Collections.reverseOrder()).toArray(Grade[]::new)) {
-            if(point >= grade.condition) return grade;
+        for (Grade grade : Arrays.stream(values()).sorted(Collections.reverseOrder()).toArray(Grade[]::new)) {
+            if (point >= grade.condition) return grade;
         }
         return STUDENT;
     }
 
     public static boolean canEarnPoint(Grade grade) {
-        return !grade.name().equals(PROFESSOR.name());
+        return grade != PROFESSOR;
     }
 }

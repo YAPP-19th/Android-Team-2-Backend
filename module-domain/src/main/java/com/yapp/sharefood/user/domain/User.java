@@ -2,10 +2,10 @@ package com.yapp.sharefood.user.domain;
 
 import com.yapp.sharefood.common.domain.BaseEntity;
 import com.yapp.sharefood.common.exception.InvalidOperationException;
-import com.yapp.sharefood.food.domain.Food;
-import com.yapp.sharefood.food.exception.FoodNotFoundException;
 import com.yapp.sharefood.flavor.domain.Flavor;
 import com.yapp.sharefood.flavor.exception.FlavorNotFoundException;
+import com.yapp.sharefood.food.domain.Food;
+import com.yapp.sharefood.food.exception.FoodNotFoundException;
 import com.yapp.sharefood.userflavor.domain.UserFlavor;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -52,6 +52,8 @@ public class User extends BaseEntity {
     public User(Long id, String oauthId, String name, OAuthType oAuthType, String nickname) {
         this.id = id;
         this.nickname = nickname;
+        this.grade = Grade.STUDENT;
+        this.point = 0;
         this.oAuthInfo.initOAuthInfo(oauthId, name, oAuthType);
     }
 
@@ -62,11 +64,11 @@ public class User extends BaseEntity {
     public void addPointByRegisterFood(Food food) {
         if (food == null) throw new FoodNotFoundException();
 
-        if (food.getWriter().getId() != this.id) {
+        if (!Objects.equals(food.getWriter().getId(), this.id)) {
             throw new InvalidOperationException("내가 작성한 Food가 아닙니다.");
         }
 
-        if(!canEarnPoint(food.getWriter().getGrade())) return;
+        if (!canEarnPoint(food.getWriter().getGrade())) return;
 
         this.point += POINT_REGISTER_FOOD;
     }
@@ -74,18 +76,19 @@ public class User extends BaseEntity {
     public void addPointByOpenFood(Food food) {
         if (food == null) throw new FoodNotFoundException();
 
-        if (food.getWriter().getId() != this.id) {
+        if (!Objects.equals(food.getWriter().getId(), this.id)) {
             throw new InvalidOperationException("내가 작성한 Food가 아닙니다.");
         }
 
-        if(!canEarnPoint(food.getWriter().getGrade())) return;
+        if (!canEarnPoint(food.getWriter().getGrade())) return;
 
         this.point += (food.getFoodStatus().isShared()) ? POINT_OPEN_FOOD : 0;
     }
 
     public void upgrade() {
-        int point = this.point != null ? this.point.intValue() : -1;
+        int point = this.point != null ? this.point : -1;
         this.grade = Grade.gradeByPoint(point);
+    }
 
     public void assignFlavors(List<Flavor> flavors) {
         if (Objects.isNull(flavors)) {
