@@ -1,6 +1,7 @@
 package com.yapp.sharefood.like.controller;
 
 import com.yapp.sharefood.auth.resolver.AuthUser;
+import com.yapp.sharefood.config.lock.UserlevelLock;
 import com.yapp.sharefood.like.dto.request.LikeCreationRequest;
 import com.yapp.sharefood.like.dto.request.LikeDeleteRequest;
 import com.yapp.sharefood.like.service.LikeService;
@@ -13,20 +14,30 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import javax.validation.Valid;
 import java.net.URI;
 
+import static com.yapp.sharefood.config.lock.UserlevelLock.DEFAULT_USERLEVEL_LOCk_TIME_OUT;
+
 @RestController
 @RequiredArgsConstructor
 public class LikeController {
+    private static final String SERVICE_NAME = "like";
 
     private final LikeService likeService;
+    private final UserlevelLock userlevelLock;
 
     @PostMapping("/api/v1/foods/{foodId}/likes")
     public ResponseEntity<URI> createLike(@AuthUser User user,
                                           @PathVariable("foodId") Long foodId,
                                           @Valid @RequestBody LikeCreationRequest likeCreationRequest) {
 
+        Long likeId = userlevelLock.executeWithLock(
+                SERVICE_NAME + "_" + foodId,
+                DEFAULT_USERLEVEL_LOCk_TIME_OUT,
+                () -> likeService.saveLike(user, foodId, likeCreationRequest.getCategoryName())
+        );
+
         URI likeUri = ServletUriComponentsBuilder.fromCurrentRequest()
                 .path("/{id}")
-                .buildAndExpand(likeService.saveLike(user, foodId, likeCreationRequest.getCategoryName()))
+                .buildAndExpand(likeId)
                 .toUri();
         return ResponseEntity.created(likeUri).build();
     }
@@ -35,7 +46,13 @@ public class LikeController {
     public ResponseEntity<Void> deleteLike(@AuthUser User user,
                                            @PathVariable("foodId") Long foodId,
                                            @Valid @RequestBody LikeDeleteRequest likeDeleteRequest) {
-        likeService.deleteLike(user, foodId, likeDeleteRequest.getCategoryName());
+        userlevelLock.executeWithLock(
+                SERVICE_NAME + "_" + foodId,
+                DEFAULT_USERLEVEL_LOCk_TIME_OUT,
+                () -> {
+                    likeService.deleteLike(user, foodId, likeDeleteRequest.getCategoryName());
+                    return null;
+                });
         return ResponseEntity.ok().build();
     }
 }

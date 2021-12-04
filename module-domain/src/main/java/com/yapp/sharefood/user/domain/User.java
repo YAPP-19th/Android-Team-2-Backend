@@ -4,6 +4,8 @@ import com.yapp.sharefood.common.domain.BaseEntity;
 import com.yapp.sharefood.common.exception.InvalidOperationException;
 import com.yapp.sharefood.food.domain.Food;
 import com.yapp.sharefood.food.exception.FoodNotFoundException;
+import com.yapp.sharefood.flavor.domain.Flavor;
+import com.yapp.sharefood.flavor.exception.FlavorNotFoundException;
 import com.yapp.sharefood.userflavor.domain.UserFlavor;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -13,6 +15,7 @@ import lombok.NoArgsConstructor;
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import static com.yapp.sharefood.user.domain.Grade.*;
 
@@ -42,7 +45,7 @@ public class User extends BaseEntity {
     @Embedded
     private OAuthInfo oAuthInfo = new OAuthInfo();
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<UserFlavor> userFlavors = new ArrayList<>();
 
     @Builder
@@ -83,5 +86,21 @@ public class User extends BaseEntity {
     public void upgrade() {
         int point = this.point != null ? this.point.intValue() : -1;
         this.grade = Grade.gradeByPoint(point);
+
+    public void assignFlavors(List<Flavor> flavors) {
+        if (Objects.isNull(flavors)) {
+            throw new FlavorNotFoundException();
+        }
+        flavors.forEach(this::validateDuplicateFlavor);
+
+        flavors.stream()
+                .map(flavor -> UserFlavor.of(this, flavor))
+                .forEach(userFlavors::add);
+    }
+
+    private void validateDuplicateFlavor(Flavor flavor) {
+        if (userFlavors.stream().anyMatch(userFlavor -> userFlavor.isSame(flavor))) {
+            throw new InvalidOperationException("이미 등록된 맛 입니다.");
+        }
     }
 }

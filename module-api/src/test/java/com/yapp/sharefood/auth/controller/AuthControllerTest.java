@@ -6,6 +6,7 @@ import com.yapp.sharefood.auth.dto.request.AuthCreationRequestDto;
 import com.yapp.sharefood.auth.dto.request.AuthRequestDto;
 import com.yapp.sharefood.auth.service.AuthService;
 import com.yapp.sharefood.auth.token.TokenProvider;
+import com.yapp.sharefood.common.DocumentTest;
 import com.yapp.sharefood.external.exception.BadGatewayException;
 import com.yapp.sharefood.oauth.exception.OAUthExistException;
 import com.yapp.sharefood.oauth.exception.UserNotFoundException;
@@ -23,6 +24,8 @@ import org.springframework.test.web.servlet.ResultActions;
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidParameterException;
 
+import static com.yapp.sharefood.common.documentation.DocumentationUtils.documentIdentify;
+import static com.yapp.sharefood.oauth.exception.UserNotFoundException.USER_NOT_FOUND_EXCEPTION_MSG;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.willReturn;
@@ -32,7 +35,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(controllers = AuthController.class)
-class AuthControllerTest {
+class AuthControllerTest extends DocumentTest {
 
     @Autowired
     MockMvc mockMvc;
@@ -64,6 +67,7 @@ class AuthControllerTest {
         String emptyResponseMsg = perform.andExpect(status().isOk())
                 .andExpect(header().exists("Authorization"))
                 .andExpect(header().string("Authorization", "jwtToken"))
+                .andDo(documentIdentify("auth/post/success"))
                 .andReturn()
                 .getResponse()
                 .getContentAsString(StandardCharsets.UTF_8);
@@ -82,6 +86,7 @@ class AuthControllerTest {
 
         // when
         String requestBodyStr = objectMapper.writeValueAsString(new AuthRequestDto(OAuthType.KAKAO, "accessToken"));
+
         ResultActions perform = mockMvc.perform(post("/api/v1/auth")
                 .content(requestBodyStr)
                 .contentType(MediaType.APPLICATION_JSON));
@@ -89,13 +94,15 @@ class AuthControllerTest {
         // then
         String errorMsg = perform.andExpect(status().isNotFound())
                 .andExpect(header().doesNotExist("Authorization"))
+                .andDo(documentIdentify("auth/post/fail/userNotFound"))
                 .andReturn()
                 .getResponse()
                 .getContentAsString(StandardCharsets.UTF_8);
 
         assertThat(errorMsg)
                 .isNotNull()
-                .isNotEmpty();
+                .isNotEmpty()
+                .isEqualTo(USER_NOT_FOUND_EXCEPTION_MSG);
     }
 
     @Test
@@ -114,13 +121,15 @@ class AuthControllerTest {
         // then
         String errorMsg = perform.andExpect(status().isBadGateway())
                 .andExpect(header().doesNotExist("Authorization"))
+                .andDo(documentIdentify("auth/post/fail/badGateway"))
                 .andReturn()
                 .getResponse()
                 .getContentAsString(StandardCharsets.UTF_8);
 
         assertThat(errorMsg)
                 .isNotNull()
-                .isNotEmpty();
+                .isNotEmpty()
+                .isEqualTo("oauth 요청 타입 에러");
     }
 
     @Test
@@ -140,13 +149,15 @@ class AuthControllerTest {
         // then
         String errorMsg = perform.andExpect(status().isBadRequest())
                 .andExpect(header().doesNotExist("Authorization"))
+                .andDo(documentIdentify("auth/post/fail/invalidParameter"))
                 .andReturn()
                 .getResponse()
                 .getContentAsString(StandardCharsets.UTF_8);
 
         assertThat(errorMsg)
                 .isNotNull()
-                .isNotEmpty();
+                .isNotEmpty()
+                .isEqualTo("oauth type 불일치 에러");
     }
 
     @Test
@@ -167,9 +178,11 @@ class AuthControllerTest {
         String createResponse = perform.andExpect(status().isCreated())
                 .andExpect(header().exists("Authorization"))
                 .andExpect(header().string("Authorization", "jwtToken"))
+                .andDo(documentIdentify("auth/signup/post/success"))
                 .andReturn()
                 .getResponse()
                 .getContentAsString(StandardCharsets.UTF_8);
+
         assertThat(createResponse)
                 .isNotNull()
                 .isEmpty();
@@ -192,11 +205,14 @@ class AuthControllerTest {
         // then
         String createResponse = perform.andExpect(status().isConflict())
                 .andExpect(header().doesNotExist("Authorization"))
+                .andDo(documentIdentify("auth/signup/post/fail/oauthExist"))
                 .andReturn()
                 .getResponse()
                 .getContentAsString(StandardCharsets.UTF_8);
+
         assertThat(createResponse)
                 .isNotNull()
-                .isNotEmpty();
+                .isNotEmpty()
+                .isEqualTo("존재하는 사용자 입니다.");
     }
 }

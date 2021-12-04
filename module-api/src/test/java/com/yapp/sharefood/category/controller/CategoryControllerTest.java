@@ -18,6 +18,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.yapp.sharefood.common.documentation.DocumentationUtils.documentIdentify;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.BDDMockito.willReturn;
@@ -47,7 +48,7 @@ class CategoryControllerTest extends PreprocessController {
         CategoriesTreeResponse categoriesTreeResponse = objectMapper
                 .readValue(perform
                         .andExpect(status().isOk())
-                        .andDo(print())
+                        .andDo(documentIdentify("category/get/success"))
                         .andReturn()
                         .getResponse()
                         .getContentAsString(StandardCharsets.UTF_8), new TypeReference<>() {
