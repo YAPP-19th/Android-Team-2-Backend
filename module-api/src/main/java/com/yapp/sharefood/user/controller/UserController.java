@@ -11,8 +11,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import static com.yapp.sharefood.auth.utils.AuthUtils.validateUserIdPath;
-
 @RestController
 @RequiredArgsConstructor
 public class UserController {
@@ -26,24 +24,17 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/api/v1/users/{userId}/nickname/validation")
-    public ResponseEntity<Void> checkNicknameDuplicate(@AuthUser User user,
-                                                       @PathVariable("userId") Long userId,
-                                                       @RequestParam(value = "nickname") String nickname) {
-        validateUserIdPath(userId, user);
-
+    @GetMapping("/api/v1/users/me/nickname/validation")
+    public ResponseEntity<Void> checkNicknameDuplicate(@RequestParam(value = "nickname") String nickname) {
         userService.checkNicknameDuplicate(nickname);
 
         return ResponseEntity.ok().build();
     }
 
-    @PatchMapping("/api/v1/users/{userId}/nickname")
+    @PatchMapping("/api/v1/users/me/nickname")
     public ResponseEntity<UserNicknameResponse> updateNickname(@AuthUser User user,
-                                                               @PathVariable("userId") Long userId,
                                                                @RequestBody UserNicknameRequest request) {
-        validateUserIdPath(userId, user);
-
-        UserNicknameResponse response = userService.changeUserNickname(userId, request);
+        UserNicknameResponse response = userService.changeUserNickname(user.getId(), request);
 
         return ResponseEntity.ok(response);
     }
