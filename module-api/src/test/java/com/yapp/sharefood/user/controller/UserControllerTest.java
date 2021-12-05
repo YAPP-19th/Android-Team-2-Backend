@@ -26,7 +26,6 @@ import org.springframework.test.web.servlet.ResultActions;
 import java.nio.charset.StandardCharsets;
 
 import static com.yapp.sharefood.common.documentation.DocumentationUtils.documentIdentify;
-import static com.yapp.sharefood.common.exception.ForbiddenException.FORBIDDEN_EXCEPTION_MSG;
 import static com.yapp.sharefood.oauth.exception.UserNotFoundException.USER_NOT_FOUND_EXCEPTION_MSG;
 import static com.yapp.sharefood.user.exception.UserNicknameExistException.NICKNAME_EXIST_EXCEPTION_MSG;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -103,7 +102,7 @@ class UserControllerTest extends PreprocessController {
                 .given(userService).checkNicknameDuplicate(any(String.class));
 
         //when
-        RequestBuilder requestBuilder = get(String.format("/api/v1/users/%d/nickname/validation", authUserId))
+        RequestBuilder requestBuilder = get("/api/v1/users/me/nickname/validation")
                 .header(HttpHeaders.AUTHORIZATION, "token")
                 .param("nickname", "newNickname");
 
@@ -118,31 +117,6 @@ class UserControllerTest extends PreprocessController {
     }
 
     @Test
-    @DisplayName("자신의 nickname이 아닌 다른 사람의 닉네임 검사를 할 경우")
-    void checkNicknameNotMeTest() throws Exception {
-        // given
-
-        // when
-        RequestBuilder requestBuilder = get(String.format("/api/v1/users/%d/nickname/validation", 2L))
-                .header(HttpHeaders.AUTHORIZATION, "token")
-                .param("nickname", "newNickname");
-
-        ResultActions perform = mockMvc.perform(requestBuilder);
-
-        //then
-        String errMsg = perform.andExpect(status().isForbidden())
-                .andDo(documentIdentify("user/nickname-validation/get/fail/forbidden"))
-                .andReturn()
-                .getResponse()
-                .getContentAsString(StandardCharsets.UTF_8);
-
-        assertThat(errMsg)
-                .isNotNull()
-                .isNotEmpty()
-                .isEqualTo(FORBIDDEN_EXCEPTION_MSG);
-    }
-
-    @Test
     @DisplayName("nickname이 겹치는 경우")
     void checkNicknameDuplicateTest() throws Exception {
         // given
@@ -150,7 +124,7 @@ class UserControllerTest extends PreprocessController {
                 .given(userService).checkNicknameDuplicate(any(String.class));
 
         //when
-        RequestBuilder requestBuilder = get(String.format("/api/v1/users/%d/nickname/validation", authUserId))
+        RequestBuilder requestBuilder = get("/api/v1/users/me/nickname/validation")
                 .header(HttpHeaders.AUTHORIZATION, "token")
                 .param("nickname", "newNickname");
 
@@ -178,7 +152,7 @@ class UserControllerTest extends PreprocessController {
                 .given(userService).changeUserNickname(anyLong(), any(UserNicknameRequest.class));
 
         //when
-        RequestBuilder requestBuilder = patch(String.format("/api/v1/users/%d/nickname", authUserId))
+        RequestBuilder requestBuilder = patch("/api/v1/users/me/nickname")
                 .header(HttpHeaders.AUTHORIZATION, "token")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request));
@@ -205,7 +179,7 @@ class UserControllerTest extends PreprocessController {
                 .given(userService).changeUserNickname(anyLong(), any(UserNicknameRequest.class));
 
         //when
-        RequestBuilder requestBuilder = patch(String.format("/api/v1/users/%d/nickname", authUserId))
+        RequestBuilder requestBuilder = patch("/api/v1/users/me/nickname")
                 .header(HttpHeaders.AUTHORIZATION, "token")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request));
@@ -223,35 +197,6 @@ class UserControllerTest extends PreprocessController {
                 .isNotNull()
                 .isNotEmpty()
                 .isEqualTo(NICKNAME_EXIST_EXCEPTION_MSG);
-    }
-
-    @Test
-    @DisplayName("권한 제한으로 인한 user nickname 수정 실패")
-    void userNicknameChangeFailCuzForbiddenTest() throws Exception {
-        // given
-        UserNicknameRequest request = new UserNicknameRequest("newNickname");
-        willReturn(new UserNicknameResponse("newNickname"))
-                .given(userService).changeUserNickname(anyLong(), any(UserNicknameRequest.class));
-
-        //when
-        RequestBuilder requestBuilder = patch(String.format("/api/v1/users/%d/nickname", 2L))
-                .header(HttpHeaders.AUTHORIZATION, "token")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request));
-
-        ResultActions perform = mockMvc.perform(requestBuilder);
-
-        //then
-        String errMsg = perform.andExpect(status().isForbidden())
-                .andDo(documentIdentify("user/nickname/patch/fail/forbidden"))
-                .andReturn()
-                .getResponse()
-                .getContentAsString(StandardCharsets.UTF_8);
-
-        assertThat(errMsg)
-                .isNotNull()
-                .isNotEmpty()
-                .isEqualTo(FORBIDDEN_EXCEPTION_MSG);
     }
 
     @Test

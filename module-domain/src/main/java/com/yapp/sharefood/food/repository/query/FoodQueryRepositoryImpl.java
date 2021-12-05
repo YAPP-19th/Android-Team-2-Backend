@@ -199,7 +199,6 @@ public class FoodQueryRepositoryImpl implements FoodQueryRepository {
 
             return food.price.desc();
         }
-        // TODO book mark 추가
 
         return food.id.desc();
     }
