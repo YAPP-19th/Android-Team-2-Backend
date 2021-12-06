@@ -8,18 +8,20 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 
+import javax.sql.DataSource;
+
 @Configuration
 public class DatasourceConfig {
     @Primary
-    @Bean
-    @ConfigurationProperties("spring.datasource.hikari")
-    public HikariDataSource dataSource() {
+    @Bean("dataSource")
+    @ConfigurationProperties(prefix = "spring.datasource.hikari")
+    public DataSource dataSource() {
         return DataSourceBuilder.create().type(HikariDataSource.class).build();
     }
 
-    @Bean
-    @ConfigurationProperties("userlock.datasource.hikari")
-    public HikariDataSource userLockDataSource() {
+    @Bean("userLockDataSource")
+    @ConfigurationProperties(prefix = "spring.datasource.userlock")
+    public DataSource userLockDataSource() {
         return DataSourceBuilder.create().type(HikariDataSource.class).build();
     }
 
