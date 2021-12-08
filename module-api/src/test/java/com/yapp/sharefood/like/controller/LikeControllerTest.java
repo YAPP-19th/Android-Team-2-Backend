@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yapp.sharefood.common.PreprocessController;
 import com.yapp.sharefood.common.exception.InvalidOperationException;
 import com.yapp.sharefood.config.lock.UserlevelLock;
+import com.yapp.sharefood.food.exception.FoodNotFoundException;
 import com.yapp.sharefood.like.dto.request.LikeCreationRequest;
 import com.yapp.sharefood.like.service.LikeService;
 import com.yapp.sharefood.user.domain.User;
@@ -89,6 +90,29 @@ class LikeControllerTest extends PreprocessController {
     }
 
     @Test
+    @DisplayName("food category가 적절하지 않은 케이스")
+    void createLikeTest_FoodNotExistInCategory_404FoodNotFound() throws Exception {
+        willThrow(FoodNotFoundException.class)
+                .given(likeService).saveLike(any(User.class), anyLong(), anyString());
+        willThrow(FoodNotFoundException.class)
+                .given(userlevelLock).executeWithLock(anyString(), anyInt(), any());
+
+        // when
+        String requestBodyStr = objectMapper.writeValueAsString(LikeCreationRequest.of("칵테일"));
+        ResultActions perform = mockMvc.perform(post(String.format("/api/v1/foods/%s/likes", 1L))
+                .header(HttpHeaders.AUTHORIZATION, "token")
+                .content(requestBodyStr)
+                .contentType(MediaType.APPLICATION_JSON_VALUE));
+
+        // then
+        perform.andExpect(status().isNotFound())
+                .andDo(documentIdentify("food/like/post/foodNotFound"))
+                .andReturn()
+                .getResponse()
+                .getContentAsString(StandardCharsets.UTF_8);
+    }
+
+    @Test
     @DisplayName("좋아요 삭제하기 기능")
     void deleteLikeTest_Success() throws Exception {
         // given
@@ -122,5 +146,24 @@ class LikeControllerTest extends PreprocessController {
         // then
         perform.andExpect(status().isInternalServerError())
                 .andDo(documentIdentify("food/like/delete/invalidOperationException"));
+    }
+
+    @Test
+    @DisplayName("이미 좋아요를 삭제한 게시글에 다시 삭제 요청")
+    void deleteLikeTest_FoodNotExistInCategory_404FoodNotFoundException() throws Exception {
+        // given
+        willThrow(FoodNotFoundException.class)
+                .given(likeService).deleteLike(any(User.class), anyLong(), anyString());
+        willThrow(FoodNotFoundException.class)
+                .given(userlevelLock).executeWithLock(anyString(), anyInt(), any());
+
+        // when
+        ResultActions perform = mockMvc.perform(delete(String.format("/api/v1/foods/%s/likes", 1L))
+                .header(HttpHeaders.AUTHORIZATION, "token")
+                .param("categoryName", "칵테일"));
+
+        // then
+        perform.andExpect(status().isNotFound())
+                .andDo(documentIdentify("food/like/delete/foodNotFound"));
     }
 }
