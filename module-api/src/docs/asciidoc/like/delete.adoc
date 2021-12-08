@@ -1,0 +1,45 @@
+ifndef::snippets[]
+:snippets: ./build/generated-snippets
+endif::[]
+
+= SUCCESS
+
+== CURL
+
+include::{snippets}/food/like/delete/success/curl-request.adoc[]
+
+== REQUEST
+
+include::{snippets}/food/like/delete/success/http-request.adoc[]
+
+== RESPONSE SUCCESS
+
+include::{snippets}/food/like/delete/success/http-response.adoc[]
+
+== 500 ERROR
+
+== CURL
+
+include::{snippets}/food/like/delete/invalidOperationException/curl-request.adoc[]
+
+== REQUEST
+
+include::{snippets}/food/like/delete/invalidOperationException/http-request.adoc[]
+
+== RESPONSE FAIL
+
+include::{snippets}/food/like/delete/invalidOperationException/http-response.adoc[]
+
+== 404 ERROR
+
+== CURL
+
+include::{snippets}/food/like/delete/foodNotFound/curl-request.adoc[]
+
+== REQUEST
+
+include::{snippets}/food/like/delete/foodNotFound/http-request.adoc[]
+
+== RESPONSE FAIL
+
+include::{snippets}/food/like/delete/foodNotFound/http-response.adoc[]
