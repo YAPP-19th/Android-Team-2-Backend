@@ -1,7 +1,10 @@
 spring:
+  config:
+    activate:
+      on-profile: dev
   jpa:
     hibernate:
-      ddl-auto: create
+      ddl-auto: none
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MySQL57Dialect
@@ -9,28 +12,53 @@ spring:
         default_batch_fetch_size: 500
     open-in-view: false
     show-sql: true
-  config:
-    activate:
-      on-profile: dev
   datasource:
     hikari:
-      maximum-pool-size: 40
-      max-lifetime: 60000
-      jdbc-url: jdbc:mysql://localhost:3306/dev?serverTimezone=UTC
+      driver-class-name: com.mysql.cj.jdbc.Driver
       username: root
       password: root
-      driver-class-name: com.mysql.cj.jdbc.Driver
-      connection-timeout: 5000
-      pool-name: Spring-HikariPool
+      jdbc-url: jdbc:mysql://localhost:3306/dev?serverTimezone=UTC
+  user:
+    datasource:
+      hikari:
+        driver-class-name: com.mysql.cj.jdbc.Driver
+        username: root
+        password: root
+        jdbc-url: jdbc:mysql://localhost:3306/dev?serverTimezone=UTC
 
-userlock:
-  datasource:
-    hikari:
-      maximum-pool-size: 20
-      max-lifetime: 60000
-      jdbc-url: jdbc:mysql://localhost:3306/dev?serverTimezone=UTC
-      username: root
-      password: root
-      driver-class-name: com.mysql.cj.jdbc.Driver
-      connection-timeout: 5000
-      pool-name: UserLock-HikariPool
+##
+#spring:
+#  config:
+#    activate:
+#      on-profile: dev
+#  jpa:
+#    hibernate:
+#      ddl-auto: none
+#    properties:
+#      hibernate:
+#        dialect: org.hibernate.dialect.MySQL57Dialect
+#        dialect.storage_engine: innodb
+#        default_batch_fetch_size: 500
+#    open-in-view: false
+#    show-sql: true
+#  datasource:
+#    hikari:
+#      maximum-pool-size: 40
+#      max-lifetime: 60000
+#      jdbc-url: jdbc:mysql://localhost:3306/dev
+#      username: root
+#      password: root
+#      driver-class-name: com.mysql.cj.jdbc.Driver
+#      connection-timeout: 5000
+#      pool-name: Spring-HikariPool
+#  user:
+#    datasource:
+#      hikari:
+#        maximum-pool-size: 20
+#        max-lifetime: 60000
+#        jdbc-url: jdbc:mysql://localhost:3306/dev
+#        username: root
+#        password: root
+#        driver-class-name: com.mysql.cj.jdbc.Driver
+#        connection-timeout: 5000
+#        pool-name: UserLock-HikariPool

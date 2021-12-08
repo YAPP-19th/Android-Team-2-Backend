@@ -1,11 +1,11 @@
 package com.yapp.sharefood.user.service;
 
-import com.yapp.sharefood.common.random.RandomStringCreator;
 import com.yapp.sharefood.oauth.exception.UserNotFoundException;
 import com.yapp.sharefood.user.domain.OAuthType;
 import com.yapp.sharefood.user.domain.User;
 import com.yapp.sharefood.user.dto.request.UserNicknameRequest;
 import com.yapp.sharefood.user.exception.UserNicknameExistException;
+import com.yapp.sharefood.user.rand.UserNicknameRandomComponent;
 import com.yapp.sharefood.user.repository.UserRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -26,7 +26,7 @@ class UserServiceTest {
     @Autowired
     UserRepository userRepository;
     @MockBean
-    RandomStringCreator randomStringCreator;
+    UserNicknameRandomComponent userNicknameRandomComponent;
 
 
     @Test
@@ -34,7 +34,7 @@ class UserServiceTest {
     void uniqueNicknameCreatTest() {
         // given
         willReturn("randomName")
-                .given(randomStringCreator).createRandomUUIDStr();
+                .given(userNicknameRandomComponent).createRandomUserNickname();
 
         // when
         String uniqueNickname = userService.createUniqueNickname().getNickname();
@@ -55,7 +55,7 @@ class UserServiceTest {
                 .build();
         userRepository.save(user);
         willReturn("randomName")
-                .given(randomStringCreator).createRandomUUIDStr();
+                .given(userNicknameRandomComponent).createRandomUserNickname();
 
         // when
 
@@ -177,7 +177,7 @@ class UserServiceTest {
 
     @Test
     @DisplayName("내 유저가 존재하지 않는 경우")
-   void notFoundUserTest() {
+    void notFoundUserTest() {
         //given
 
         //when

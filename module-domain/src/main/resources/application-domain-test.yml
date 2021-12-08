@@ -36,4 +36,4 @@ spring:
       open-in-view: false
   config:
     activate:
-      on-profile: local
+      on-profile: test
