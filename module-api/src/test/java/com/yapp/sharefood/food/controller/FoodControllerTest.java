@@ -1,5 +1,6 @@
 package com.yapp.sharefood.food.controller;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yapp.sharefood.category.exception.CategoryNotFoundException;
 import com.yapp.sharefood.common.PreprocessController;
@@ -9,8 +10,10 @@ import com.yapp.sharefood.flavor.domain.FlavorType;
 import com.yapp.sharefood.flavor.dto.FlavorDto;
 import com.yapp.sharefood.food.domain.FoodIngredientType;
 import com.yapp.sharefood.food.domain.FoodStatus;
+import com.yapp.sharefood.food.dto.FoodImageDto;
 import com.yapp.sharefood.food.dto.FoodTagDto;
 import com.yapp.sharefood.food.dto.request.FoodCreationRequest;
+import com.yapp.sharefood.food.dto.response.FoodImageCreateResponse;
 import com.yapp.sharefood.food.service.FoodImageService;
 import com.yapp.sharefood.food.service.FoodService;
 import com.yapp.sharefood.tag.service.TagService;
@@ -22,18 +25,21 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.test.web.servlet.request.MockMultipartHttpServletRequestBuilder;
 
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.List;
 
 import static com.yapp.sharefood.common.documentation.DocumentationUtils.documentIdentify;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.willReturn;
 import static org.mockito.BDDMockito.willThrow;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -167,7 +173,7 @@ class FoodControllerTest extends PreprocessController {
                 .title("title")
                 .price(10000)
                 .flavors(List.of(FlavorDto.of(1L, FlavorType.SWEET), FlavorDto.of(1L, FlavorType.SWEET)))
-                .tags(List.of(FoodTagDto.of(1L, "샷추가", FoodIngredientType.MAIN), FoodTagDto.of(2L, "커피", FoodIngredientType.ADD)))
+                .tags(List.of(FoodTagDto.of(1L, "샷추가", FoodIngredientType.MAIN), FoodTagDto.of(null, "커피", FoodIngredientType.ADD)))
                 .reviewMsg("review msg")
                 .foodStatus(FoodStatus.SHARED)
                 .build();
@@ -221,6 +227,90 @@ class FoodControllerTest extends PreprocessController {
                 .getContentAsString(StandardCharsets.UTF_8);
 
         assertThat(errorMsg)
+                .isNotNull();
+    }
+
+    private List<MockMultipartFile> getFiles(int index) {
+        List<MockMultipartFile> files = new ArrayList<>();
+        for (int i = 0; i < index; i++) {
+            files.add(new MockMultipartFile("images", "originalFilename" + i, "text/plain", new byte[]{}));
+        }
+
+        return files;
+    }
+
+    private List<FoodImageDto> getMockFoodImageDto(List<MockMultipartFile> mockFiles) {
+        List<FoodImageDto> foodImageDtos = new ArrayList<>();
+        long index = 0L;
+        for (MockMultipartFile file : mockFiles) {
+            foodImageDtos.add(new FoodImageDto(index, file.getName(), file.getOriginalFilename()));
+            index++;
+        }
+
+        return foodImageDtos;
+    }
+
+    @Test
+    @DisplayName("저장된 Food에 Image 저장하는 기능")
+    void saveFoodImageTest_Success() throws Exception {
+        // given
+        List<MockMultipartFile> foodImages = getFiles(3);
+        FoodImageCreateResponse foodImageCreateResponse = new FoodImageCreateResponse(getMockFoodImageDto(foodImages));
+        willReturn(foodImageCreateResponse)
+                .given(foodImageService).saveImages(anyLong(), anyList());
+
+        // when
+        MockMultipartHttpServletRequestBuilder multipartRequest = multipart(String.format("/api/v1/foods/%s/images", 1));
+        for (MockMultipartFile file : foodImages) {
+            multipartRequest.file(file);
+        }
+
+        ResultActions perform = mockMvc.perform(multipartRequest
+                .header(HttpHeaders.AUTHORIZATION, "token"));
+
+        // then
+        FoodImageCreateResponse saveImageResponse = objectMapper.readValue(
+                perform.andExpect(status().isCreated())
+                        .andDo(documentIdentify("food/images/post/success"))
+                        .andReturn()
+                        .getResponse()
+                        .getContentAsString(StandardCharsets.UTF_8), new TypeReference<FoodImageCreateResponse>() {
+                }
+        );
+
+        assertThat(saveImageResponse.getImages())
+                .isNotNull()
+                .hasSize(3)
+                .extracting("realImageName")
+                .containsExactlyInAnyOrderElementsOf(List.of("originalFilename0", "originalFilename1", "originalFilename2"));
+    }
+
+    @Test
+    @DisplayName("저장된 Food에 Image 0개를 추가하는 케이스 - 예외 케이스")
+    void saveFoodImageZeroTest_400_BadRequest() throws Exception {
+        // given
+        List<MockMultipartFile> foodImages = getFiles(0);
+        FoodImageCreateResponse foodImageCreateResponse = new FoodImageCreateResponse(getMockFoodImageDto(foodImages));
+        willReturn(foodImageCreateResponse)
+                .given(foodImageService).saveImages(anyLong(), anyList());
+
+        // when
+        MockMultipartHttpServletRequestBuilder multipartRequest = multipart(String.format("/api/v1/foods/%s/images", 1));
+        for (MockMultipartFile file : foodImages) {
+            multipartRequest.file(file);
+        }
+
+        ResultActions perform = mockMvc.perform(multipartRequest
+                .header(HttpHeaders.AUTHORIZATION, "token"));
+
+        // then
+        String result = perform.andExpect(status().isBadRequest())
+                .andDo(documentIdentify("food/images/post/badRequest"))
+                .andReturn()
+                .getResponse()
+                .getContentAsString(StandardCharsets.UTF_8);
+
+        assertThat(result)
                 .isNotNull();
     }
 }
