@@ -29,7 +29,6 @@ subprojects {
     }
 
     dependencies {
-        implementation 'com.github.gavlyukovskiy:p6spy-spring-boot-starter:1.5.6'
         developmentOnly 'org.springframework.boot:spring-boot-devtools'
         compileOnly 'org.projectlombok:lombok'
         annotationProcessor 'org.projectlombok:lombok'
