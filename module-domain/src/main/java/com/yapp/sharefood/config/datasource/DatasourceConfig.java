@@ -12,15 +12,15 @@ import javax.sql.DataSource;
 
 @Configuration
 public class DatasourceConfig {
+    @Bean
     @Primary
-    @Bean("dataSource")
     @ConfigurationProperties(prefix = "spring.datasource.hikari")
-    public DataSource dataSource() {
+    public DataSource dataSource1() {
         return DataSourceBuilder.create().type(HikariDataSource.class).build();
     }
 
-    @Bean("userLockDataSource")
-    @ConfigurationProperties(prefix = "spring.datasource.userlock")
+    @Bean
+    @ConfigurationProperties(prefix = "spring.user.datasource.hikari")
     public DataSource userLockDataSource() {
         return DataSourceBuilder.create().type(HikariDataSource.class).build();
     }
