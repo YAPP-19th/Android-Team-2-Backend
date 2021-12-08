@@ -12,14 +12,13 @@ import java.time.format.DateTimeFormatter;
 public class FileUtils {
 
     private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss");
-    private static final RandomStringCreator RANDOM_STR_CREATOR = new RandomStringCreator();
     private static final String FILE_SEPARATOR = ".";
 
 
     public static String createSaveFileName(String prefix, String originalFileName) {
         final String formattedDateTime = LocalDateTime.now().format(DATE_TIME_FORMATTER);
         String extension = getFileExtension(originalFileName);
-        return prefix + formattedDateTime + RANDOM_STR_CREATOR.createRandomUUIDStr() + extension;
+        return prefix + formattedDateTime + RandomStringCreator.createRandomUUIDStr() + extension;
     }
 
     private static String getFileExtension(String fileName) {

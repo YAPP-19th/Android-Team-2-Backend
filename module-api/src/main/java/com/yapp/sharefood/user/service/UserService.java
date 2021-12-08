@@ -1,6 +1,5 @@
 package com.yapp.sharefood.user.service;
 
-import com.yapp.sharefood.common.random.RandomStringCreator;
 import com.yapp.sharefood.oauth.exception.UserNotFoundException;
 import com.yapp.sharefood.user.domain.User;
 import com.yapp.sharefood.user.dto.OtherUserInfoDto;
@@ -10,6 +9,7 @@ import com.yapp.sharefood.user.dto.response.MyUserInfoResponse;
 import com.yapp.sharefood.user.dto.response.OtherUserInfoResponse;
 import com.yapp.sharefood.user.dto.response.UserNicknameResponse;
 import com.yapp.sharefood.user.exception.UserNicknameExistException;
+import com.yapp.sharefood.user.rand.UserNicknameRandomComponent;
 import com.yapp.sharefood.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -22,10 +22,10 @@ public class UserService {
     private static final String PREFIX_DEFAULT_NICKNAME = "냠냠학사 ";
 
     private final UserRepository userRepository;
-    private final RandomStringCreator randomStringCreator;
+    private final UserNicknameRandomComponent userNicknameRandomComponent;
 
     public UserNicknameResponse createUniqueNickname() {
-        String newNickname = PREFIX_DEFAULT_NICKNAME + randomStringCreator.createRandomUUIDStr();
+        String newNickname = PREFIX_DEFAULT_NICKNAME + userNicknameRandomComponent.createRandomUserNickname();
         validateNicknameDuplicate(newNickname);
 
         return new UserNicknameResponse(newNickname);
