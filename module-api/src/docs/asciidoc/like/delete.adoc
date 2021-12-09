@@ -16,19 +16,19 @@ include::{snippets}/food/like/delete/success/http-request.adoc[]
 
 include::{snippets}/food/like/delete/success/http-response.adoc[]
 
-== 500 ERROR
+== 403 ERROR
 
 == CURL
 
-include::{snippets}/food/like/delete/invalidOperationException/curl-request.adoc[]
+include::{snippets}/food/like/delete/forbidden/curl-request.adoc[]
 
 == REQUEST
 
-include::{snippets}/food/like/delete/invalidOperationException/http-request.adoc[]
+include::{snippets}/food/like/delete/forbidden/http-request.adoc[]
 
 == RESPONSE FAIL
 
-include::{snippets}/food/like/delete/invalidOperationException/http-response.adoc[]
+include::{snippets}/food/like/delete/forbidden/http-response.adoc[]
 
 == 404 ERROR
 
