@@ -2,6 +2,7 @@ package com.yapp.sharefood.like.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yapp.sharefood.common.PreprocessController;
+import com.yapp.sharefood.common.exception.ForbiddenException;
 import com.yapp.sharefood.common.exception.InvalidOperationException;
 import com.yapp.sharefood.config.lock.UserlevelLock;
 import com.yapp.sharefood.food.exception.FoodNotFoundException;
@@ -21,6 +22,7 @@ import org.springframework.test.web.servlet.ResultActions;
 import java.nio.charset.StandardCharsets;
 
 import static com.yapp.sharefood.common.documentation.DocumentationUtils.documentIdentify;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -69,9 +71,9 @@ class LikeControllerTest extends PreprocessController {
     @DisplayName("이미 좋아요 누른 사람이 또 다시 좋아요 누른 케이스")
     void createLikeTest_DoubleLikePress_500InvalidOperationException() throws Exception {
         // given
-        willThrow(InvalidOperationException.class)
+        willThrow(new InvalidOperationException("이미 like한 사용자 입니다."))
                 .given(likeService).saveLike(any(User.class), anyLong(), anyString());
-        willThrow(InvalidOperationException.class)
+        willThrow(new InvalidOperationException("이미 like한 사용자 입니다."))
                 .given(userlevelLock).executeWithLock(anyString(), anyInt(), any());
 
         // when
@@ -82,19 +84,24 @@ class LikeControllerTest extends PreprocessController {
                 .contentType(MediaType.APPLICATION_JSON_VALUE));
 
         // then
-        perform.andExpect(status().isInternalServerError())
+        String errorMsg = perform.andExpect(status().isInternalServerError())
                 .andDo(documentIdentify("food/like/post/invalidOperationException"))
                 .andReturn()
                 .getResponse()
                 .getContentAsString(StandardCharsets.UTF_8);
+
+        assertThat(errorMsg)
+                .isNotNull()
+                .isNotEmpty()
+                .isEqualTo("이미 like한 사용자 입니다.");
     }
 
     @Test
     @DisplayName("food category가 적절하지 않은 케이스")
     void createLikeTest_FoodNotExistInCategory_404FoodNotFound() throws Exception {
-        willThrow(FoodNotFoundException.class)
+        willThrow(new FoodNotFoundException())
                 .given(likeService).saveLike(any(User.class), anyLong(), anyString());
-        willThrow(FoodNotFoundException.class)
+        willThrow(new FoodNotFoundException())
                 .given(userlevelLock).executeWithLock(anyString(), anyInt(), any());
 
         // when
@@ -105,11 +112,16 @@ class LikeControllerTest extends PreprocessController {
                 .contentType(MediaType.APPLICATION_JSON_VALUE));
 
         // then
-        perform.andExpect(status().isNotFound())
+        String errorMsg = perform.andExpect(status().isNotFound())
                 .andDo(documentIdentify("food/like/post/foodNotFound"))
                 .andReturn()
                 .getResponse()
                 .getContentAsString(StandardCharsets.UTF_8);
+
+        assertThat(errorMsg)
+                .isNotNull()
+                .isNotEmpty()
+                .isEqualTo(FoodNotFoundException.FOOD_NOT_FOUND_EXCEPTION_MSG);
     }
 
     @Test
@@ -130,12 +142,12 @@ class LikeControllerTest extends PreprocessController {
     }
 
     @Test
-    @DisplayName("이미 좋아요를 삭제한 게시글에 다시 삭제 요청")
-    void deleteLikeTest_500InvalidateOperation() throws Exception {
+    @DisplayName("좋아요 등록되지 않는 food에 좋아요 삭제요청한 경우")
+    void deleteLikeTest_403ForbiddenError() throws Exception {
         // given
-        willThrow(InvalidOperationException.class)
+        willThrow(new ForbiddenException())
                 .given(likeService).deleteLike(any(User.class), anyLong(), anyString());
-        willThrow(InvalidOperationException.class)
+        willThrow(new ForbiddenException())
                 .given(userlevelLock).executeWithLock(anyString(), anyInt(), any());
 
         // when
@@ -144,17 +156,25 @@ class LikeControllerTest extends PreprocessController {
                 .param("categoryName", "샌드위치"));
 
         // then
-        perform.andExpect(status().isInternalServerError())
-                .andDo(documentIdentify("food/like/delete/invalidOperationException"));
+        String errorMsg = perform.andExpect(status().isForbidden())
+                .andDo(documentIdentify("food/like/delete/forbidden"))
+                .andReturn()
+                .getResponse()
+                .getContentAsString(StandardCharsets.UTF_8);
+
+        assertThat(errorMsg)
+                .isNotNull()
+                .isNotEmpty()
+                .isEqualTo(ForbiddenException.FORBIDDEN_EXCEPTION_MSG);
     }
 
     @Test
     @DisplayName("이미 좋아요를 삭제한 게시글에 다시 삭제 요청")
     void deleteLikeTest_FoodNotExistInCategory_404FoodNotFoundException() throws Exception {
         // given
-        willThrow(FoodNotFoundException.class)
+        willThrow(new FoodNotFoundException())
                 .given(likeService).deleteLike(any(User.class), anyLong(), anyString());
-        willThrow(FoodNotFoundException.class)
+        willThrow(new FoodNotFoundException())
                 .given(userlevelLock).executeWithLock(anyString(), anyInt(), any());
 
         // when
@@ -163,7 +183,15 @@ class LikeControllerTest extends PreprocessController {
                 .param("categoryName", "칵테일"));
 
         // then
-        perform.andExpect(status().isNotFound())
-                .andDo(documentIdentify("food/like/delete/foodNotFound"));
+        String errorMsg = perform.andExpect(status().isNotFound())
+                .andDo(documentIdentify("food/like/delete/foodNotFound"))
+                .andReturn()
+                .getResponse()
+                .getContentAsString(StandardCharsets.UTF_8);
+
+        assertThat(errorMsg)
+                .isNotNull()
+                .isNotEmpty()
+                .isEqualTo(FoodNotFoundException.FOOD_NOT_FOUND_EXCEPTION_MSG);
     }
 }
