@@ -3,6 +3,7 @@ package com.yapp.sharefood.food.controller;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yapp.sharefood.common.PreprocessController;
+import com.yapp.sharefood.food.dto.FoodImageDto;
 import com.yapp.sharefood.food.dto.FoodPageDto;
 import com.yapp.sharefood.food.dto.request.FoodTopRankRequest;
 import com.yapp.sharefood.food.dto.response.TopRankFoodResponse;
@@ -52,7 +53,7 @@ public class FoodControllerTest extends PreprocessController {
                     .price(1000 * i)
                     .numberOfLikes(10 - i)
                     .isBookmark(false)
-                    .foodImages(new ArrayList<>())
+                    .foodImages(List.of(new FoodImageDto(1L, "s3RealImageUrl.jpg", "음식사진" + i + ".jpg")))
                     .build());
         }
 
@@ -69,7 +70,7 @@ public class FoodControllerTest extends PreprocessController {
         // then
         TopRankFoodResponse topRankFoodResponse = objectMapper
                 .readValue(perform.andExpect(status().isOk())
-                        .andDo(documentIdentify("food/get/fail/badRequest"))
+                        .andDo(documentIdentify("food/get/success/rank"))
                         .andReturn()
                         .getResponse()
                         .getContentAsString(StandardCharsets.UTF_8), new TypeReference<>() {
