@@ -2,6 +2,7 @@ package com.yapp.sharefood.food.repository.query;
 
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.yapp.sharefood.category.domain.Category;
 import com.yapp.sharefood.common.order.SortType;
@@ -9,9 +10,9 @@ import com.yapp.sharefood.common.utils.QueryUtils;
 import com.yapp.sharefood.flavor.domain.Flavor;
 import com.yapp.sharefood.food.domain.Food;
 import com.yapp.sharefood.food.domain.FoodStatus;
-import com.yapp.sharefood.food.dto.OrderType;
 import com.yapp.sharefood.food.dto.FoodPageSearch;
 import com.yapp.sharefood.food.dto.FoodRecommendSearch;
+import com.yapp.sharefood.food.dto.OrderType;
 import com.yapp.sharefood.tag.domain.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
@@ -93,46 +94,54 @@ public class FoodQueryRepositoryImpl implements FoodQueryRepository {
     public List<Food> findFoodFilterWithTag(FoodPageSearch foodPageSearch) {
         QueryUtils.validateNotEmptyList(foodPageSearch.getTags());
 
-        List<Long> searchFoodIds = queryFactory.select(food.id)
-                .from(food).innerJoin(food.foodTags.foodTags, foodTag)
+        return queryFactory.selectFrom(food)
                 .where(
-                        goeMinPrice(foodPageSearch.getMinPrice()),
-                        loeMaxPrice(foodPageSearch.getMaxPrice()),
-                        lessThanCreateTime(foodPageSearch.getSearchTime()),
-                        eqCategory(foodPageSearch.getCategory()),
-                        containTags(foodPageSearch.getTags()),
-                        statusShared()
+                        food.id.in(
+                                JPAExpressions
+                                        .select(foodTag.food.id)
+                                        .from(foodTag)
+                                        .where(
+                                                foodTag.food.eq(food),
+                                                goeMinPrice(foodPageSearch.getMinPrice()),
+                                                loeMaxPrice(foodPageSearch.getMaxPrice()),
+                                                lessThanCreateTime(foodPageSearch.getSearchTime()),
+                                                eqCategory(foodPageSearch.getCategory()),
+                                                containTags(foodPageSearch.getTags()),
+                                                statusShared()
+                                        )
+                        )
                 )
-                .groupBy(food.id)
                 .orderBy(findCriteria(foodPageSearch.getOrder(), foodPageSearch.getSort()))
                 .limit(foodPageSearch.getSize())
                 .offset(foodPageSearch.getOffset() * foodPageSearch.getSize())
                 .fetch();
-
-        return findFoodWithCategoryByIds(searchFoodIds);
     }
 
     @Override
     public List<Food> findFoodFilterWithFlavor(FoodPageSearch foodPageSearch) {
         QueryUtils.validateNotEmptyList(foodPageSearch.getFlavors());
 
-        List<Long> searchFoodIds = queryFactory.select(food.id)
-                .from(food).innerJoin(food.foodFlavors.foodFlavors, foodFlavor)
+        return queryFactory.selectFrom(food)
                 .where(
-                        goeMinPrice(foodPageSearch.getMinPrice()),
-                        loeMaxPrice(foodPageSearch.getMaxPrice()),
-                        lessThanCreateTime(foodPageSearch.getSearchTime()),
-                        eqCategory(foodPageSearch.getCategory()),
-                        containFlavors(foodPageSearch.getFlavors()),
-                        statusShared()
+                        food.id.in(
+                                JPAExpressions
+                                        .select(foodFlavor.food.id)
+                                        .from(foodFlavor)
+                                        .where(
+                                                foodFlavor.food.eq(food),
+                                                goeMinPrice(foodPageSearch.getMinPrice()),
+                                                loeMaxPrice(foodPageSearch.getMaxPrice()),
+                                                lessThanCreateTime(foodPageSearch.getSearchTime()),
+                                                eqCategory(foodPageSearch.getCategory()),
+                                                containFlavors(foodPageSearch.getFlavors()),
+                                                statusShared()
+                                        )
+                        )
                 )
-                .groupBy(food.id)
                 .orderBy(findCriteria(foodPageSearch.getOrder(), foodPageSearch.getSort()))
                 .limit(foodPageSearch.getSize())
                 .offset(foodPageSearch.getOffset() * foodPageSearch.getSize())
                 .fetch();
-
-        return findFoodWithCategoryByIds(searchFoodIds);
     }
 
     private BooleanExpression lessThanCreateTime(LocalDateTime searchTime) {
