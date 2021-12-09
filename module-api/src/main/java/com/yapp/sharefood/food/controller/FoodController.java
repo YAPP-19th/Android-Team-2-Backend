@@ -21,12 +21,12 @@ import javax.validation.Valid;
 
 @RestController
 @RequiredArgsConstructor
-public class FoodCategoryController {
+public class FoodController {
 
     private final FoodService foodService;
 
     @GetMapping("/api/v1/foods/rank")
-    public ResponseEntity<TopRankFoodResponse> findFavoriteFoods(@Valid FoodTopRankRequest foodTopRankRequest) {
+    public ResponseEntity<TopRankFoodResponse> findTopRankFoodsData(@Valid FoodTopRankRequest foodTopRankRequest) {
         return ResponseEntity.ok(foodService.findTopRankFoods(foodTopRankRequest));
     }
 
