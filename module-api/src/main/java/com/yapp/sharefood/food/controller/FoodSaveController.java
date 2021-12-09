@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequiredArgsConstructor
-public class FoodController {
+public class FoodSaveController {
 
     private final FoodService foodService;
     private final TagService tagService;

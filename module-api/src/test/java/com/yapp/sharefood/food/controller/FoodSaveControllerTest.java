@@ -44,8 +44,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest(controllers = FoodController.class)
-class FoodControllerTest extends PreprocessController {
+@WebMvcTest(controllers = FoodSaveController.class)
+class FoodSaveControllerTest extends PreprocessController {
     @Autowired
     MockMvc mockMvc;
 
