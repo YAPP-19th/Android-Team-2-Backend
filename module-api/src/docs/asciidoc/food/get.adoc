@@ -1,0 +1,31 @@
+ifndef::snippets[]
+:snippets: ./build/generated-snippets
+endif::[]
+
+= SUCCESS
+
+== CURL
+
+include::{snippets}/food/get/success/rank/curl-request.adoc[]
+
+== REQUEST
+
+include::{snippets}/food/get/success/rank/http-request.adoc[]
+
+== RESPONSE SUCCESS
+
+include::{snippets}/food/get/success/rank/http-response.adoc[]
+
+== ERROR BadRequest
+
+== CURL
+
+include::{snippets}/food/get/fail/badRequest/curl-request.adoc[]
+
+== REQUEST
+
+include::{snippets}/food/get/fail/badRequest/http-request.adoc[]
+
+== RESPONSE SUCCESS
+
+include::{snippets}/food/get/fail/badRequest/http-response.adoc[]
