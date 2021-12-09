@@ -1,6 +1,7 @@
 package com.yapp.sharefood.common.advice;
 
 import com.yapp.sharefood.common.exception.BadRequestException;
+import com.yapp.sharefood.common.exception.InvalidOperationException;
 import com.yapp.sharefood.common.exception.file.FileTypeValidationException;
 import com.yapp.sharefood.common.exception.file.FileUploadException;
 import lombok.extern.slf4j.Slf4j;
@@ -29,9 +30,20 @@ public class CommonAdviceController {
      * file format 실패
      */
     @ExceptionHandler({FileTypeValidationException.class, BadRequestException.class})
-    protected ResponseEntity<Object> handleFileTypeValidationException(final RuntimeException exception) {
+    protected ResponseEntity<Object> handleBadRequestException(final RuntimeException exception) {
         log.error(exception.getMessage(), exception);
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(exception.getMessage());
+    }
+
+    /**
+     * 500 Interval Server Error
+     * 적절하지 못한 Exception 발생
+     */
+    @ExceptionHandler({InvalidOperationException.class})
+    protected ResponseEntity<Object> handleInvalidOperationException(final RuntimeException exception) {
+        log.error(exception.getMessage(), exception);
+
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(exception.getMessage());
     }
 }
