@@ -2,7 +2,9 @@ ifndef::snippets[]
 :snippets: ./build/generated-snippets
 endif::[]
 
-= SUCCESS
+= RANK 기능
+
+== SUCCESS
 
 == CURL
 
@@ -20,12 +22,47 @@ include::{snippets}/food/get/success/rank/http-response.adoc[]
 
 == CURL
 
-include::{snippets}/food/get/fail/badRequest/curl-request.adoc[]
+include::{snippets}/food/get/fail/badRequest/rank_top/curl-request.adoc
+include::{snippets}/food/get/fail/badRequest/rank_rankDatePeriod/curl-request.adoc
 
 == REQUEST
 
-include::{snippets}/food/get/fail/badRequest/http-request.adoc[]
+include::{snippets}/food/get/fail/badRequest/rank_top/http-request.adoc[]
+include::{snippets}/food/get/fail/badRequest/rank_rankDatePeriod/http-request.adoc[]
 
 == RESPONSE SUCCESS
 
-include::{snippets}/food/get/fail/badRequest/http-response.adoc[]
+include::{snippets}/food/get/fail/badRequest/rank_top/http-response.adoc[]
+include::{snippets}/food/get/fail/badRequest/rank_rankDatePeriod/http-response.adoc[]
+
+== RECOMMENDATAION 기능
+
+== CURL
+
+include::{snippets}/food/get/success/recommendation/curl-request.adoc[]
+
+== REQUEST
+
+include::{snippets}/food/get/success/recommendation/http-request.adoc[]
+
+== RESPONSE SUCCESS
+
+include::{snippets}/food/get/success/recommendation/http-response.adoc[]
+
+== ERROR BadRequest
+
+== CURL
+
+include::{snippets}/food/get/fail/badRequest/recommendation_top/curl-request.adoc
+include::{snippets}/food/get/fail/badRequest/recommendation_rankDatePeriod/curl-request.adoc
+
+== REQUEST
+
+include::{snippets}/food/get/fail/badRequest/recommendation_top/http-request.adoc[]
+include::{snippets}/food/get/fail/badRequest/recommendation_rankDatePeriod/http-request.adoc[]
+
+== RESPONSE SUCCESS
+
+include::{snippets}/food/get/fail/badRequest/recommendation_top/http-response.adoc[]
+include::{snippets}/food/get/fail/badRequest/recommendation_rankDatePeriod/http-response.adoc[]
+
