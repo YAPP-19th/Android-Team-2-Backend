@@ -6,11 +6,17 @@ import com.yapp.sharefood.common.PreprocessController;
 import com.yapp.sharefood.food.dto.FoodImageDto;
 import com.yapp.sharefood.food.dto.FoodPageDto;
 import com.yapp.sharefood.food.dto.request.FoodTopRankRequest;
+import com.yapp.sharefood.food.dto.request.RecommendationFoodRequest;
+import com.yapp.sharefood.food.dto.response.RecommendationFoodResponse;
 import com.yapp.sharefood.food.dto.response.TopRankFoodResponse;
 import com.yapp.sharefood.food.service.FoodImageService;
 import com.yapp.sharefood.food.service.FoodService;
+import com.yapp.sharefood.user.domain.User;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -21,6 +27,7 @@ import org.springframework.test.web.servlet.ResultActions;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
 
 import static com.yapp.sharefood.common.documentation.DocumentationUtils.documentIdentify;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -82,21 +89,21 @@ public class FoodControllerTest extends PreprocessController {
                 .containsExactlyInAnyOrderElementsOf(List.of("title_0", "title_1", "title_2", "title_3", "title_4"));
     }
 
-    @Test
-    @DisplayName("rank를 최대 개수를 5개 미만인 경우 - 에러 발생")
-    void findTopRankFoodFewFoodDataTest_Fail_BadRequest() throws Exception {
+    @MethodSource
+    @ParameterizedTest(name = "food like rank 조회 top parameter 최소 최대를 넘는 이슈 케이스 테스트")
+    void findTopRankFoodTopParamterIssueTest_Fail_BadRequest(int top) throws Exception {
         // given
 
         // when
         ResultActions perform = mockMvc.perform(get("/api/v1/foods/rank")
                 .header(HttpHeaders.AUTHORIZATION, "token")
-                .param("top", "4")
+                .param("top", Integer.toString(top))
                 .param("rankDatePeriod", "7")
                 .param("categoryName", "음식"));
 
         // then
         String errorMsg = perform.andExpect(status().isBadRequest())
-                .andDo(documentIdentify("food/get/fail/badRequest"))
+                .andDo(documentIdentify("food/get/fail/badRequest/rank_top"))
                 .andReturn()
                 .getResponse()
                 .getContentAsString(StandardCharsets.UTF_8);
@@ -105,26 +112,141 @@ public class FoodControllerTest extends PreprocessController {
                 .isNotNull();
     }
 
-    @Test
-    @DisplayName("rank를 최대 food 개수를 10개를 초과한 경우 - 에러 발생")
-    void findTopRankTooMuchFood_Fail_BadRequest() throws Exception {
+    static Stream<Arguments> findTopRankFoodTopParamterIssueTest_Fail_BadRequest() {
+        return Stream.of(
+                Arguments.of(4),
+                Arguments.of(11)
+        );
+    }
+
+    @MethodSource
+    @ParameterizedTest(name = "food like rank 조회 rankDatePeriod parameter 최소 최대를 넘는 이슈 케이스 테스트")
+    void findTopRankFoodrankDatePeriodParamterIssueTest_Fail_BadRequest(int rankDatePeriod) throws Exception {
         // given
 
         // when
         ResultActions perform = mockMvc.perform(get("/api/v1/foods/rank")
                 .header(HttpHeaders.AUTHORIZATION, "token")
                 .param("top", "5")
-                .param("rankDatePeriod", "11")
+                .param("rankDatePeriod", Integer.toString(rankDatePeriod))
                 .param("categoryName", "음식"));
 
         // then
         String errorMsg = perform.andExpect(status().isBadRequest())
-                .andDo(documentIdentify("food/get/fail/badRequest"))
+                .andDo(documentIdentify("food/get/fail/badRequest/rank_rankDatePeriod"))
                 .andReturn()
                 .getResponse()
                 .getContentAsString(StandardCharsets.UTF_8);
 
         assertThat(errorMsg)
                 .isNotNull();
+    }
+
+    static Stream<Arguments> findTopRankFoodrankDatePeriodParamterIssueTest_Fail_BadRequest() {
+        return Stream.of(
+                Arguments.of(2),
+                Arguments.of(11)
+        );
+    }
+
+    @Test
+    @DisplayName("food 추천 기능 user flavor가 설정 되어 있어야 함")
+    void recommendationFoodTest_Success() throws Exception {
+        // given
+        List<FoodPageDto> mockFoodPageDtos = new ArrayList<>();
+        for (int i = 0; i < 5; i++) {
+            mockFoodPageDtos.add(FoodPageDto.builder()
+                    .foodTitle("title_" + i)
+                    .categoryName("샌드위치")
+                    .price(1000 * i)
+                    .numberOfLikes(10 - i)
+                    .isBookmark(false)
+                    .foodImages(List.of(new FoodImageDto(1L, "s3RealImageUrl.jpg", "음식사진" + i + ".jpg")))
+                    .build());
+        }
+        mockFoodPageDtos.sort((o1, o2) -> (int) (-o1.getNumberOfLikes() + o2.getNumberOfLikes()));
+        willReturn(new RecommendationFoodResponse(mockFoodPageDtos))
+                .given(foodService).findFoodRecommendation(any(RecommendationFoodRequest.class), any(User.class));
+
+        // when
+        ResultActions perform = mockMvc.perform(get("/api/v1/foods/recommendation")
+                .param("top", "5")
+                .param("rankDatePeriod", "7")
+                .param("categoryName", "음식")
+                .header(HttpHeaders.AUTHORIZATION, "token"));
+
+        // then
+        RecommendationFoodResponse recommendationFoodResponse = objectMapper
+                .readValue(perform.andExpect(status().isOk())
+                        .andDo(documentIdentify("food/get/success/recommendation"))
+                        .andReturn()
+                        .getResponse()
+                        .getContentAsString(StandardCharsets.UTF_8), new TypeReference<>() {
+                });
+
+        assertThat(recommendationFoodResponse.getRecommendationFoods())
+                .hasSize(5)
+                .extracting("foodTitle")
+                .containsExactlyInAnyOrderElementsOf(List.of("title_0", "title_1", "title_2", "title_3", "title_4"));
+    }
+
+    @MethodSource
+    @ParameterizedTest(name = "food 추천 조회 top parameter 최소 최대를 넘는 이슈 케이스 테스트")
+    void recommendationFoodTopParameterTest_Fail_BadRequest(int top) throws Exception {
+        // given
+
+        // when
+        ResultActions perform = mockMvc.perform(get("/api/v1/foods/recommendation")
+                .header(HttpHeaders.AUTHORIZATION, "token")
+                .param("top", Integer.toString(top))
+                .param("rankDatePeriod", "7")
+                .param("categoryName", "음식"));
+
+        // then
+        String errorMsg = perform.andExpect(status().isBadRequest())
+                .andDo(documentIdentify("food/get/fail/badRequest/recommendation_top"))
+                .andReturn()
+                .getResponse()
+                .getContentAsString(StandardCharsets.UTF_8);
+
+        assertThat(errorMsg)
+                .isNotNull();
+    }
+
+    static Stream<Arguments> recommendationFoodTopParameterTest_Fail_BadRequest() {
+        return Stream.of(
+                Arguments.of(4),
+                Arguments.of(11)
+        );
+    }
+
+    @MethodSource
+    @ParameterizedTest(name = "food 추천 조회 rankDatePeriod parameter 최소 최대를 넘는 이슈 케이스 테스트")
+    void recommendationFoodRankDatePeriodIssueTest_Fail_BadRequest(int rankDatePeriod) throws Exception {
+        // given
+
+        // when
+        ResultActions perform = mockMvc.perform(get("/api/v1/foods/recommendation")
+                .header(HttpHeaders.AUTHORIZATION, "token")
+                .param("top", "5")
+                .param("rankDatePeriod", Integer.toString(rankDatePeriod))
+                .param("categoryName", "음식"));
+
+        // then
+        String errorMsg = perform.andExpect(status().isBadRequest())
+                .andDo(documentIdentify("food/get/fail/badRequest/recommendation_rankDatePeriod"))
+                .andReturn()
+                .getResponse()
+                .getContentAsString(StandardCharsets.UTF_8);
+
+        assertThat(errorMsg)
+                .isNotNull();
+    }
+
+    static Stream<Arguments> recommendationFoodRankDatePeriodIssueTest_Fail_BadRequest() {
+        return Stream.of(
+                Arguments.of(2),
+                Arguments.of(11)
+        );
     }
 }
