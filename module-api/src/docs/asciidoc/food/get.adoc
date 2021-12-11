@@ -14,7 +14,7 @@ include::{snippets}/food/get/success/rank/curl-request.adoc[]
 
 include::{snippets}/food/get/success/rank/http-request.adoc[]
 
-== RESPONSE SUCCESS
+== RESPONSE
 
 include::{snippets}/food/get/success/rank/http-response.adoc[]
 
@@ -30,7 +30,7 @@ include::{snippets}/food/get/fail/badRequest/rank_rankDatePeriod/curl-request.ad
 include::{snippets}/food/get/fail/badRequest/rank_top/http-request.adoc[]
 include::{snippets}/food/get/fail/badRequest/rank_rankDatePeriod/http-request.adoc[]
 
-== RESPONSE SUCCESS
+== RESPONSE
 
 include::{snippets}/food/get/fail/badRequest/rank_top/http-response.adoc[]
 include::{snippets}/food/get/fail/badRequest/rank_rankDatePeriod/http-response.adoc[]
@@ -45,7 +45,7 @@ include::{snippets}/food/get/success/recommendation/curl-request.adoc[]
 
 include::{snippets}/food/get/success/recommendation/http-request.adoc[]
 
-== RESPONSE SUCCESS
+== RESPONSE
 
 include::{snippets}/food/get/success/recommendation/http-response.adoc[]
 
@@ -61,7 +61,7 @@ include::{snippets}/food/get/fail/badRequest/recommendation_rankDatePeriod/curl-
 include::{snippets}/food/get/fail/badRequest/recommendation_top/http-request.adoc[]
 include::{snippets}/food/get/fail/badRequest/recommendation_rankDatePeriod/http-request.adoc[]
 
-== RESPONSE SUCCESS
+== RESPONSE
 
 include::{snippets}/food/get/fail/badRequest/recommendation_top/http-response.adoc[]
 include::{snippets}/food/get/fail/badRequest/recommendation_rankDatePeriod/http-response.adoc[]
@@ -76,7 +76,7 @@ include::{snippets}/food/get/success/detail/curl-request.adoc[]
 
 include::{snippets}/food/get/success/detail/http-request.adoc[]
 
-== RESPONSE SUCCESS
+== RESPONSE
 
 include::{snippets}/food/get/success/detail/http-response.adoc[]
 
@@ -91,6 +91,6 @@ include::{snippets}/food/get/fail/detail/curl-request.adoc[]
 
 include::{snippets}/food/get/fail/detail/http-request.adoc[]
 
-== RESPONSE SUCCESS
+== RESPONSE
 
 include::{snippets}/food/get/fail/detail/http-response.adoc[]
