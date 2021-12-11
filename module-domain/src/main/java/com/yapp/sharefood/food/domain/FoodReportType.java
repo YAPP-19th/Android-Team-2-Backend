@@ -1,4 +1,6 @@
-package com.yapp.sharefood.report.domain;
+package com.yapp.sharefood.food.domain;
+
+import com.yapp.sharefood.report.exception.NotDefineReportType;
 
 import java.util.Arrays;
 

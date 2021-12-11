@@ -8,7 +8,6 @@ import com.yapp.sharefood.common.exception.InvalidOperationException;
 import com.yapp.sharefood.flavor.domain.Flavor;
 import com.yapp.sharefood.like.domain.Like;
 import com.yapp.sharefood.oauth.exception.UserNotFoundException;
-import com.yapp.sharefood.report.domain.FoodReportType;
 import com.yapp.sharefood.user.domain.User;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -16,7 +15,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
