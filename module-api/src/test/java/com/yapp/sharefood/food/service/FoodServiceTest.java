@@ -39,8 +39,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @Transactional
@@ -241,13 +240,15 @@ class FoodServiceTest {
         Food saveFood = foodRepository.save(newFood);
 
         // when
-        FoodDetailResponse foodResponse = foodService.findFoodDetailById(saveFood.getId());
+        FoodDetailResponse foodResponse = foodService.findFoodDetailById(saveUser, saveFood.getId());
 
         // then
         assertEquals("title", foodResponse.getFoodTitle());
         assertEquals(1000, foodResponse.getPrice());
         assertEquals("reviewMsg", foodResponse.getReviewDetail());
         assertEquals("nickname", foodResponse.getWriterName());
+        assertFalse(foodResponse.isMeBookmark());
+        assertFalse(foodResponse.isMeLike());
         assertEquals(3, foodResponse.getFoodTags().size());
     }
 

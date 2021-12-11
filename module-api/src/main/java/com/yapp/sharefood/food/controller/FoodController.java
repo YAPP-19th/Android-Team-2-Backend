@@ -37,8 +37,8 @@ public class FoodController {
     }
 
     @GetMapping("/api/v1/foods/{foodId}")
-    public ResponseEntity<FoodDetailResponse> findFood(@PathVariable("foodId") Long foodId) {
-        return ResponseEntity.ok(foodService.findFoodDetailById(foodId));
+    public ResponseEntity<FoodDetailResponse> findFood(@AuthUser User user, @PathVariable("foodId") Long foodId) {
+        return ResponseEntity.ok(foodService.findFoodDetailById(user, foodId));
     }
 
     @DeleteMapping("/api/v1/foods/{foodId}")

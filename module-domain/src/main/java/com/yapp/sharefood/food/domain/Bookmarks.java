@@ -3,7 +3,6 @@ package com.yapp.sharefood.food.domain;
 import com.yapp.sharefood.bookmark.domain.Bookmark;
 import com.yapp.sharefood.bookmark.exception.BookmarkAlreadyExistException;
 import com.yapp.sharefood.bookmark.exception.BookmarkNotFoundException;
-import com.yapp.sharefood.common.exception.InvalidOperationException;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -58,7 +57,7 @@ public class Bookmarks {
         }
     }
 
-    private boolean isAlreadyBookmark(Long userId) {
+    public boolean isAlreadyBookmark(Long userId) {
         return bookmarks.stream()
                 .anyMatch(bookmark -> bookmark.getUser().getId().equals(userId));
     }

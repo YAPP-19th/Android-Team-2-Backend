@@ -146,4 +146,12 @@ public class Food extends BaseEntity {
     public boolean isAuth(User user) {
         return this.writer.getId().equals(user.getId());
     }
+
+    public boolean isMeLike(User user) {
+        return this.likes.isAlreadyLike(user.getId());
+    }
+
+    public boolean isMeBookMark(User user) {
+        return this.bookmarks.isAlreadyBookmark(user.getId());
+    }
 }

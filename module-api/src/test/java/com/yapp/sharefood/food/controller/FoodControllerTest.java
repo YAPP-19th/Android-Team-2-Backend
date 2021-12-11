@@ -268,13 +268,13 @@ public class FoodControllerTest extends PreprocessController {
                 .numberOfLike(2000)
                 .reviewDetail("review Msg")
                 .isMeLike(false)
-                .isBookmark(false)
+                .isMeBookmark(false)
                 .isMyFlavorite(false)
                 .writerName("writerName")
                 .foodTags(List.of(FoodTagDto.of(1L, "tag1", FoodIngredientType.MAIN), FoodTagDto.of(2L, "tag2", FoodIngredientType.ADD), FoodTagDto.of(3L, "tag3", FoodIngredientType.EXTRACT)))
                 .foodImages(List.of(new FoodImageDto(1L, "imageUrl1.jpg", "realImageName1.jpg"), new FoodImageDto(2L, "imageUrl2.jpg", "realImageName2.jpg")))
                 .build()
-        ).given(foodService).findFoodDetailById(anyLong());
+        ).given(foodService).findFoodDetailById(any(User.class), anyLong());
 
         // when
         ResultActions perform = mockMvc.perform(get("/api/v1/foods/1")
@@ -304,7 +304,7 @@ public class FoodControllerTest extends PreprocessController {
     void findFoodTest_Exception_NotFound() throws Exception {
         // given
         willThrow(new FoodNotFoundException())
-                .given(foodService).findFoodDetailById(anyLong());
+                .given(foodService).findFoodDetailById(any(User.class), anyLong());
 
         // when
         ResultActions perform = mockMvc.perform(get("/api/v1/foods/1")
