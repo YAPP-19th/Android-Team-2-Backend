@@ -35,12 +35,19 @@ public class User extends BaseEntity {
     @Column(length = 20, unique = true)
     private String nickname;
 
-    @Column(name = "user_point", columnDefinition = "integer default 0")
-    private Integer point;
-
     @Column(name = "user_grade")
     @Enumerated(EnumType.STRING)
     private Grade grade;
+
+    @Column(name = "user_grade_point")
+    private Integer gradePoint;
+
+    @Column(name = "user_report_status", nullable = false)
+    @Enumerated(EnumType.STRING)
+    private UserReportStatus reportStatus;
+
+    @Column(name = "user_report_point", nullable = false)
+    private Integer reportPoint;
 
     @Embedded
     private OAuthInfo oAuthInfo = new OAuthInfo();
@@ -53,8 +60,10 @@ public class User extends BaseEntity {
         this.id = id;
         this.nickname = nickname;
         this.grade = Grade.STUDENT;
-        this.point = 0;
+        this.gradePoint = 0;
         this.oAuthInfo.initOAuthInfo(oauthId, name, oAuthType);
+
+        this.reportPoint = 0;
     }
 
     public void changeNickname(String newNickname) {
@@ -70,7 +79,7 @@ public class User extends BaseEntity {
 
         if (!canEarnPoint(food.getWriter().getGrade())) return;
 
-        this.point += POINT_REGISTER_FOOD;
+        this.gradePoint += POINT_REGISTER_FOOD;
     }
 
     public void addPointByOpenFood(Food food) {
@@ -82,11 +91,11 @@ public class User extends BaseEntity {
 
         if (!canEarnPoint(food.getWriter().getGrade())) return;
 
-        this.point += (food.getFoodStatus().isShared()) ? POINT_OPEN_FOOD : 0;
+        this.gradePoint += (food.getFoodStatus().isShared()) ? POINT_OPEN_FOOD : 0;
     }
 
     public void upgrade() {
-        int point = this.point != null ? this.point : -1;
+        int point = this.gradePoint != null ? this.gradePoint : -1;
         this.grade = Grade.gradeByPoint(point);
     }
 
@@ -99,6 +108,14 @@ public class User extends BaseEntity {
         flavors.stream()
                 .map(flavor -> UserFlavor.of(this, flavor))
                 .forEach(userFlavors::add);
+    }
+
+    public void addReport(String reportMessage) {
+        UserReportType reportType = UserReportType.getFoodReportType(reportMessage);
+        this.reportPoint += reportType.getPoint();
+
+        this.reportStatus = UserReportStatus.getReportStatus(this.reportPoint);
+        // TODO: 2021/12/12 Token 제거 로직 필요
     }
 
     private void validateDuplicateFlavor(Flavor flavor) {
