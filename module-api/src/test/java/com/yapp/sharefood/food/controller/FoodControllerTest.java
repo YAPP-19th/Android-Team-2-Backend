@@ -12,6 +12,7 @@ import com.yapp.sharefood.food.dto.request.RecommendationFoodRequest;
 import com.yapp.sharefood.food.dto.response.FoodDetailResponse;
 import com.yapp.sharefood.food.dto.response.RecommendationFoodResponse;
 import com.yapp.sharefood.food.dto.response.TopRankFoodResponse;
+import com.yapp.sharefood.food.exception.FoodNotFoundException;
 import com.yapp.sharefood.food.service.FoodImageService;
 import com.yapp.sharefood.food.service.FoodService;
 import com.yapp.sharefood.user.domain.User;
@@ -38,6 +39,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.willReturn;
+import static org.mockito.BDDMockito.willThrow;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -287,6 +289,7 @@ public class FoodControllerTest extends PreprocessController {
                         .getResponse()
                         .getContentAsString(StandardCharsets.UTF_8), new TypeReference<>() {
                 });
+
         assertEquals("title", foodDetailResponse.getFoodTitle());
         assertEquals("review Msg", foodDetailResponse.getReviewDetail());
         assertThat(foodDetailResponse.getFoodTags())
@@ -294,5 +297,29 @@ public class FoodControllerTest extends PreprocessController {
                 .hasSize(3)
                 .extracting("name")
                 .containsExactlyInAnyOrderElementsOf(List.of("tag1", "tag2", "tag3"));
+    }
+
+    @Test
+    @DisplayName("음식 조회 - 에러 not found")
+    void findFoodTest_Exception_NotFound() throws Exception {
+        // given
+        willThrow(new FoodNotFoundException())
+                .given(foodService).findFoodDetailById(anyLong());
+
+        // when
+        ResultActions perform = mockMvc.perform(get("/api/v1/foods/1")
+                .header(HttpHeaders.AUTHORIZATION, "token"));
+
+        // then
+        String errorMsg = perform
+                .andExpect(status().isNotFound())
+                .andDo(documentIdentify("food/get/fail/detail"))
+                .andReturn()
+                .getResponse()
+                .getContentAsString(StandardCharsets.UTF_8);
+
+        assertThat(errorMsg)
+                .isNotNull()
+                .isEqualTo(FoodNotFoundException.FOOD_NOT_FOUND_EXCEPTION_MSG);
     }
 }
