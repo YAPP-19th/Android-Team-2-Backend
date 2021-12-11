@@ -3,6 +3,7 @@ package com.yapp.sharefood.food.controller;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yapp.sharefood.common.PreprocessController;
+import com.yapp.sharefood.common.exception.ForbiddenException;
 import com.yapp.sharefood.food.domain.FoodIngredientType;
 import com.yapp.sharefood.food.dto.FoodImageDto;
 import com.yapp.sharefood.food.dto.FoodPageDto;
@@ -38,8 +39,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.BDDMockito.willReturn;
-import static org.mockito.BDDMockito.willThrow;
+import static org.mockito.BDDMockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -314,6 +315,74 @@ public class FoodControllerTest extends PreprocessController {
         String errorMsg = perform
                 .andExpect(status().isNotFound())
                 .andDo(documentIdentify("food/get/fail/detail"))
+                .andReturn()
+                .getResponse()
+                .getContentAsString(StandardCharsets.UTF_8);
+
+        assertThat(errorMsg)
+                .isNotNull()
+                .isEqualTo(FoodNotFoundException.FOOD_NOT_FOUND_EXCEPTION_MSG);
+    }
+
+    @Test
+    @DisplayName("음식 삭제 기능 - 성공")
+    void deleteFoodTest_Success() throws Exception {
+        // given
+        willDoNothing()
+                .given(foodService).deleteFood(anyLong(), any(User.class));
+
+        // when
+        ResultActions perform = mockMvc.perform(delete("/api/v1/foods/1")
+                .header(HttpHeaders.AUTHORIZATION, "token"));
+
+        // then
+        perform
+                .andExpect(status().isOk())
+                .andDo(documentIdentify("food/delete/success"))
+                .andReturn()
+                .getResponse()
+                .getContentAsString(StandardCharsets.UTF_8);
+    }
+
+    @Test
+    @DisplayName("음식 내가 작성하지 않은 음식 삭제 - 에러")
+    void deleteFoodTest_Fail_Forbidden() throws Exception {
+        // given
+        willThrow(new ForbiddenException())
+                .given(foodService).deleteFood(anyLong(), any(User.class));
+
+        // when
+        ResultActions perform = mockMvc.perform(delete("/api/v1/foods/1")
+                .header(HttpHeaders.AUTHORIZATION, "token"));
+
+        // then
+        String errorMsg = perform
+                .andExpect(status().isForbidden())
+                .andDo(documentIdentify("food/delete/forbidden"))
+                .andReturn()
+                .getResponse()
+                .getContentAsString(StandardCharsets.UTF_8);
+
+        assertThat(errorMsg)
+                .isNotNull()
+                .isEqualTo(ForbiddenException.FORBIDDEN_EXCEPTION_MSG);
+    }
+
+    @Test
+    @DisplayName("이미 삭제된 음식을 삭제할 경우 - 에러")
+    void deleteFoodTest_Fail_NotFound() throws Exception {
+        // given
+        willThrow(new FoodNotFoundException())
+                .given(foodService).deleteFood(anyLong(), any(User.class));
+
+        // when
+        ResultActions perform = mockMvc.perform(delete("/api/v1/foods/1")
+                .header(HttpHeaders.AUTHORIZATION, "token"));
+
+        // then
+        String errorMsg = perform
+                .andExpect(status().isNotFound())
+                .andDo(documentIdentify("food/delete/notFound"))
                 .andReturn()
                 .getResponse()
                 .getContentAsString(StandardCharsets.UTF_8);
