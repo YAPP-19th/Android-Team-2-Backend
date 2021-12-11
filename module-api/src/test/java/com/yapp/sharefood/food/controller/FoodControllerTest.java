@@ -3,13 +3,16 @@ package com.yapp.sharefood.food.controller;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yapp.sharefood.common.PreprocessController;
+import com.yapp.sharefood.common.exception.ForbiddenException;
 import com.yapp.sharefood.food.domain.FoodIngredientType;
 import com.yapp.sharefood.food.dto.FoodImageDto;
 import com.yapp.sharefood.food.dto.FoodPageDto;
 import com.yapp.sharefood.food.dto.FoodTagDto;
+import com.yapp.sharefood.food.dto.request.FoodPageSearchRequest;
 import com.yapp.sharefood.food.dto.request.FoodTopRankRequest;
 import com.yapp.sharefood.food.dto.request.RecommendationFoodRequest;
 import com.yapp.sharefood.food.dto.response.FoodDetailResponse;
+import com.yapp.sharefood.food.dto.response.FoodPageResponse;
 import com.yapp.sharefood.food.dto.response.RecommendationFoodResponse;
 import com.yapp.sharefood.food.dto.response.TopRankFoodResponse;
 import com.yapp.sharefood.food.exception.FoodNotFoundException;
@@ -38,8 +41,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.BDDMockito.willReturn;
-import static org.mockito.BDDMockito.willThrow;
+import static org.mockito.BDDMockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -66,13 +69,14 @@ public class FoodControllerTest extends PreprocessController {
                     .categoryName("샌드위치")
                     .price(1000 * i)
                     .numberOfLikes(10 - i)
-                    .isBookmark(false)
+                    .isMeBookmark(false)
+                    .isMeLike(false)
                     .foodImages(List.of(new FoodImageDto(1L, "s3RealImageUrl.jpg", "음식사진" + i + ".jpg")))
                     .build());
         }
 
         willReturn(TopRankFoodResponse.of(mockFoodPageDtos))
-                .given(foodService).findTopRankFoods(any(FoodTopRankRequest.class));
+                .given(foodService).findTopRankFoods(any(FoodTopRankRequest.class), any(User.class));
 
         // when
         ResultActions perform = mockMvc.perform(get("/api/v1/foods/rank")
@@ -167,7 +171,8 @@ public class FoodControllerTest extends PreprocessController {
                     .categoryName("샌드위치")
                     .price(1000 * i)
                     .numberOfLikes(10 - i)
-                    .isBookmark(false)
+                    .isMeBookmark(false)
+                    .isMeLike(false)
                     .foodImages(List.of(new FoodImageDto(1L, "s3RealImageUrl.jpg", "음식사진" + i + ".jpg")))
                     .build());
         }
@@ -321,5 +326,142 @@ public class FoodControllerTest extends PreprocessController {
         assertThat(errorMsg)
                 .isNotNull()
                 .isEqualTo(FoodNotFoundException.FOOD_NOT_FOUND_EXCEPTION_MSG);
+    }
+
+    @Test
+    @DisplayName("음식 삭제 기능 - 성공")
+    void deleteFoodTest_Success() throws Exception {
+        // given
+        willDoNothing()
+                .given(foodService).deleteFood(anyLong(), any(User.class));
+
+        // when
+        ResultActions perform = mockMvc.perform(delete("/api/v1/foods/1")
+                .header(HttpHeaders.AUTHORIZATION, "token"));
+
+        // then
+        perform
+                .andExpect(status().isOk())
+                .andDo(documentIdentify("food/delete/success"))
+                .andReturn()
+                .getResponse()
+                .getContentAsString(StandardCharsets.UTF_8);
+    }
+
+    @Test
+    @DisplayName("음식 내가 작성하지 않은 음식 삭제 - 에러")
+    void deleteFoodTest_Fail_Forbidden() throws Exception {
+        // given
+        willThrow(new ForbiddenException())
+                .given(foodService).deleteFood(anyLong(), any(User.class));
+
+        // when
+        ResultActions perform = mockMvc.perform(delete("/api/v1/foods/1")
+                .header(HttpHeaders.AUTHORIZATION, "token"));
+
+        // then
+        String errorMsg = perform
+                .andExpect(status().isForbidden())
+                .andDo(documentIdentify("food/delete/forbidden"))
+                .andReturn()
+                .getResponse()
+                .getContentAsString(StandardCharsets.UTF_8);
+
+        assertThat(errorMsg)
+                .isNotNull()
+                .isEqualTo(ForbiddenException.FORBIDDEN_EXCEPTION_MSG);
+    }
+
+    @Test
+    @DisplayName("이미 삭제된 음식을 삭제할 경우 - 에러")
+    void deleteFoodTest_Fail_NotFound() throws Exception {
+        // given
+        willThrow(new FoodNotFoundException())
+                .given(foodService).deleteFood(anyLong(), any(User.class));
+
+        // when
+        ResultActions perform = mockMvc.perform(delete("/api/v1/foods/1")
+                .header(HttpHeaders.AUTHORIZATION, "token"));
+
+        // then
+        String errorMsg = perform
+                .andExpect(status().isNotFound())
+                .andDo(documentIdentify("food/delete/notFound"))
+                .andReturn()
+                .getResponse()
+                .getContentAsString(StandardCharsets.UTF_8);
+
+        assertThat(errorMsg)
+                .isNotNull()
+                .isEqualTo(FoodNotFoundException.FOOD_NOT_FOUND_EXCEPTION_MSG);
+    }
+
+    @Test
+    @DisplayName("음식 page 조회 기능 - 성공")
+    void foodPageSearch_Success() throws Exception {
+        // given
+        List<FoodPageDto> foodpageContent = List.of(
+                FoodPageDto.builder().
+                        id(1L)
+                        .foodTitle("title_1")
+                        .categoryName("샌드위치")
+                        .price(1000)
+                        .numberOfLikes(12)
+                        .isMeBookmark(false)
+                        .isMeLike(false)
+                        .foodImages(List.of(new FoodImageDto(1L, "imageUrl1.jpg", "realImageName1.jpg")))
+                        .build(),
+                FoodPageDto.builder().
+                        id(2L)
+                        .foodTitle("title_2")
+                        .categoryName("샌드위치")
+                        .price(2000)
+                        .numberOfLikes(121)
+                        .isMeBookmark(false)
+                        .isMeLike(false)
+                        .foodImages(List.of(new FoodImageDto(2L, "imageUrl2.jpg", "realImageName2.jpg")))
+                        .build(),
+                FoodPageDto.builder().
+                        id(3L)
+                        .foodTitle("title_3")
+                        .categoryName("샌드위치")
+                        .price(3000)
+                        .numberOfLikes(1123)
+                        .isMeBookmark(false)
+                        .isMeLike(false)
+                        .foodImages(List.of(new FoodImageDto(3L, "imageUrl3.jpg", "realImageName3.jpg")))
+                        .build());
+        willReturn(FoodPageResponse.ofPureDto(foodpageContent, 3, 0L))
+                .given(foodService).searchFoodsPage(any(FoodPageSearchRequest.class), any(User.class));
+
+        // when
+        ResultActions perform = mockMvc.perform(get("/api/v1/foods")
+                .param("minPrice", "0")
+                .param("maxPrice", "100000")
+                .param("tags", "a", "b")
+                .param("flavors", "단맛", "짠맛")
+                .param("sort", "like")
+                .param("order", "asc")
+                .param("categoryName", "샌드위치")
+                .param("firstSearchTime", "2021-12-25T12:12:12")
+                .param("offset", "0")
+                .param("pageSize", "3")
+                .header(HttpHeaders.AUTHORIZATION, "token"));
+
+        // then
+        FoodPageResponse foodPageResponse = objectMapper
+                .readValue(perform.andExpect(status().isOk())
+                        .andDo(documentIdentify("food/get/success/pageSearch"))
+                        .andReturn()
+                        .getResponse()
+                        .getContentAsString(StandardCharsets.UTF_8), new TypeReference<>() {
+                });
+
+        assertThat(foodPageResponse.getFoods())
+                .hasSize(3)
+                .extracting("foodTitle")
+                .containsExactlyInAnyOrderElementsOf(List.of("title_1", "title_2", "title_3"));
+        assertEquals(foodPageResponse.getPageSize(), 3);
+        assertEquals(foodPageResponse.getOffset(), 0);
     }
 }
