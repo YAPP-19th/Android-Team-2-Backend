@@ -8,9 +8,11 @@ import com.yapp.sharefood.food.domain.FoodIngredientType;
 import com.yapp.sharefood.food.dto.FoodImageDto;
 import com.yapp.sharefood.food.dto.FoodPageDto;
 import com.yapp.sharefood.food.dto.FoodTagDto;
+import com.yapp.sharefood.food.dto.request.FoodPageSearchRequest;
 import com.yapp.sharefood.food.dto.request.FoodTopRankRequest;
 import com.yapp.sharefood.food.dto.request.RecommendationFoodRequest;
 import com.yapp.sharefood.food.dto.response.FoodDetailResponse;
+import com.yapp.sharefood.food.dto.response.FoodPageResponse;
 import com.yapp.sharefood.food.dto.response.RecommendationFoodResponse;
 import com.yapp.sharefood.food.dto.response.TopRankFoodResponse;
 import com.yapp.sharefood.food.exception.FoodNotFoundException;
@@ -398,12 +400,66 @@ public class FoodControllerTest extends PreprocessController {
     @DisplayName("음식 page 조회 기능 - 성공")
     void foodPageSearch_Success() throws Exception {
         // given
-//        List.of(FoodPageDto.builder().build())
-//        willReturn(FoodPageResponse.ofPureDto(List.of(), 3, 0L))
-//                .given(foodService).searchFoodsPage(any(FoodPageSearchRequest.class));
+        List<FoodPageDto> foodpageContent = List.of(
+                FoodPageDto.builder().
+                        id(1L)
+                        .foodTitle("title_1")
+                        .categoryName("샌드위치")
+                        .price(1000)
+                        .numberOfLikes(12)
+                        .isMeBookmark(false)
+                        .isMeLike(false)
+                        .foodImages(List.of(new FoodImageDto(1L, "imageUrl1.jpg", "realImageName1.jpg")))
+                        .build(),
+                FoodPageDto.builder().
+                        id(2L)
+                        .foodTitle("title_2")
+                        .categoryName("샌드위치")
+                        .price(2000)
+                        .numberOfLikes(121)
+                        .isMeBookmark(false)
+                        .isMeLike(false)
+                        .foodImages(List.of(new FoodImageDto(2L, "imageUrl2.jpg", "realImageName2.jpg")))
+                        .build(),
+                FoodPageDto.builder().
+                        id(3L)
+                        .foodTitle("title_3")
+                        .categoryName("샌드위치")
+                        .price(3000)
+                        .numberOfLikes(1123)
+                        .isMeBookmark(false)
+                        .isMeLike(false)
+                        .foodImages(List.of(new FoodImageDto(3L, "imageUrl3.jpg", "realImageName3.jpg")))
+                        .build());
+        willReturn(FoodPageResponse.ofPureDto(foodpageContent, 3, 0L))
+                .given(foodService).searchFoodsPage(any(FoodPageSearchRequest.class), any(User.class));
 
         // when
+        ResultActions perform = mockMvc.perform(get("/api/v1/foods")
+                .param("tags", "a", "b")
+                .param("flavors", "단맛", "짠맛")
+                .param("sort", "like")
+                .param("order", "asc")
+                .param("categoryName", "샌드위치")
+                .param("firstSearchTime", "2021-12-25T12:12:12")
+                .param("offset", "0")
+                .param("pageSize", "3")
+                .header(HttpHeaders.AUTHORIZATION, "token"));
 
         // then
+        FoodPageResponse foodPageResponse = objectMapper
+                .readValue(perform.andExpect(status().isOk())
+                        .andDo(documentIdentify("food/get/success/pageSearch"))
+                        .andReturn()
+                        .getResponse()
+                        .getContentAsString(StandardCharsets.UTF_8), new TypeReference<>() {
+                });
+
+        assertThat(foodPageResponse.getFoods())
+                .hasSize(3)
+                .extracting("foodTitle")
+                .containsExactlyInAnyOrderElementsOf(List.of("title_1", "title_2", "title_3"));
+        assertEquals(foodPageResponse.getPageSize(), 3);
+        assertEquals(foodPageResponse.getOffset(), 0);
     }
 }
