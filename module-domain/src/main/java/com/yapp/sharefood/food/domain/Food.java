@@ -8,6 +8,7 @@ import com.yapp.sharefood.common.exception.InvalidOperationException;
 import com.yapp.sharefood.flavor.domain.Flavor;
 import com.yapp.sharefood.like.domain.Like;
 import com.yapp.sharefood.oauth.exception.UserNotFoundException;
+import com.yapp.sharefood.report.domain.FoodReportType;
 import com.yapp.sharefood.user.domain.User;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -15,6 +16,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -39,6 +41,10 @@ public class Food extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private FoodStatus foodStatus;
 
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private FoodReportStatus reportStatus;
+
     @Column(length = 50)
     private String writerNickname;
 
@@ -52,6 +58,9 @@ public class Food extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id")
     private Category category;
+
+    @Column(nullable = false)
+    private Integer reportPoint;
 
     @Embedded
     private final FoodTags foodTags = new FoodTags();
@@ -78,6 +87,9 @@ public class Food extends BaseEntity {
         this.numberOfLikes = 0L;
         assignWriter(writer);
         assignCategory(category);
+
+        this.reportStatus = FoodReportStatus.NORMAL;
+        this.reportPoint = 0;
     }
 
     public void assignWriter(User user) {
@@ -153,5 +165,13 @@ public class Food extends BaseEntity {
 
     public boolean isMeBookMark(User user) {
         return this.bookmarks.isAlreadyBookmark(user.getId());
+    }
+
+    public void addReport(String reportMessage) {
+        FoodReportType reportType = FoodReportType.getFoodReportType(reportMessage);
+        reportPoint += reportType.getPoint();
+
+        FoodReportStatus reportStatus = FoodReportStatus.getReportStatus(reportPoint);
+        this.reportStatus = reportStatus;
     }
 }
