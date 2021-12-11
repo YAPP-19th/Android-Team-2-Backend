@@ -71,18 +71,51 @@ public class MockData {
 
         public void initCategory() {
             Category categoryFood = Category.of("음식");
-            Category categoryBeverage = Category.of("음료");
-
             Category categorySandwich = Category.of("샌드위치");
-            Category categoryStarbuks = Category.of("스타벅스");
+            Category categoryMara = Category.of("마라탕");
+            Category categoryTebbokkie = Category.of("떡볶이");
+            Category categorySalad = Category.of("샐러드");
+            Category categoryYoguart = Category.of("요거트");
+            Category categoryRamen = Category.of("라면");
+
             categorySandwich.assignParent(categoryFood);
-            categoryStarbuks.assignParent(categoryBeverage);
+            categoryMara.assignParent(categoryFood);
+            categoryTebbokkie.assignParent(categoryFood);
+            categorySalad.assignParent(categoryFood);
+            categoryYoguart.assignParent(categoryFood);
+            categoryRamen.assignParent(categoryFood);
+
+            categoryRepository.save(categoryMara);
+            categoryRepository.save(categoryTebbokkie);
+            categoryRepository.save(categorySalad);
+            categoryRepository.save(categoryYoguart);
+            categoryRepository.save(categoryRamen);
+            categoryRepository.save(categorySandwich);
 
             categoryRepository.save(categoryFood);
-            categoryRepository.save(categoryBeverage);
 
-            categoryRepository.save(categorySandwich);
+
+            Category categoryBeverage = Category.of("음료");
+            Category categoryStarbuks = Category.of("스타벅스");
+            Category categoryAmasbean = Category.of("아마스빈");
+            Category categoryGongCha = Category.of("공차");
+            Category categoryEdia = Category.of("이디야");
+            Category categoryCaktail = Category.of("칵테일");
+            Category categoryLeft = Category.of("기타");
+            categoryStarbuks.assignParent(categoryBeverage);
+            categoryAmasbean.assignParent(categoryBeverage);
+            categoryGongCha.assignParent(categoryBeverage);
+            categoryEdia.assignParent(categoryBeverage);
+            categoryCaktail.assignParent(categoryBeverage);
+            categoryLeft.assignParent(categoryBeverage);
+
             categoryRepository.save(categoryStarbuks);
+            categoryRepository.save(categoryAmasbean);
+            categoryRepository.save(categoryGongCha);
+            categoryRepository.save(categoryEdia);
+            categoryRepository.save(categoryCaktail);
+            categoryRepository.save(categoryLeft);
+            categoryRepository.save(categoryBeverage);
         }
     }
 }
