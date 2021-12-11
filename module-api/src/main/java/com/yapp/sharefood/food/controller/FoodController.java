@@ -26,8 +26,8 @@ public class FoodController {
     private final FoodService foodService;
 
     @GetMapping("/api/v1/foods/rank")
-    public ResponseEntity<TopRankFoodResponse> findTopRankFoodsData(@Valid FoodTopRankRequest foodTopRankRequest) {
-        return ResponseEntity.ok(foodService.findTopRankFoods(foodTopRankRequest));
+    public ResponseEntity<TopRankFoodResponse> findTopRankFoodsData(@AuthUser User user, @Valid FoodTopRankRequest foodTopRankRequest) {
+        return ResponseEntity.ok(foodService.findTopRankFoods(foodTopRankRequest, user));
     }
 
     @GetMapping("/api/v1/foods/recommendation")
@@ -48,7 +48,7 @@ public class FoodController {
     }
 
     @GetMapping("/api/v1/foods")
-    public ResponseEntity<FoodPageResponse> findFoodsSearch(@Valid FoodPageSearchRequest foodPageSearchRequest) {
-        return ResponseEntity.ok(foodService.searchFoodsPage(foodPageSearchRequest));
+    public ResponseEntity<FoodPageResponse> findFoodsSearch(@AuthUser User user, @Valid FoodPageSearchRequest foodPageSearchRequest) {
+        return ResponseEntity.ok(foodService.searchFoodsPage(foodPageSearchRequest, user));
     }
 }

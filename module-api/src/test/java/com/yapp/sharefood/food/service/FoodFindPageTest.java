@@ -216,6 +216,7 @@ class FoodFindPageTest {
     @DisplayName("조건 없이 food 조회")
     void foodPageSearchNormalTest_Success() throws Exception {
         // given
+        User user = saveTestUser("nickname_for_test", "name_for_inneer_test", "oauthId_test");
         FoodPageSearchRequest foodPageSearchRequest = FoodPageSearchRequest
                 .builder()
                 .sort("id")
@@ -229,7 +230,7 @@ class FoodFindPageTest {
                 .build();
 
         // when
-        FoodPageResponse foodPageResponse = foodService.searchFoodsPage(foodPageSearchRequest);
+        FoodPageResponse foodPageResponse = foodService.searchFoodsPage(foodPageSearchRequest, user);
 
         // then
         assertEquals(5, foodPageResponse.getPageSize());
@@ -246,6 +247,7 @@ class FoodFindPageTest {
     @ParameterizedTest(name = "price로 filter를 정한 경우 id로 order - 성공")
     void foodPageSearchByPriceTest_Success(Integer minPrice, Integer maxPrice, long expectedPageOffset, int expectedPageSize, List<String> extractTitles) throws Exception {
         // given
+        User user = saveTestUser("nickname_for_test", "name_for_inneer_test", "oauthId_test");
         FoodPageSearchRequest foodPageSearchRequest = FoodPageSearchRequest
                 .builder()
                 .minPrice(minPrice)
@@ -261,7 +263,7 @@ class FoodFindPageTest {
                 .build();
 
         // when
-        FoodPageResponse foodPageResponse = foodService.searchFoodsPage(foodPageSearchRequest);
+        FoodPageResponse foodPageResponse = foodService.searchFoodsPage(foodPageSearchRequest, user);
 
         // then
         assertEquals(expectedPageSize, foodPageResponse.getPageSize());
@@ -283,8 +285,9 @@ class FoodFindPageTest {
 
     @Test
     @DisplayName("Tag와 Flavor 로 동시에 조회할 경우 에러 발생")
-    void foodFlavorTagSameRequset_Exception() throws Exception {
+    void foodFlavorTagSameRequest_Exception() throws Exception {
         // given
+        User user = saveTestUser("nickname_for_test", "name_for_inneer_test", "oauthId_test");
         List<String> tagRequset = new ArrayList<>();
         for (Tag tag : this.tags) {
             tagRequset.add(tag.getName());
@@ -311,13 +314,14 @@ class FoodFindPageTest {
         // when
 
         // then
-        assertThrows(InvalidOperationException.class, () -> foodService.searchFoodsPage(foodPageSearchRequest));
+        assertThrows(InvalidOperationException.class, () -> foodService.searchFoodsPage(foodPageSearchRequest, user));
     }
 
     @MethodSource
     @ParameterizedTest(name = "food flavor 로 조회한 케이스 테스트")
     void foodSearchWithFlavorsTest_Success(List<FlavorType> flavorTypes, List<Integer> foodIndex, List<String> flavorRequset, List<String> matchTitles) throws Exception {
         // given
+        User user = saveTestUser("nickname_for_test", "name_for_inneer_test", "oauthId_test");
         List<Flavor> flavors = flavorTypes.stream().map(this::findFlavor)
                 .collect(Collectors.toList());
 
@@ -346,7 +350,7 @@ class FoodFindPageTest {
         em.clear();
 
         // when
-        FoodPageResponse foodPageResponse = foodService.searchFoodsPage(foodPageSearchRequest);
+        FoodPageResponse foodPageResponse = foodService.searchFoodsPage(foodPageSearchRequest, user);
 
         // then
         assertThat(foodPageResponse.getFoods())
@@ -368,6 +372,7 @@ class FoodFindPageTest {
     @ParameterizedTest(name = "food tag로 조회한 케이스 테스트")
     void foodSearchFromTag_Success(List<String> tagNames, List<Integer> foodIndexs, List<String> matchTitles) throws Exception {
         // given
+        User user = saveTestUser("nickname_for_test", "name_for_inneer_test", "oauthId_test");
         List<TagWrapper> findTags = tagRepository.findByNameIn(tagNames)
                 .stream().map(tag -> new TagWrapper(tag, FoodIngredientType.ADD))
                 .collect(Collectors.toList());
@@ -396,7 +401,7 @@ class FoodFindPageTest {
         em.clear();
 
         // when
-        FoodPageResponse foodPageResponse = foodService.searchFoodsPage(foodPageSearchRequest);
+        FoodPageResponse foodPageResponse = foodService.searchFoodsPage(foodPageSearchRequest, user);
 
         // then
         assertThat(foodPageResponse.getFoods())

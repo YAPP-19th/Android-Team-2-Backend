@@ -37,16 +37,16 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 import static com.yapp.sharefood.food.dto.FoodPageDto.toList;
-import static java.util.stream.Collectors.toMap;
 
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class FoodService {
+
+    private static final int MIN_PAGE_OFFSET = 0;
 
     private final FoodRepository foodRepository;
     private final FoodTagRepository foodTagRepository;
@@ -131,26 +131,24 @@ public class FoodService {
                 .collect(Collectors.toList());
     }
 
-    public TopRankFoodResponse findTopRankFoods(FoodTopRankRequest foodTopRankRequest) {
+    public TopRankFoodResponse findTopRankFoods(FoodTopRankRequest foodTopRankRequest, User user) {
         LocalDateTime before = LocalDateTimePeriodUtils.getBeforePeriod(foodTopRankRequest.getRankDatePeriod());
         LocalDateTime now = LocalDateTimePeriodUtils.now();
 
-        List<FoodPageDto> foodPageDtos = getTopRankPageData(foodTopRankRequest.getTop(), foodTopRankRequest.getCategoryName(), before, now);
+        List<FoodPageDto> foodPageDtos = getTopRankPageData(foodTopRankRequest.getTop(), foodTopRankRequest.getCategoryName(), before, now, user);
         return TopRankFoodResponse.of(foodPageDtos);
     }
 
-    private List<FoodPageDto> getTopRankPageData(int rank, String categoryName, LocalDateTime before, LocalDateTime now) {
+    private List<FoodPageDto> getTopRankPageData(int rank, String categoryName, LocalDateTime before, LocalDateTime now, User user) {
         List<Category> categoryWithChildrenByName = findCategoryWithChildrenByName(categoryName);
         List<TopLikeProjection> topFoodIdsByCount =
                 likeRepository.findTopFoodIdsByCount(rank, categoryWithChildrenByName, before, now);
 
-        Map<Long, Long> foodIdKeylikeCountMap = topFoodIdsByCount.stream()
-                .collect(toMap(TopLikeProjection::getFoodId, TopLikeProjection::getCount));
         List<Long> foodIds = topFoodIdsByCount.stream()
                 .map(TopLikeProjection::getFoodId)
                 .collect(Collectors.toList());
 
-        return toList(foodRepository.findFoodWithCategoryByIds(foodIds), foodIdKeylikeCountMap)
+        return toList(foodRepository.findFoodWithCategoryByIds(foodIds), user)
                 .stream().sorted(Comparator.comparing(foodPageDto -> -foodPageDto.getNumberOfLikes()))
                 .collect(Collectors.toList());
     }
@@ -173,16 +171,20 @@ public class FoodService {
         List<Flavor> userSettingFlavors = flavorRepository.findByUser(user);
 
         if (userSettingFlavors.isEmpty()) {
-            List<FoodPageDto> topRankPageData = getTopRankPageData(recommendationFoodRequest.getTop(), recommendationFoodRequest.getCategoryName(), before, now);
+            List<FoodPageDto> topRankPageData = getTopRankPageData(recommendationFoodRequest.getTop(), recommendationFoodRequest.getCategoryName(), before, now, user);
             return new RecommendationFoodResponse(topRankPageData);
         }
 
         List<Category> categories = findCategoryWithChildrenByName(recommendationFoodRequest.getCategoryName());
         FoodRecommendSearch foodRecommendSearch = new FoodRecommendSearch(recommendationFoodRequest.getTop(), before, now, userSettingFlavors, categories);
-        return new RecommendationFoodResponse(toList(foodRepository.findRecommendFoods(foodRecommendSearch)));
+        return new RecommendationFoodResponse(toList(foodRepository.findRecommendFoods(foodRecommendSearch), user));
     }
 
-    public FoodPageResponse searchFoodsPage(FoodPageSearchRequest foodPageSearchRequest) {
+    public FoodPageResponse searchFoodsPage(FoodPageSearchRequest foodPageSearchRequest, User user) {
+        if (foodPageSearchRequest.getOffset() < MIN_PAGE_OFFSET) {
+            return FoodPageResponse.ofLastPage(List.of(), foodPageSearchRequest.getPageSize(), user);
+        }
+
         Category category = categoryRepository.findByName(foodPageSearchRequest.getCategoryName())
                 .orElseThrow(CategoryNotFoundException::new);
         List<Tag> tags = tagRepository.findByNameIn(foodPageSearchRequest.getTags());
@@ -204,10 +206,10 @@ public class FoodService {
         List<Food> pageFoods = findFoodPageBySearch(foodPageSearch);
 
         if (pageFoods.size() < foodPageSearchRequest.getPageSize()) {
-            return FoodPageResponse.ofLastPage(pageFoods, foodPageSearchRequest.getPageSize());
+            return FoodPageResponse.ofLastPage(pageFoods, foodPageSearchRequest.getPageSize(), user);
         }
 
-        return FoodPageResponse.of(pageFoods, foodPageSearchRequest.getPageSize(), foodPageSearch.getOffset());
+        return FoodPageResponse.of(pageFoods, foodPageSearchRequest.getPageSize(), foodPageSearch.getOffset(), user);
     }
 
     private List<Food> findFoodPageBySearch(FoodPageSearch foodPageSearch) {

@@ -1,0 +1,47 @@
+ifndef::snippets[]
+:snippets: ./build/generated-snippets
+endif::[]
+
+= Food 삭제 기능
+
+== SUCCESS
+
+== CURL
+
+include::{snippets}/food/delete/success/curl-request.adoc[]
+
+== REQUEST
+
+include::{snippets}/food/delete/success/http-request.adoc[]
+
+== RESPONSE
+
+include::{snippets}/food/delete/success/http-response.adoc[]
+
+== Food 삭제 권한 없음
+
+== CURL
+
+include::{snippets}/food/delete/forbidden/curl-request.adoc[]
+
+== REQUEST
+
+include::{snippets}/food/delete/forbidden/http-request.adoc[]
+
+== RESPONSE
+
+include::{snippets}/food/delete/forbidden/http-response.adoc[]
+
+== Food가 없는 경우
+
+== CURL
+
+include::{snippets}/food/delete/notFound/curl-request.adoc[]
+
+== REQUEST
+
+include::{snippets}/food/delete/notFound/http-request.adoc[]
+
+== RESPONSE
+
+include::{snippets}/food/delete/notFound/http-response.adoc[]
