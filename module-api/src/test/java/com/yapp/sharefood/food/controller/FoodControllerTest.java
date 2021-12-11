@@ -67,13 +67,14 @@ public class FoodControllerTest extends PreprocessController {
                     .categoryName("샌드위치")
                     .price(1000 * i)
                     .numberOfLikes(10 - i)
-                    .isBookmark(false)
+                    .isMeBookmark(false)
+                    .isMeLike(false)
                     .foodImages(List.of(new FoodImageDto(1L, "s3RealImageUrl.jpg", "음식사진" + i + ".jpg")))
                     .build());
         }
 
         willReturn(TopRankFoodResponse.of(mockFoodPageDtos))
-                .given(foodService).findTopRankFoods(any(FoodTopRankRequest.class));
+                .given(foodService).findTopRankFoods(any(FoodTopRankRequest.class), any(User.class));
 
         // when
         ResultActions perform = mockMvc.perform(get("/api/v1/foods/rank")
@@ -168,7 +169,8 @@ public class FoodControllerTest extends PreprocessController {
                     .categoryName("샌드위치")
                     .price(1000 * i)
                     .numberOfLikes(10 - i)
-                    .isBookmark(false)
+                    .isMeBookmark(false)
+                    .isMeLike(false)
                     .foodImages(List.of(new FoodImageDto(1L, "s3RealImageUrl.jpg", "음식사진" + i + ".jpg")))
                     .build());
         }
@@ -390,5 +392,18 @@ public class FoodControllerTest extends PreprocessController {
         assertThat(errorMsg)
                 .isNotNull()
                 .isEqualTo(FoodNotFoundException.FOOD_NOT_FOUND_EXCEPTION_MSG);
+    }
+
+    @Test
+    @DisplayName("음식 page 조회 기능 - 성공")
+    void foodPageSearch_Success() throws Exception {
+        // given
+//        List.of(FoodPageDto.builder().build())
+//        willReturn(FoodPageResponse.ofPureDto(List.of(), 3, 0L))
+//                .given(foodService).searchFoodsPage(any(FoodPageSearchRequest.class));
+
+        // when
+
+        // then
     }
 }

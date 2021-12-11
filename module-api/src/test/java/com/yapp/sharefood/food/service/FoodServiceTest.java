@@ -283,7 +283,7 @@ class FoodServiceTest {
         likeService.saveLike(user5, food4.getId(), saveCategory.getName());
 
         // when
-        TopRankFoodResponse topRankFoods = foodService.findTopRankFoods(foodTopRankRequest);
+        TopRankFoodResponse topRankFoods = foodService.findTopRankFoods(foodTopRankRequest, user1);
 
         // then
         assertEquals(4, topRankFoods.getTopRankingFoods().size());
@@ -325,7 +325,7 @@ class FoodServiceTest {
         likeService.saveLike(user5, food4.getId(), saveCategoryChild.getName());
 
         // when
-        TopRankFoodResponse topRankFoods = foodService.findTopRankFoods(foodTopRankRequest);
+        TopRankFoodResponse topRankFoods = foodService.findTopRankFoods(foodTopRankRequest, user1);
 
         // then
         assertEquals(4, topRankFoods.getTopRankingFoods().size());
@@ -367,7 +367,7 @@ class FoodServiceTest {
         likeService.saveLike(user5, food4.getId(), saveExternalCategoryParent.getName());
 
         // when
-        TopRankFoodResponse topRankFoods = foodService.findTopRankFoods(foodTopRankRequest);
+        TopRankFoodResponse topRankFoods = foodService.findTopRankFoods(foodTopRankRequest, user1);
 
         // then
         assertEquals(0, topRankFoods.getTopRankingFoods().size());
@@ -403,7 +403,7 @@ class FoodServiceTest {
         likeService.saveLike(user5, food4.getId(), saveCategory.getName());
 
         // when
-        TopRankFoodResponse topRankFoods = foodService.findTopRankFoods(foodTopRankRequest);
+        TopRankFoodResponse topRankFoods = foodService.findTopRankFoods(foodTopRankRequest, user1);
 
         // then
         assertEquals(4, topRankFoods.getTopRankingFoods().size());
@@ -444,7 +444,7 @@ class FoodServiceTest {
         likeService.saveLike(user5, food4.getId(), saveCategory.getName());
 
         // when
-        TopRankFoodResponse topRankFoods = foodService.findTopRankFoods(foodTopRankRequest);
+        TopRankFoodResponse topRankFoods = foodService.findTopRankFoods(foodTopRankRequest, user1);
 
         // then
         assertEquals(4, topRankFoods.getTopRankingFoods().size());
