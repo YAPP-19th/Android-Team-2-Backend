@@ -436,6 +436,8 @@ public class FoodControllerTest extends PreprocessController {
 
         // when
         ResultActions perform = mockMvc.perform(get("/api/v1/foods")
+                .param("minPrice", "0")
+                .param("maxPrice", "100000")
                 .param("tags", "a", "b")
                 .param("flavors", "단맛", "짠맛")
                 .param("sort", "like")
