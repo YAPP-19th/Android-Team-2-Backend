@@ -4,6 +4,8 @@ endif::[]
 
 = SUCCESS
 
+== foodStatus: SHARED/MINE, tagUseType: ADD/MAIN/EXTRACT
+
 == CURL
 
 include::{snippets}/food/post/success/curl-request.adoc[]
