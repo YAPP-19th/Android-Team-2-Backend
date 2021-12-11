@@ -2,226 +2,115 @@ package com.yapp.sharefood.food.controller;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.yapp.sharefood.category.exception.CategoryNotFoundException;
 import com.yapp.sharefood.common.PreprocessController;
-import com.yapp.sharefood.common.exception.BadRequestException;
-import com.yapp.sharefood.common.exception.InvalidOperationException;
-import com.yapp.sharefood.flavor.domain.FlavorType;
-import com.yapp.sharefood.flavor.dto.FlavorDto;
 import com.yapp.sharefood.food.domain.FoodIngredientType;
-import com.yapp.sharefood.food.domain.FoodStatus;
 import com.yapp.sharefood.food.dto.FoodImageDto;
+import com.yapp.sharefood.food.dto.FoodPageDto;
 import com.yapp.sharefood.food.dto.FoodTagDto;
-import com.yapp.sharefood.food.dto.request.FoodCreationRequest;
-import com.yapp.sharefood.food.dto.response.FoodImageCreateResponse;
+import com.yapp.sharefood.food.dto.request.FoodTopRankRequest;
+import com.yapp.sharefood.food.dto.request.RecommendationFoodRequest;
+import com.yapp.sharefood.food.dto.response.FoodDetailResponse;
+import com.yapp.sharefood.food.dto.response.RecommendationFoodResponse;
+import com.yapp.sharefood.food.dto.response.TopRankFoodResponse;
+import com.yapp.sharefood.food.exception.FoodNotFoundException;
 import com.yapp.sharefood.food.service.FoodImageService;
 import com.yapp.sharefood.food.service.FoodService;
-import com.yapp.sharefood.tag.service.TagService;
 import com.yapp.sharefood.user.domain.User;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
-import org.springframework.test.web.servlet.request.MockMultipartHttpServletRequestBuilder;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
 
 import static com.yapp.sharefood.common.documentation.DocumentationUtils.documentIdentify;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.willReturn;
 import static org.mockito.BDDMockito.willThrow;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+
 @WebMvcTest(controllers = FoodController.class)
-class FoodControllerTest extends PreprocessController {
+public class FoodControllerTest extends PreprocessController {
     @Autowired
     MockMvc mockMvc;
 
     @MockBean
     FoodService foodService;
     @MockBean
-    TagService tagService;
-    @MockBean
     FoodImageService foodImageService;
     ObjectMapper objectMapper = new ObjectMapper();
 
     @Test
-    @DisplayName("food 저장 기능-성공")
-    void saveFood_Success() throws Exception {
+    @DisplayName("food Top rank 조회 기능")
+    void findTopRankFoodTest_Success() throws Exception {
         // given
-        willReturn(1L)
-                .given(foodService).saveFood(any(User.class), any(FoodCreationRequest.class), anyList());
+        List<FoodPageDto> mockFoodPageDtos = new ArrayList<>();
+        for (int i = 0; i < 5; i++) {
+            mockFoodPageDtos.add(FoodPageDto.builder()
+                    .foodTitle("title_" + i)
+                    .categoryName("샌드위치")
+                    .price(1000 * i)
+                    .numberOfLikes(10 - i)
+                    .isBookmark(false)
+                    .foodImages(List.of(new FoodImageDto(1L, "s3RealImageUrl.jpg", "음식사진" + i + ".jpg")))
+                    .build());
+        }
 
-        FoodCreationRequest foodCreationRequest = FoodCreationRequest.builder()
-                .categoryName("샌드위치")
-                .title("title")
-                .price(10000)
-                .flavors(List.of(FlavorDto.of(1L, FlavorType.SWEET), FlavorDto.of(2L, FlavorType.REFRESH_DETAIL)))
-                .tags(List.of(FoodTagDto.of(1L, "샷추가", FoodIngredientType.MAIN), FoodTagDto.of(2L, "커피", FoodIngredientType.ADD)))
-                .reviewMsg("review msg")
-                .foodStatus(FoodStatus.SHARED)
-                .build();
+        willReturn(TopRankFoodResponse.of(mockFoodPageDtos))
+                .given(foodService).findTopRankFoods(any(FoodTopRankRequest.class));
 
         // when
-        String requestBodyStr = objectMapper.writeValueAsString(foodCreationRequest);
-        ResultActions perform = mockMvc.perform(post("/api/v1/foods")
-                .header(HttpHeaders.AUTHORIZATION, "token")
-                .content(requestBodyStr)
-                .contentType(MediaType.APPLICATION_JSON_VALUE));
+        ResultActions perform = mockMvc.perform(get("/api/v1/foods/rank")
+                .param("top", "5")
+                .param("rankDatePeriod", "7")
+                .param("categoryName", "음식")
+                .header(HttpHeaders.AUTHORIZATION, "token"));
 
         // then
-        String errorMsg = perform.andExpect(status().isCreated())
-                .andDo(documentIdentify("food/post/success"))
-                .andExpect(header().exists("Location"))
-                .andReturn()
-                .getResponse()
-                .getContentAsString(StandardCharsets.UTF_8);
+        TopRankFoodResponse topRankFoodResponse = objectMapper
+                .readValue(perform.andExpect(status().isOk())
+                        .andDo(documentIdentify("food/get/success/rank"))
+                        .andReturn()
+                        .getResponse()
+                        .getContentAsString(StandardCharsets.UTF_8), new TypeReference<>() {
+                });
 
-        assertThat(errorMsg)
-                .isNotNull();
+        assertThat(topRankFoodResponse.getTopRankingFoods())
+                .hasSize(5)
+                .extracting("foodTitle")
+                .containsExactlyInAnyOrderElementsOf(List.of("title_0", "title_1", "title_2", "title_3", "title_4"));
     }
 
-    @Test
-    @DisplayName("category를 검색하지 못한 경우")
-    void saveFood_CategoryNotFound_Exception() throws Exception {
+    @MethodSource
+    @ParameterizedTest(name = "food like rank 조회 top parameter 최소 최대를 넘는 이슈 케이스 테스트")
+    void findTopRankFoodTopParamterIssueTest_Fail_BadRequest(int top) throws Exception {
         // given
-        willThrow(new CategoryNotFoundException())
-                .given(foodService).saveFood(any(User.class), any(FoodCreationRequest.class), anyList());
-
-        FoodCreationRequest foodCreationRequest = FoodCreationRequest.builder()
-                .categoryName("notExistCategory")
-                .title("title")
-                .price(10000)
-                .flavors(List.of(FlavorDto.of(1L, FlavorType.SWEET), FlavorDto.of(2L, FlavorType.REFRESH_DETAIL)))
-                .tags(List.of(FoodTagDto.of(1L, "샷추가", FoodIngredientType.MAIN), FoodTagDto.of(2L, "커피", FoodIngredientType.ADD)))
-                .reviewMsg("review msg")
-                .foodStatus(FoodStatus.SHARED)
-                .build();
 
         // when
-        String requestBodyStr = objectMapper.writeValueAsString(foodCreationRequest);
-        ResultActions perform = mockMvc.perform(post("/api/v1/foods")
+        ResultActions perform = mockMvc.perform(get("/api/v1/foods/rank")
                 .header(HttpHeaders.AUTHORIZATION, "token")
-                .content(requestBodyStr)
-                .contentType(MediaType.APPLICATION_JSON_VALUE));
-
-        // then
-        String errorMsg = perform.andExpect(status().isNotFound())
-                .andDo(documentIdentify("food/post/fail/categoryNotFound"))
-                .andReturn()
-                .getResponse()
-                .getContentAsString(StandardCharsets.UTF_8);
-
-        assertThat(errorMsg)
-                .isNotNull();
-    }
-
-    @Test
-    @DisplayName("tag 정보 중복으로 추가할 경우")
-    void saveFood_DuplicatedTags_Exception() throws Exception {
-        willThrow(new InvalidOperationException("이미 등록된 tag입니다."))
-                .given(foodService).saveFood(any(User.class), any(FoodCreationRequest.class), anyList());
-
-        FoodCreationRequest foodCreationRequest = FoodCreationRequest.builder()
-                .categoryName("샌드위치")
-                .title("title")
-                .price(10000)
-                .flavors(List.of(FlavorDto.of(1L, FlavorType.SWEET), FlavorDto.of(2L, FlavorType.REFRESH_DETAIL)))
-                .tags(List.of(FoodTagDto.of(1L, "샷추가", FoodIngredientType.MAIN), FoodTagDto.of(1L, "샷추가", FoodIngredientType.ADD)))
-                .reviewMsg("review msg")
-                .foodStatus(FoodStatus.SHARED)
-                .build();
-
-        // when
-        String requestBodyStr = objectMapper.writeValueAsString(foodCreationRequest);
-        ResultActions perform = mockMvc.perform(post("/api/v1/foods")
-                .header(HttpHeaders.AUTHORIZATION, "token")
-                .content(requestBodyStr)
-                .contentType(MediaType.APPLICATION_JSON_VALUE));
-
-        // then
-        String errorMsg = perform.andExpect(status().isInternalServerError())
-                .andDo(documentIdentify("food/post/fail/invalidOperationException"))
-                .andReturn()
-                .getResponse()
-                .getContentAsString(StandardCharsets.UTF_8);
-
-        assertThat(errorMsg)
-                .isNotNull();
-    }
-
-    @Test
-    @DisplayName("중복 flavor 입력시 에러")
-    void saveFood_DuplicatedFlavor_Exception() throws Exception {
-        willThrow(new InvalidOperationException("이미 등록된 flavor입니다."))
-                .given(foodService).saveFood(any(User.class), any(FoodCreationRequest.class), anyList());
-
-        FoodCreationRequest foodCreationRequest = FoodCreationRequest.builder()
-                .categoryName("샌드위치")
-                .title("title")
-                .price(10000)
-                .flavors(List.of(FlavorDto.of(1L, FlavorType.SWEET), FlavorDto.of(1L, FlavorType.SWEET)))
-                .tags(List.of(FoodTagDto.of(1L, "샷추가", FoodIngredientType.MAIN), FoodTagDto.of(null, "커피", FoodIngredientType.ADD)))
-                .reviewMsg("review msg")
-                .foodStatus(FoodStatus.SHARED)
-                .build();
-
-        // when
-        String requestBodyStr = objectMapper.writeValueAsString(foodCreationRequest);
-        ResultActions perform = mockMvc.perform(post("/api/v1/foods")
-                .header(HttpHeaders.AUTHORIZATION, "token")
-                .content(requestBodyStr)
-                .contentType(MediaType.APPLICATION_JSON_VALUE));
-
-        // then
-        String errorMsg = perform.andExpect(status().isInternalServerError())
-                .andDo(documentIdentify("food/post/fail/invalidOperationException"))
-                .andReturn()
-                .getResponse()
-                .getContentAsString(StandardCharsets.UTF_8);
-
-        assertThat(errorMsg)
-                .isNotNull();
-    }
-
-    @Test
-    @DisplayName("Main을 추가 할지 않는 경우 - 실패")
-    void foodSaveTest_MainNotExist_Exception() throws Exception {
-        willThrow(new BadRequestException())
-                .given(foodService).saveFood(any(User.class), any(FoodCreationRequest.class), anyList());
-
-        FoodCreationRequest foodCreationRequest = FoodCreationRequest.builder()
-                .categoryName("샌드위치")
-                .title("title")
-                .price(10000)
-                .flavors(List.of(FlavorDto.of(1L, FlavorType.SWEET), FlavorDto.of(2L, FlavorType.BITTER)))
-                .tags(List.of(FoodTagDto.of(1L, "샷추가", FoodIngredientType.EXTRACT), FoodTagDto.of(2L, "커피", FoodIngredientType.ADD)))
-                .reviewMsg("review msg")
-                .foodStatus(FoodStatus.SHARED)
-                .build();
-
-        // when
-        String requestBodyStr = objectMapper.writeValueAsString(foodCreationRequest);
-        ResultActions perform = mockMvc.perform(post("/api/v1/foods")
-                .header(HttpHeaders.AUTHORIZATION, "token")
-                .content(requestBodyStr)
-                .contentType(MediaType.APPLICATION_JSON_VALUE));
+                .param("top", Integer.toString(top))
+                .param("rankDatePeriod", "7")
+                .param("categoryName", "음식"));
 
         // then
         String errorMsg = perform.andExpect(status().isBadRequest())
-                .andDo(documentIdentify("food/post/fail/badRequest"))
+                .andDo(documentIdentify("food/get/fail/badRequest/rank_top"))
                 .andReturn()
                 .getResponse()
                 .getContentAsString(StandardCharsets.UTF_8);
@@ -230,87 +119,207 @@ class FoodControllerTest extends PreprocessController {
                 .isNotNull();
     }
 
-    private List<MockMultipartFile> getFiles(int index) {
-        List<MockMultipartFile> files = new ArrayList<>();
-        for (int i = 0; i < index; i++) {
-            files.add(new MockMultipartFile("images", "originalFilename" + i, "text/plain", new byte[]{}));
-        }
-
-        return files;
-    }
-
-    private List<FoodImageDto> getMockFoodImageDto(List<MockMultipartFile> mockFiles) {
-        List<FoodImageDto> foodImageDtos = new ArrayList<>();
-        long index = 0L;
-        for (MockMultipartFile file : mockFiles) {
-            foodImageDtos.add(new FoodImageDto(index, file.getName(), file.getOriginalFilename()));
-            index++;
-        }
-
-        return foodImageDtos;
-    }
-
-    @Test
-    @DisplayName("저장된 Food에 Image 저장하는 기능")
-    void saveFoodImageTest_Success() throws Exception {
-        // given
-        List<MockMultipartFile> foodImages = getFiles(3);
-        FoodImageCreateResponse foodImageCreateResponse = new FoodImageCreateResponse(getMockFoodImageDto(foodImages));
-        willReturn(foodImageCreateResponse)
-                .given(foodImageService).saveImages(anyLong(), anyList());
-
-        // when
-        MockMultipartHttpServletRequestBuilder multipartRequest = multipart(String.format("/api/v1/foods/%s/images", 1));
-        for (MockMultipartFile file : foodImages) {
-            multipartRequest.file(file);
-        }
-
-        ResultActions perform = mockMvc.perform(multipartRequest
-                .header(HttpHeaders.AUTHORIZATION, "token"));
-
-        // then
-        FoodImageCreateResponse saveImageResponse = objectMapper.readValue(
-                perform.andExpect(status().isCreated())
-                        .andDo(documentIdentify("food/images/post/success"))
-                        .andReturn()
-                        .getResponse()
-                        .getContentAsString(StandardCharsets.UTF_8), new TypeReference<FoodImageCreateResponse>() {
-                }
+    static Stream<Arguments> findTopRankFoodTopParamterIssueTest_Fail_BadRequest() {
+        return Stream.of(
+                Arguments.of(4),
+                Arguments.of(11)
         );
-
-        assertThat(saveImageResponse.getImages())
-                .isNotNull()
-                .hasSize(3)
-                .extracting("realImageName")
-                .containsExactlyInAnyOrderElementsOf(List.of("originalFilename0", "originalFilename1", "originalFilename2"));
     }
 
-    @Test
-    @DisplayName("저장된 Food에 Image 0개를 추가하는 케이스 - 예외 케이스")
-    void saveFoodImageZeroTest_400_BadRequest() throws Exception {
+    @MethodSource
+    @ParameterizedTest(name = "food like rank 조회 rankDatePeriod parameter 최소 최대를 넘는 이슈 케이스 테스트")
+    void findTopRankFoodrankDatePeriodParamterIssueTest_Fail_BadRequest(int rankDatePeriod) throws Exception {
         // given
-        List<MockMultipartFile> foodImages = getFiles(0);
-        FoodImageCreateResponse foodImageCreateResponse = new FoodImageCreateResponse(getMockFoodImageDto(foodImages));
-        willReturn(foodImageCreateResponse)
-                .given(foodImageService).saveImages(anyLong(), anyList());
 
         // when
-        MockMultipartHttpServletRequestBuilder multipartRequest = multipart(String.format("/api/v1/foods/%s/images", 1));
-        for (MockMultipartFile file : foodImages) {
-            multipartRequest.file(file);
-        }
-
-        ResultActions perform = mockMvc.perform(multipartRequest
-                .header(HttpHeaders.AUTHORIZATION, "token"));
+        ResultActions perform = mockMvc.perform(get("/api/v1/foods/rank")
+                .header(HttpHeaders.AUTHORIZATION, "token")
+                .param("top", "5")
+                .param("rankDatePeriod", Integer.toString(rankDatePeriod))
+                .param("categoryName", "음식"));
 
         // then
-        String result = perform.andExpect(status().isBadRequest())
-                .andDo(documentIdentify("food/images/post/badRequest"))
+        String errorMsg = perform.andExpect(status().isBadRequest())
+                .andDo(documentIdentify("food/get/fail/badRequest/rank_rankDatePeriod"))
                 .andReturn()
                 .getResponse()
                 .getContentAsString(StandardCharsets.UTF_8);
 
-        assertThat(result)
+        assertThat(errorMsg)
                 .isNotNull();
+    }
+
+    static Stream<Arguments> findTopRankFoodrankDatePeriodParamterIssueTest_Fail_BadRequest() {
+        return Stream.of(
+                Arguments.of(2),
+                Arguments.of(11)
+        );
+    }
+
+    @Test
+    @DisplayName("food 추천 기능 user flavor가 설정 되어 있어야 함")
+    void recommendationFoodTest_Success() throws Exception {
+        // given
+        List<FoodPageDto> mockFoodPageDtos = new ArrayList<>();
+        for (int i = 0; i < 5; i++) {
+            mockFoodPageDtos.add(FoodPageDto.builder()
+                    .foodTitle("title_" + i)
+                    .categoryName("샌드위치")
+                    .price(1000 * i)
+                    .numberOfLikes(10 - i)
+                    .isBookmark(false)
+                    .foodImages(List.of(new FoodImageDto(1L, "s3RealImageUrl.jpg", "음식사진" + i + ".jpg")))
+                    .build());
+        }
+        mockFoodPageDtos.sort((o1, o2) -> (int) (-o1.getNumberOfLikes() + o2.getNumberOfLikes()));
+        willReturn(new RecommendationFoodResponse(mockFoodPageDtos))
+                .given(foodService).findFoodRecommendation(any(RecommendationFoodRequest.class), any(User.class));
+
+        // when
+        ResultActions perform = mockMvc.perform(get("/api/v1/foods/recommendation")
+                .param("top", "5")
+                .param("rankDatePeriod", "7")
+                .param("categoryName", "음식")
+                .header(HttpHeaders.AUTHORIZATION, "token"));
+
+        // then
+        RecommendationFoodResponse recommendationFoodResponse = objectMapper
+                .readValue(perform.andExpect(status().isOk())
+                        .andDo(documentIdentify("food/get/success/recommendation"))
+                        .andReturn()
+                        .getResponse()
+                        .getContentAsString(StandardCharsets.UTF_8), new TypeReference<>() {
+                });
+
+        assertThat(recommendationFoodResponse.getRecommendationFoods())
+                .hasSize(5)
+                .extracting("foodTitle")
+                .containsExactlyInAnyOrderElementsOf(List.of("title_0", "title_1", "title_2", "title_3", "title_4"));
+    }
+
+    @MethodSource
+    @ParameterizedTest(name = "food 추천 조회 top parameter 최소 최대를 넘는 이슈 케이스 테스트")
+    void recommendationFoodTopParameterTest_Fail_BadRequest(int top) throws Exception {
+        // given
+
+        // when
+        ResultActions perform = mockMvc.perform(get("/api/v1/foods/recommendation")
+                .header(HttpHeaders.AUTHORIZATION, "token")
+                .param("top", Integer.toString(top))
+                .param("rankDatePeriod", "7")
+                .param("categoryName", "음식"));
+
+        // then
+        String errorMsg = perform.andExpect(status().isBadRequest())
+                .andDo(documentIdentify("food/get/fail/badRequest/recommendation_top"))
+                .andReturn()
+                .getResponse()
+                .getContentAsString(StandardCharsets.UTF_8);
+
+        assertThat(errorMsg)
+                .isNotNull();
+    }
+
+    static Stream<Arguments> recommendationFoodTopParameterTest_Fail_BadRequest() {
+        return Stream.of(
+                Arguments.of(4),
+                Arguments.of(11)
+        );
+    }
+
+    @MethodSource
+    @ParameterizedTest(name = "food 추천 조회 rankDatePeriod parameter 최소 최대를 넘는 이슈 케이스 테스트")
+    void recommendationFoodRankDatePeriodIssueTest_Fail_BadRequest(int rankDatePeriod) throws Exception {
+        // given
+
+        // when
+        ResultActions perform = mockMvc.perform(get("/api/v1/foods/recommendation")
+                .header(HttpHeaders.AUTHORIZATION, "token")
+                .param("top", "5")
+                .param("rankDatePeriod", Integer.toString(rankDatePeriod))
+                .param("categoryName", "음식"));
+
+        // then
+        String errorMsg = perform.andExpect(status().isBadRequest())
+                .andDo(documentIdentify("food/get/fail/badRequest/recommendation_rankDatePeriod"))
+                .andReturn()
+                .getResponse()
+                .getContentAsString(StandardCharsets.UTF_8);
+
+        assertThat(errorMsg)
+                .isNotNull();
+    }
+
+    static Stream<Arguments> recommendationFoodRankDatePeriodIssueTest_Fail_BadRequest() {
+        return Stream.of(
+                Arguments.of(2),
+                Arguments.of(11)
+        );
+    }
+
+    @Test
+    @DisplayName("음식 조회 - 성공")
+    void findFoodTest_Success() throws Exception {
+        // given
+        willReturn(FoodDetailResponse.builder()
+                .id(1L)
+                .foodTitle("title")
+                .price(1000)
+                .numberOfLike(2000)
+                .reviewDetail("review Msg")
+                .isMeLike(false)
+                .isMeBookmark(false)
+                .isMyFlavorite(false)
+                .writerName("writerName")
+                .foodTags(List.of(FoodTagDto.of(1L, "tag1", FoodIngredientType.MAIN), FoodTagDto.of(2L, "tag2", FoodIngredientType.ADD), FoodTagDto.of(3L, "tag3", FoodIngredientType.EXTRACT)))
+                .foodImages(List.of(new FoodImageDto(1L, "imageUrl1.jpg", "realImageName1.jpg"), new FoodImageDto(2L, "imageUrl2.jpg", "realImageName2.jpg")))
+                .build()
+        ).given(foodService).findFoodDetailById(any(User.class), anyLong());
+
+        // when
+        ResultActions perform = mockMvc.perform(get("/api/v1/foods/1")
+                .header(HttpHeaders.AUTHORIZATION, "token"));
+
+        // then
+        FoodDetailResponse foodDetailResponse = objectMapper
+                .readValue(perform
+                        .andExpect(status().isOk())
+                        .andDo(documentIdentify("food/get/success/detail"))
+                        .andReturn()
+                        .getResponse()
+                        .getContentAsString(StandardCharsets.UTF_8), new TypeReference<>() {
+                });
+
+        assertEquals("title", foodDetailResponse.getFoodTitle());
+        assertEquals("review Msg", foodDetailResponse.getReviewDetail());
+        assertThat(foodDetailResponse.getFoodTags())
+                .isNotNull()
+                .hasSize(3)
+                .extracting("name")
+                .containsExactlyInAnyOrderElementsOf(List.of("tag1", "tag2", "tag3"));
+    }
+
+    @Test
+    @DisplayName("음식 조회 - 에러 not found")
+    void findFoodTest_Exception_NotFound() throws Exception {
+        // given
+        willThrow(new FoodNotFoundException())
+                .given(foodService).findFoodDetailById(any(User.class), anyLong());
+
+        // when
+        ResultActions perform = mockMvc.perform(get("/api/v1/foods/1")
+                .header(HttpHeaders.AUTHORIZATION, "token"));
+
+        // then
+        String errorMsg = perform
+                .andExpect(status().isNotFound())
+                .andDo(documentIdentify("food/get/fail/detail"))
+                .andReturn()
+                .getResponse()
+                .getContentAsString(StandardCharsets.UTF_8);
+
+        assertThat(errorMsg)
+                .isNotNull()
+                .isEqualTo(FoodNotFoundException.FOOD_NOT_FOUND_EXCEPTION_MSG);
     }
 }
