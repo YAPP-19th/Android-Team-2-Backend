@@ -37,16 +37,16 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 import static com.yapp.sharefood.food.dto.FoodPageDto.toList;
-import static java.util.stream.Collectors.toMap;
 
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class FoodService {
+
+    private static final int MIN_PAGE_OFFSET = 0;
 
     private final FoodRepository foodRepository;
     private final FoodTagRepository foodTagRepository;
@@ -144,8 +144,6 @@ public class FoodService {
         List<TopLikeProjection> topFoodIdsByCount =
                 likeRepository.findTopFoodIdsByCount(rank, categoryWithChildrenByName, before, now);
 
-        Map<Long, Long> foodIdKeylikeCountMap = topFoodIdsByCount.stream()
-                .collect(toMap(TopLikeProjection::getFoodId, TopLikeProjection::getCount));
         List<Long> foodIds = topFoodIdsByCount.stream()
                 .map(TopLikeProjection::getFoodId)
                 .collect(Collectors.toList());
@@ -183,6 +181,10 @@ public class FoodService {
     }
 
     public FoodPageResponse searchFoodsPage(FoodPageSearchRequest foodPageSearchRequest, User user) {
+        if (foodPageSearchRequest.getOffset() < MIN_PAGE_OFFSET) {
+            return FoodPageResponse.ofLastPage(List.of(), foodPageSearchRequest.getPageSize(), user);
+        }
+
         Category category = categoryRepository.findByName(foodPageSearchRequest.getCategoryName())
                 .orElseThrow(CategoryNotFoundException::new);
         List<Tag> tags = tagRepository.findByNameIn(foodPageSearchRequest.getTags());
