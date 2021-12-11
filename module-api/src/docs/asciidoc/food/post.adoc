@@ -57,3 +57,31 @@ include::{snippets}/food/post/fail/categoryNotFound/http-request.adoc[]
 == RESPONSE FAIL
 
 include::{snippets}/food/post/fail/categoryNotFound/http-response.adoc[]
+
+== Food Image 저장
+
+== CURL
+
+include::{snippets}/food/images/post/success/curl-request.adoc[]
+
+== REQUEST
+
+include::{snippets}/food/images/post/success/http-request.adoc[]
+
+== RESPONSE SUCCESS
+
+include::{snippets}/food/images/post/success/http-response.adoc[]
+
+== Food Image 예외
+
+== CURL
+
+include::{snippets}/food/images/post/badRequest/curl-request.adoc[]
+
+== REQUEST
+
+include::{snippets}/food/images/post/badRequest/http-request.adoc[]
+
+== RESPONSE SUCCESS
+
+include::{snippets}/food/images/post/badRequest/http-response.adoc[]
