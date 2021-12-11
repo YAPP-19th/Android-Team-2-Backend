@@ -244,7 +244,7 @@ class FoodServiceTest {
         FoodDetailResponse foodResponse = foodService.findFoodDetailById(saveFood.getId());
 
         // then
-        assertEquals("title", foodResponse.getTitle());
+        assertEquals("title", foodResponse.getFoodTitle());
         assertEquals(1000, foodResponse.getPrice());
         assertEquals("reviewMsg", foodResponse.getReviewDetail());
         assertEquals("nickname", foodResponse.getWriterName());

@@ -12,7 +12,8 @@ import java.util.List;
 @Data
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class FoodDetailResponse {
-    private String title;
+    private Long id;
+    private String foodTitle;
     private String reviewDetail;
     private int price;
     private long numberOfLike;
@@ -27,9 +28,10 @@ public class FoodDetailResponse {
     private List<FoodImageDto> foodImages;
 
     @Builder
-    public FoodDetailResponse(String title, String reviewDetail, int price, long numberOfLike, boolean isMeLike, boolean isBookmark,
+    public FoodDetailResponse(Long id, String foodTitle, String reviewDetail, int price, long numberOfLike, boolean isMeLike, boolean isBookmark,
                               boolean isMyFlavorite, String writerName, List<FoodTagDto> foodTags, List<FoodImageDto> foodImages) {
-        this.title = title;
+        this.id = id;
+        this.foodTitle = foodTitle;
         this.reviewDetail = reviewDetail;
         this.price = price;
         this.numberOfLike = numberOfLike;

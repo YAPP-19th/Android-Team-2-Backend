@@ -3,10 +3,13 @@ package com.yapp.sharefood.food.controller;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yapp.sharefood.common.PreprocessController;
+import com.yapp.sharefood.food.domain.FoodIngredientType;
 import com.yapp.sharefood.food.dto.FoodImageDto;
 import com.yapp.sharefood.food.dto.FoodPageDto;
+import com.yapp.sharefood.food.dto.FoodTagDto;
 import com.yapp.sharefood.food.dto.request.FoodTopRankRequest;
 import com.yapp.sharefood.food.dto.request.RecommendationFoodRequest;
+import com.yapp.sharefood.food.dto.response.FoodDetailResponse;
 import com.yapp.sharefood.food.dto.response.RecommendationFoodResponse;
 import com.yapp.sharefood.food.dto.response.TopRankFoodResponse;
 import com.yapp.sharefood.food.service.FoodImageService;
@@ -31,7 +34,9 @@ import java.util.stream.Stream;
 
 import static com.yapp.sharefood.common.documentation.DocumentationUtils.documentIdentify;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.willReturn;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -248,5 +253,46 @@ public class FoodControllerTest extends PreprocessController {
                 Arguments.of(2),
                 Arguments.of(11)
         );
+    }
+
+    @Test
+    @DisplayName("음식 조회 - 성공")
+    void findFoodTest_Success() throws Exception {
+        // given
+        willReturn(FoodDetailResponse.builder()
+                .id(1L)
+                .foodTitle("title")
+                .price(1000)
+                .numberOfLike(2000)
+                .reviewDetail("review Msg")
+                .isMeLike(false)
+                .isBookmark(false)
+                .isMyFlavorite(false)
+                .writerName("writerName")
+                .foodTags(List.of(FoodTagDto.of(1L, "tag1", FoodIngredientType.MAIN), FoodTagDto.of(2L, "tag2", FoodIngredientType.ADD), FoodTagDto.of(3L, "tag3", FoodIngredientType.EXTRACT)))
+                .foodImages(List.of(new FoodImageDto(1L, "imageUrl1.jpg", "realImageName1.jpg"), new FoodImageDto(2L, "imageUrl2.jpg", "realImageName2.jpg")))
+                .build()
+        ).given(foodService).findFoodDetailById(anyLong());
+
+        // when
+        ResultActions perform = mockMvc.perform(get("/api/v1/foods/1")
+                .header(HttpHeaders.AUTHORIZATION, "token"));
+
+        // then
+        FoodDetailResponse foodDetailResponse = objectMapper
+                .readValue(perform
+                        .andExpect(status().isOk())
+                        .andDo(documentIdentify("food/get/success/detail"))
+                        .andReturn()
+                        .getResponse()
+                        .getContentAsString(StandardCharsets.UTF_8), new TypeReference<>() {
+                });
+        assertEquals("title", foodDetailResponse.getFoodTitle());
+        assertEquals("review Msg", foodDetailResponse.getReviewDetail());
+        assertThat(foodDetailResponse.getFoodTags())
+                .isNotNull()
+                .hasSize(3)
+                .extracting("name")
+                .containsExactlyInAnyOrderElementsOf(List.of("tag1", "tag2", "tag3"));
     }
 }

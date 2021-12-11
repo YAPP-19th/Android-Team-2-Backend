@@ -92,9 +92,9 @@ public class FoodService {
         Food food = foodRepository.findById(id)
                 .orElseThrow(FoodNotFoundException::new);
 
-        return FoodDetailResponse
-                .builder()
-                .title(food.getFoodTitle())
+        return FoodDetailResponse.builder()
+                .id(food.getId())
+                .foodTitle(food.getFoodTitle())
                 .writerName(food.getWriterNickname())
                 .reviewDetail(food.getReviewMsg())
                 .price(food.getPrice())
