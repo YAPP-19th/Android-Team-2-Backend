@@ -2,6 +2,7 @@ package com.yapp.sharefood.food.repository.query;
 
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import com.yapp.sharefood.common.utils.QueryUtils;
 import com.yapp.sharefood.food.domain.FoodTag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
@@ -19,7 +20,7 @@ public class FoodTagQueryRepositoryImpl implements FoodTagQueryRepository {
 
     @Override
     public List<FoodTag> findFoodtagsWithTag(List<Long> foodTagIds) {
-        if (foodTagIds.isEmpty()) {
+        if (QueryUtils.isEmpty(foodTagIds)) {
             return Collections.emptyList();
         }
 

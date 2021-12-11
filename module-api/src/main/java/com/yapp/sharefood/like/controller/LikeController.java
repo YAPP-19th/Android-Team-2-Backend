@@ -45,7 +45,7 @@ public class LikeController {
     @DeleteMapping("/api/v1/foods/{foodId}/likes")
     public ResponseEntity<Void> deleteLike(@AuthUser User user,
                                            @PathVariable("foodId") Long foodId,
-                                           @Valid @RequestBody LikeDeleteRequest likeDeleteRequest) {
+                                           @Valid LikeDeleteRequest likeDeleteRequest) {
         userlevelLock.executeWithLock(
                 SERVICE_NAME + "_" + foodId,
                 DEFAULT_USERLEVEL_LOCk_TIME_OUT,

@@ -88,17 +88,19 @@ public class FoodService {
     }
 
 
-    public FoodDetailResponse findFoodDetailById(Long id) {
+    public FoodDetailResponse findFoodDetailById(User user, Long id) {
         Food food = foodRepository.findById(id)
                 .orElseThrow(FoodNotFoundException::new);
 
-        return FoodDetailResponse
-                .builder()
-                .title(food.getFoodTitle())
+        return FoodDetailResponse.builder()
+                .id(food.getId())
+                .foodTitle(food.getFoodTitle())
                 .writerName(food.getWriterNickname())
                 .reviewDetail(food.getReviewMsg())
                 .price(food.getPrice())
                 .numberOfLike(food.getLikeNumber())
+                .isMeLike(food.isMeLike(user))
+                .isMeBookmark(food.isMeBookMark(user))
                 .foodImages(FoodImageDto.toList(food.getImages().getImages()))
                 .foodTags(findFoodTagsByFoodTag(food.getFoodTags().getFoodTags()))
                 .build();
