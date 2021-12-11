@@ -80,7 +80,6 @@ include::{snippets}/food/get/success/detail/http-request.adoc[]
 
 include::{snippets}/food/get/success/detail/http-response.adoc[]
 
-
 == FOOD Detail Fail
 
 == CURL
@@ -94,3 +93,18 @@ include::{snippets}/food/get/fail/detail/http-request.adoc[]
 == RESPONSE
 
 include::{snippets}/food/get/fail/detail/http-response.adoc[]
+
+== Food Page 조회
+
+== CURL
+
+include::{snippets}/food/get/success/pageSearch/curl-request.adoc[]
+
+== REQUEST
+== flavors=a,b,c,d  | tags=a,b,c,d 형태로도 가능 합니다
+include::{snippets}/food/get/success/pageSearch/http-request.adoc[]
+
+== RESPONSE
+
+include::{snippets}/food/get/success/pageSearch/http-response.adoc[]
+
