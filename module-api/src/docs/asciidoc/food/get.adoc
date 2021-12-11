@@ -66,3 +66,31 @@ include::{snippets}/food/get/fail/badRequest/recommendation_rankDatePeriod/http-
 include::{snippets}/food/get/fail/badRequest/recommendation_top/http-response.adoc[]
 include::{snippets}/food/get/fail/badRequest/recommendation_rankDatePeriod/http-response.adoc[]
 
+== FOOD Detail
+
+== CURL
+
+include::{snippets}/food/get/success/detail/curl-request.adoc[]
+
+== REQUEST
+
+include::{snippets}/food/get/success/detail/http-request.adoc[]
+
+== RESPONSE SUCCESS
+
+include::{snippets}/food/get/success/detail/http-response.adoc[]
+
+
+== FOOD Detail Fail
+
+== CURL
+
+include::{snippets}/food/get/fail/detail/curl-request.adoc[]
+
+== REQUEST
+
+include::{snippets}/food/get/fail/detail/http-request.adoc[]
+
+== RESPONSE SUCCESS
+
+include::{snippets}/food/get/fail/detail/http-response.adoc[]
