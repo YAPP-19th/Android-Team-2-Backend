@@ -2,9 +2,12 @@ package com.yapp.sharefood.user.service;
 
 import com.yapp.sharefood.oauth.exception.UserNotFoundException;
 import com.yapp.sharefood.user.domain.User;
+import com.yapp.sharefood.user.domain.UserReportStatus;
+import com.yapp.sharefood.user.domain.UserReportType;
 import com.yapp.sharefood.user.dto.OtherUserInfoDto;
 import com.yapp.sharefood.user.dto.UserInfoDto;
 import com.yapp.sharefood.user.dto.request.UserNicknameRequest;
+import com.yapp.sharefood.user.dto.request.UserReportRequest;
 import com.yapp.sharefood.user.dto.response.MyUserInfoResponse;
 import com.yapp.sharefood.user.dto.response.OtherUserInfoResponse;
 import com.yapp.sharefood.user.dto.response.UserNicknameResponse;
@@ -65,5 +68,11 @@ public class UserService {
                 .orElseThrow(UserNotFoundException::new);
 
         return new OtherUserInfoResponse(OtherUserInfoDto.of(user.getId(), user.getNickname()));
+    }
+
+    @Transactional
+    public void createUserReport(User user, UserReportRequest request) {
+        User findUser = userRepository.findById(user.getId()).orElseThrow(UserNotFoundException::new);
+        findUser.addReport(request.getReportMessage());
     }
 }
