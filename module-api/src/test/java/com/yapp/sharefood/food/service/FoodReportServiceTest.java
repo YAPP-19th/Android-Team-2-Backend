@@ -6,6 +6,7 @@ import com.yapp.sharefood.food.domain.Food;
 import com.yapp.sharefood.food.domain.FoodReportStatus;
 import com.yapp.sharefood.food.domain.FoodReportType;
 import com.yapp.sharefood.food.domain.FoodStatus;
+import com.yapp.sharefood.food.dto.request.FoodReportRequest;
 import com.yapp.sharefood.food.exception.FoodNotFoundException;
 import com.yapp.sharefood.food.repository.FoodRepository;
 import com.yapp.sharefood.oauth.exception.UserNotFoundException;
@@ -48,12 +49,6 @@ class FoodReportServiceTest {
         return categoryRepository.save(category);
     }
 
-    private Category saveTestCategoryWithParent(String categoryName, Category parent) {
-        Category category = Category.of(categoryName);
-        category.assignParent(parent);
-        return categoryRepository.save(category);
-    }
-
     private Food saveFood(String title, User user, Category category) {
         Food food = Food.builder()
                 .foodTitle(title)
@@ -71,9 +66,10 @@ class FoodReportServiceTest {
         User savedUser = saveTestUser("nickname", "name", "oauthId");
         Category savedCategory = saveTestCategory("donghwan");
         Food savedFood = saveFood("title", savedUser, savedCategory);
+        FoodReportRequest request = FoodReportRequest.builder().foodReportMessage(FoodReportType.POSTING_DUPLICATED_CONTENT.getMessage()).build();
 
         //when
-        foodReportService.createReport(savedFood.getId(), FoodReportType.POSTING_DUPLICATED_CONTENT.getMessage());
+        foodReportService.createReport(savedFood.getId(), request);
 
         //then
         FoodReportStatus status = savedFood.getReportStatus();
@@ -88,9 +84,10 @@ class FoodReportServiceTest {
         User savedUser = saveTestUser("nickname", "name", "oauthId");
         Category savedCategory = saveTestCategory("donghwan");
         Food savedFood = saveFood("title", savedUser, savedCategory);
+        FoodReportRequest request = FoodReportRequest.builder().foodReportMessage(FoodReportType.POSTING_ADVERTISING_CONTENT.getMessage()).build();
 
         //when
-        foodReportService.createReport(savedFood.getId(), FoodReportType.POSTING_ADVERTISING_CONTENT.getMessage());
+        foodReportService.createReport(savedFood.getId(), request);
 
         //then
         FoodReportStatus status = savedFood.getReportStatus();
@@ -105,9 +102,10 @@ class FoodReportServiceTest {
         User savedUser = saveTestUser("nickname", "name", "oauthId");
         Category savedCategory = saveTestCategory("donghwan");
         Food savedFood = saveFood("title", savedUser, savedCategory);
+        FoodReportRequest request = FoodReportRequest.builder().foodReportMessage(FoodReportType.POSTING_NO_RELATION_CONTENT.getMessage()).build();
 
         //when
-        foodReportService.createReport(savedFood.getId(), FoodReportType.POSTING_NO_RELATION_CONTENT.getMessage());
+        foodReportService.createReport(savedFood.getId(), request);
 
         //then
         FoodReportStatus status = savedFood.getReportStatus();
@@ -122,9 +120,10 @@ class FoodReportServiceTest {
         User savedUser = saveTestUser("nickname", "name", "oauthId");
         Category savedCategory = saveTestCategory("donghwan");
         Food savedFood = saveFood("title", savedUser, savedCategory);
+        FoodReportRequest request = FoodReportRequest.builder().foodReportMessage(FoodReportType.POSTING_WRONG_CONTENT.getMessage()).build();
 
         //when
-        foodReportService.createReport(savedFood.getId(), FoodReportType.POSTING_WRONG_CONTENT.getMessage());
+        foodReportService.createReport(savedFood.getId(), request);
 
         //then
         FoodReportStatus status = savedFood.getReportStatus();
@@ -139,9 +138,10 @@ class FoodReportServiceTest {
         User savedUser = saveTestUser("nickname", "name", "oauthId");
         Category savedCategory = saveTestCategory("donghwan");
         Food savedFood = saveFood("title", savedUser, savedCategory);
+        FoodReportRequest request = FoodReportRequest.builder().foodReportMessage(FoodReportType.POSTING_ETC_CONTENT.getMessage()).build();
 
         //when
-        foodReportService.createReport(savedFood.getId(), FoodReportType.POSTING_ETC_CONTENT.getMessage());
+        foodReportService.createReport(savedFood.getId(), request);
 
         //then
         FoodReportStatus status = savedFood.getReportStatus();
@@ -156,9 +156,10 @@ class FoodReportServiceTest {
         User savedUser = saveTestUser("nickname", "name", "oauthId");
         Category savedCategory = saveTestCategory("donghwan");
         Food savedFood = saveFood("title", savedUser, savedCategory);
+        FoodReportRequest request = FoodReportRequest.builder().foodReportMessage(FoodReportType.POSTING_SADISTIC_AND_HARMFUL_CONTENT.getMessage()).build();
 
         //when
-        foodReportService.createReport(savedFood.getId(), FoodReportType.POSTING_SADISTIC_AND_HARMFUL_CONTENT.getMessage());
+        foodReportService.createReport(savedFood.getId(), request);
 
         //then
         FoodReportStatus status = savedFood.getReportStatus();
@@ -173,9 +174,10 @@ class FoodReportServiceTest {
         User savedUser = saveTestUser("nickname", "name", "oauthId");
         Category savedCategory = saveTestCategory("donghwan");
         Food savedFood = saveFood("title", savedUser, savedCategory);
+        FoodReportRequest request = FoodReportRequest.builder().foodReportMessage(FoodReportType.POSTING_OBSCENE_CONTENT.getMessage()).build();
 
         //when
-        foodReportService.createReport(savedFood.getId(), FoodReportType.POSTING_OBSCENE_CONTENT.getMessage());
+        foodReportService.createReport(savedFood.getId(), request);
 
         //then
         FoodReportStatus status = savedFood.getReportStatus();
@@ -190,11 +192,12 @@ class FoodReportServiceTest {
         User savedUser = saveTestUser("nickname", "name", "oauthId");
         Category savedCategory = saveTestCategory("donghwan");
         Food savedFood = saveFood("title", savedUser, savedCategory);
+        FoodReportRequest request = FoodReportRequest.builder().foodReportMessage(FoodReportType.POSTING_ETC_CONTENT.getMessage()).build();
 
         //when
-        foodReportService.createReport(savedFood.getId(), FoodReportType.POSTING_ETC_CONTENT.getMessage());
-        foodReportService.createReport(savedFood.getId(), FoodReportType.POSTING_ETC_CONTENT.getMessage());
-        foodReportService.createReport(savedFood.getId(), FoodReportType.POSTING_ETC_CONTENT.getMessage());
+        foodReportService.createReport(savedFood.getId(), request);
+        foodReportService.createReport(savedFood.getId(), request);
+        foodReportService.createReport(savedFood.getId(), request);
 
         //then
         FoodReportStatus status = savedFood.getReportStatus();
@@ -206,25 +209,28 @@ class FoodReportServiceTest {
     @Test
     void createReport_Fail_Food_Not_Found() {
         //given
+        FoodReportRequest request = FoodReportRequest.builder().foodReportMessage(FoodReportType.POSTING_WRONG_CONTENT.getMessage()).build();
 
         //when
 
         //then
-        assertThrows(FoodNotFoundException.class, () -> foodReportService.createReport(1L, FoodReportType.POSTING_OBSCENE_CONTENT.getMessage()));
+        assertThrows(FoodNotFoundException.class, () -> foodReportService.createReport(1L, request));
     }
 
     @Test
     void createReport_Fail_User_Not_Found() {
         //given
-        User savedUser = saveTestUser("nickname","name","oauthId");
+        User savedUser = saveTestUser("nickname", "name", "oauthId");
         Category savedCategory = saveTestCategory("donghwan");
         Food savedFood = saveFood("title", savedUser, savedCategory);
+        FoodReportRequest request = FoodReportRequest.builder().foodReportMessage(FoodReportType.POSTING_WRONG_CONTENT.getMessage()).build();
+
         userRepository.delete(savedUser);
 
         //when
 
         //then
         Long savedFoodId = savedFood.getId();
-        assertThrows(UserNotFoundException.class, () -> foodReportService.createReport(savedFoodId, FoodReportType.POSTING_OBSCENE_CONTENT.getMessage()));
+        assertThrows(UserNotFoundException.class, () -> foodReportService.createReport(savedFoodId, request));
     }
 }

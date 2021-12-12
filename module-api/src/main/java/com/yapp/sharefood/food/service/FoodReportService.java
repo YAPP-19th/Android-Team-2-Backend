@@ -2,6 +2,7 @@ package com.yapp.sharefood.food.service;
 
 import com.yapp.sharefood.food.domain.Food;
 import com.yapp.sharefood.food.domain.FoodReportStatus;
+import com.yapp.sharefood.food.dto.request.FoodReportRequest;
 import com.yapp.sharefood.food.exception.FoodNotFoundException;
 import com.yapp.sharefood.food.repository.FoodRepository;
 import com.yapp.sharefood.oauth.exception.UserNotFoundException;
@@ -20,10 +21,10 @@ public class FoodReportService {
     private final FoodRepository foodRepository;
 
     @Transactional
-    public void createReport(Long foodId, String reportMessage) {
+    public void createReport(Long foodId, FoodReportRequest request) {
         Food findFood = foodRepository.findById(foodId).orElseThrow(FoodNotFoundException::new);
 
-        findFood.addReport(reportMessage);
+        findFood.addReport(request.getFoodReportMessage());
 
         User writer = userRepository.findById(findFood.getWriter().getId()).orElseThrow(UserNotFoundException::new);
 
