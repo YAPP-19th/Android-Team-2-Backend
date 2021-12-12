@@ -1,8 +1,14 @@
 package com.yapp.sharefood.user.service;
 
+import com.yapp.sharefood.category.domain.Category;
+import com.yapp.sharefood.food.domain.Food;
+import com.yapp.sharefood.food.domain.FoodReportType;
+import com.yapp.sharefood.food.domain.FoodStatus;
 import com.yapp.sharefood.oauth.exception.UserNotFoundException;
 import com.yapp.sharefood.user.domain.OAuthType;
 import com.yapp.sharefood.user.domain.User;
+import com.yapp.sharefood.user.domain.UserReportStatus;
+import com.yapp.sharefood.user.domain.UserReportType;
 import com.yapp.sharefood.user.dto.request.UserNicknameRequest;
 import com.yapp.sharefood.user.exception.UserNicknameExistException;
 import com.yapp.sharefood.user.rand.UserNicknameRandomComponent;
@@ -215,5 +221,209 @@ class UserServiceTest {
 
         //then
         assertThrows(UserNotFoundException.class, () -> userService.findOtherUserInfo(0L));
+    }
+
+    @Test
+    @DisplayName("신고 성공 - 반복적 중복된 게시글")
+    void userReport_Success_Posting_Duplicate() {
+        //given
+        User user = User.builder()
+                .name("donghwan")
+                .nickname("donghwan")
+                .oauthId("kakao-id")
+                .oAuthType(OAuthType.KAKAO)
+                .build();
+
+        userRepository.save(user);
+
+        //when
+        user.addReport(UserReportType.POSTING_DUPLICATED_USER.getMessage());
+
+        //then
+        int point = user.getReportPoint();
+
+        UserReportStatus reportStatus = user.getReportStatus();
+
+        assertEquals(1, point);
+        assertEquals(UserReportStatus.NORMAL, reportStatus);
+    }
+
+    @Test
+    @DisplayName("신고 성공 - 반복적 광고성 게시글")
+    void userReport_Success_Posting_Advertising() {
+        //given
+        User user = User.builder()
+                .name("donghwan")
+                .nickname("donghwan")
+                .oauthId("kakao-id")
+                .oAuthType(OAuthType.KAKAO)
+                .build();
+
+        userRepository.save(user);
+
+        //when
+        user.addReport(UserReportType.POSTING_ADVERTISING_USER.getMessage());
+
+        //then
+        int point = user.getReportPoint();
+
+        UserReportStatus reportStatus = user.getReportStatus();
+
+        assertEquals(1, point);
+        assertEquals(UserReportStatus.NORMAL, reportStatus);
+    }
+
+    @Test
+    @DisplayName("신고 성공 - 반복적 관계없는 게시글")
+    void userReport_Success_Posting_No_Relation() {
+        //given
+        User user = User.builder()
+                .name("donghwan")
+                .nickname("donghwan")
+                .oauthId("kakao-id")
+                .oAuthType(OAuthType.KAKAO)
+                .build();
+
+        userRepository.save(user);
+
+        //when
+        user.addReport(UserReportType.POSTING_NO_RELATION_USER.getMessage());
+
+        //then
+        int point = user.getReportPoint();
+
+        UserReportStatus reportStatus = user.getReportStatus();
+
+        assertEquals(1, point);
+        assertEquals(UserReportStatus.NORMAL, reportStatus);
+    }
+
+    @Test
+    @DisplayName("신고 성공 - 반복적 잘못된 정보 게시글")
+    void userReport_Success_Posting_Wrong() {
+        //given
+        User user = User.builder()
+                .name("donghwan")
+                .nickname("donghwan")
+                .oauthId("kakao-id")
+                .oAuthType(OAuthType.KAKAO)
+                .build();
+
+        userRepository.save(user);
+
+        //when
+        user.addReport(UserReportType.POSTING_WRONG_USER.getMessage());
+
+        //then
+        int point = user.getReportPoint();
+
+        UserReportStatus reportStatus = user.getReportStatus();
+
+        assertEquals(1, point);
+        assertEquals(UserReportStatus.NORMAL, reportStatus);
+    }
+
+    @Test
+    @DisplayName("신고 성공 - 기타")
+    void userReport_Success_Posting_Etc() {
+        //given
+        User user = User.builder()
+                .name("donghwan")
+                .nickname("donghwan")
+                .oauthId("kakao-id")
+                .oAuthType(OAuthType.KAKAO)
+                .build();
+
+        userRepository.save(user);
+
+        //when
+        user.addReport(UserReportType.POSTING_ETC_USER.getMessage());
+
+        //then
+        int point = user.getReportPoint();
+
+        UserReportStatus reportStatus = user.getReportStatus();
+
+        assertEquals(1, point);
+        assertEquals(UserReportStatus.NORMAL, reportStatus);
+    }
+
+    @Test
+    @DisplayName("신고 성공 - 반복적으로 가학적 유해한 게시글")
+    void userReport_Success_Posting_Sadistic_And_Harmful() {
+        //given
+        User user = User.builder()
+                .name("donghwan")
+                .nickname("donghwan")
+                .oauthId("kakao-id")
+                .oAuthType(OAuthType.KAKAO)
+                .build();
+
+        userRepository.save(user);
+
+        //when
+        user.addReport(UserReportType.POSTING_SADISTIC_AND_HARMFUL_USER.getMessage());
+
+        //then
+        int point = user.getReportPoint();
+
+        UserReportStatus reportStatus = user.getReportStatus();
+
+        assertEquals(99, point);
+        assertEquals(UserReportStatus.BANNDED, reportStatus);
+    }
+
+    @Test
+    @DisplayName("신고 성공 - 반복적으로 음란물")
+    void userReport_Success_Posting_Obscene() {
+        //given
+        User user = User.builder()
+                .name("donghwan")
+                .nickname("donghwan")
+                .oauthId("kakao-id")
+                .oAuthType(OAuthType.KAKAO)
+                .build();
+
+        userRepository.save(user);
+
+        //when
+        user.addReport(UserReportType.POSTING_OBSCENE_USER.getMessage());
+
+        //then
+        int point = user.getReportPoint();
+
+        UserReportStatus reportStatus = user.getReportStatus();
+
+        assertEquals(99, point);
+        assertEquals(UserReportStatus.BANNDED, reportStatus);
+    }
+
+    @Test
+    @DisplayName("신고 성공 - 신고 누적으로 인한 정지")
+    void userReport_Success_Point_Over_5() {
+        //given
+        User user = User.builder()
+                .name("donghwan")
+                .nickname("donghwan")
+                .oauthId("kakao-id")
+                .oAuthType(OAuthType.KAKAO)
+                .build();
+
+        userRepository.save(user);
+
+        //when
+        user.addReport(UserReportType.POSTING_ETC_USER.getMessage());
+        user.addReport(UserReportType.POSTING_ETC_USER.getMessage());
+        user.addReport(UserReportType.POSTING_ETC_USER.getMessage());
+        user.addReport(UserReportType.POSTING_ETC_USER.getMessage());
+        user.addReport(UserReportType.POSTING_ETC_USER.getMessage());
+
+        //then
+        int point = user.getReportPoint();
+
+        UserReportStatus reportStatus = user.getReportStatus();
+
+        assertEquals(5, point);
+        assertEquals(UserReportStatus.BANNDED, reportStatus);
     }
 }
