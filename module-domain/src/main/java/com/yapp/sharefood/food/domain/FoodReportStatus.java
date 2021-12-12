@@ -10,11 +10,11 @@ public enum FoodReportStatus {
 
     public static FoodReportStatus getReportStatus(int reportPoint) {
         if (reportPoint >= 99) {
-            return NORMAL;
+            return BANNDED;
         } else if (reportPoint >= 3) {
             return JUDGED;
         } else {
-            return BANNDED;
+            return NORMAL;
         }
     }
 }
