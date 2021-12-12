@@ -63,6 +63,7 @@ public class User extends BaseEntity {
         this.gradePoint = 0;
         this.oAuthInfo.initOAuthInfo(oauthId, name, oAuthType);
 
+        this.reportStatus = UserReportStatus.NORMAL;
         this.reportPoint = 0;
     }
 
