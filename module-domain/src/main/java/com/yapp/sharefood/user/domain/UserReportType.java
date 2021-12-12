@@ -1,6 +1,6 @@
 package com.yapp.sharefood.user.domain;
 
-import com.yapp.sharefood.report.exception.NotDefineReportType;
+import com.yapp.sharefood.report.exception.ReportNotDefineException;
 
 import java.util.Arrays;
 
@@ -43,6 +43,6 @@ public enum UserReportType {
     }
 
     public static UserReportType getFoodReportType(String message) {
-        return Arrays.stream(values()).filter(type -> type.getMessage().equals(message)).findFirst().orElseThrow(NotDefineReportType::new);
+        return Arrays.stream(values()).filter(type -> type.getMessage().equals(message)).findFirst().orElseThrow(ReportNotDefineException::new);
     }
 }
