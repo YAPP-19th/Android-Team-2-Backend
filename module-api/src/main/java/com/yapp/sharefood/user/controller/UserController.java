@@ -3,6 +3,7 @@ package com.yapp.sharefood.user.controller;
 import com.yapp.sharefood.auth.resolver.AuthUser;
 import com.yapp.sharefood.user.domain.User;
 import com.yapp.sharefood.user.dto.request.UserNicknameRequest;
+import com.yapp.sharefood.user.dto.request.UserReportRequest;
 import com.yapp.sharefood.user.dto.response.MyUserInfoResponse;
 import com.yapp.sharefood.user.dto.response.OtherUserInfoResponse;
 import com.yapp.sharefood.user.dto.response.UserNicknameResponse;
@@ -48,5 +49,11 @@ public class UserController {
     @GetMapping("/api/v1/users/{userId}")
     public ResponseEntity<OtherUserInfoResponse> findOtherUserInfo(@PathVariable("userId") Long userId) {
         return ResponseEntity.ok(userService.findOtherUserInfo(userId));
+    }
+
+    @PostMapping("/api/v1/users/{userId}/report")
+    public ResponseEntity<Void> createUserReport(@AuthUser User user, @PathVariable("userId") Long userId, @RequestBody UserReportRequest request) {
+        userService.createUserReport(userId, request);
+        return ResponseEntity.ok().build();
     }
 }

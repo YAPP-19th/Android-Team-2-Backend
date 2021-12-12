@@ -71,8 +71,8 @@ public class UserService {
     }
 
     @Transactional
-    public void createUserReport(User user, UserReportRequest request) {
-        User findUser = userRepository.findById(user.getId()).orElseThrow(UserNotFoundException::new);
+    public void createUserReport(Long userId, UserReportRequest request) {
+        User findUser = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
         findUser.addReport(request.getReportMessage());
     }
 }
