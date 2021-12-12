@@ -8,6 +8,7 @@ import com.yapp.sharefood.food.exception.FoodNotFoundException;
 import com.yapp.sharefood.food.service.FoodReportService;
 import com.yapp.sharefood.oauth.exception.UserNotFoundException;
 import com.yapp.sharefood.report.exception.ReportNotDefineException;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -35,6 +36,7 @@ class FoodReportControllerTest extends PreprocessController {
     ObjectMapper objectMapper = new ObjectMapper();
 
     @Test
+    @DisplayName("신고 성공")
     void createReport_Success() throws Exception {
         //given
         FoodReportRequest request = FoodReportRequest.builder().foodReportMessage(FoodReportType.POSTING_ETC_CONTENT.getMessage()).build();
@@ -56,6 +58,7 @@ class FoodReportControllerTest extends PreprocessController {
     }
 
     @Test
+    @DisplayName("신고 실패 - 존재하지 않는 음식(게시글)")
     void createReport_Fail_Food_Not_Found() throws Exception {
         //given
         willThrow(new FoodNotFoundException())
@@ -81,6 +84,7 @@ class FoodReportControllerTest extends PreprocessController {
     }
 
     @Test
+    @DisplayName("신고 실패 - 존재하지 않는 작성자")
     void createReport_Fail_User_Not_Found() throws Exception {
         //given
         willThrow(new UserNotFoundException())
@@ -97,7 +101,7 @@ class FoodReportControllerTest extends PreprocessController {
 
         //then
         String errMessage = perform.andExpect(status().isNotFound())
-                .andDo(documentIdentify("foods/report/post/success"))
+                .andDo(documentIdentify("foods/report/post/fail/userNotFound"))
                 .andReturn()
                 .getResponse()
                 .getContentAsString(StandardCharsets.UTF_8);
@@ -106,7 +110,8 @@ class FoodReportControllerTest extends PreprocessController {
     }
 
     @Test
-    void createReport_Fail_Not_Define_Report_Type() throws Exception {
+    @DisplayName("신고 실패 - 존재하지 않는 신고 사유")
+    void createReport_Fail_Report_Not_Define() throws Exception {
         //given
         willThrow(new ReportNotDefineException())
                 .given(foodReportService).createReport(anyLong(), any(FoodReportRequest.class));
@@ -122,7 +127,7 @@ class FoodReportControllerTest extends PreprocessController {
 
         //then
         String errMessage = perform.andExpect(status().isBadRequest())
-                .andDo(documentIdentify("foods/report/post/success"))
+                .andDo(documentIdentify("foods/report/post/fail/reportNotDefine"))
                 .andReturn()
                 .getResponse()
                 .getContentAsString(StandardCharsets.UTF_8);
