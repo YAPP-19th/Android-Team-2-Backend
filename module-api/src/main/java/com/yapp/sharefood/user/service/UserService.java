@@ -11,6 +11,7 @@ import com.yapp.sharefood.user.dto.request.UserReportRequest;
 import com.yapp.sharefood.user.dto.response.MyUserInfoResponse;
 import com.yapp.sharefood.user.dto.response.OtherUserInfoResponse;
 import com.yapp.sharefood.user.dto.response.UserNicknameResponse;
+import com.yapp.sharefood.user.exception.UserBanndedException;
 import com.yapp.sharefood.user.exception.UserNicknameExistException;
 import com.yapp.sharefood.user.rand.UserNicknameRandomComponent;
 import com.yapp.sharefood.user.repository.UserRepository;
@@ -66,6 +67,8 @@ public class UserService {
     public OtherUserInfoResponse findOtherUserInfo(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(UserNotFoundException::new);
+
+        if(user.getReportStatus() == UserReportStatus.BANNDED) throw new UserBanndedException();
 
         return new OtherUserInfoResponse(OtherUserInfoDto.of(user.getId(), user.getNickname()));
     }
