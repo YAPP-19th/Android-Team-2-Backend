@@ -10,6 +10,7 @@ import com.yapp.sharefood.flavor.domain.Flavor;
 import com.yapp.sharefood.flavor.domain.FlavorType;
 import com.yapp.sharefood.flavor.repository.FlavorRepository;
 import com.yapp.sharefood.food.domain.Food;
+import com.yapp.sharefood.food.domain.FoodReportStatus;
 import com.yapp.sharefood.food.domain.FoodTag;
 import com.yapp.sharefood.food.domain.TagWrapper;
 import com.yapp.sharefood.food.dto.*;
@@ -21,6 +22,7 @@ import com.yapp.sharefood.food.dto.response.FoodDetailResponse;
 import com.yapp.sharefood.food.dto.response.FoodPageResponse;
 import com.yapp.sharefood.food.dto.response.RecommendationFoodResponse;
 import com.yapp.sharefood.food.dto.response.TopRankFoodResponse;
+import com.yapp.sharefood.food.exception.FoodBanndedException;
 import com.yapp.sharefood.food.exception.FoodNotFoundException;
 import com.yapp.sharefood.food.repository.FoodRepository;
 import com.yapp.sharefood.food.repository.FoodTagRepository;
@@ -91,6 +93,8 @@ public class FoodService {
     public FoodDetailResponse findFoodDetailById(User user, Long id) {
         Food food = foodRepository.findById(id)
                 .orElseThrow(FoodNotFoundException::new);
+
+        if(food.getReportStatus() != FoodReportStatus.NORMAL) throw new FoodBanndedException();
 
         return FoodDetailResponse.builder()
                 .id(food.getId())

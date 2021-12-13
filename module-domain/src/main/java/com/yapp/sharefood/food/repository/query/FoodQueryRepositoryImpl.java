@@ -9,6 +9,7 @@ import com.yapp.sharefood.common.order.SortType;
 import com.yapp.sharefood.common.utils.QueryUtils;
 import com.yapp.sharefood.flavor.domain.Flavor;
 import com.yapp.sharefood.food.domain.Food;
+import com.yapp.sharefood.food.domain.FoodReportStatus;
 import com.yapp.sharefood.food.domain.FoodStatus;
 import com.yapp.sharefood.food.dto.FoodPageSearch;
 import com.yapp.sharefood.food.dto.FoodRecommendSearch;
@@ -61,6 +62,7 @@ public class FoodQueryRepositoryImpl implements FoodQueryRepository {
                 .innerJoin(food.foodFlavors.foodFlavors, foodFlavor)
                 .where(
                         statusShared(),
+                        reportStatusNormal(),
                         containCategories(foodRecommendSearch.getCategories()),
                         containFlavors(foodRecommendSearch.getFlavors()),
                         notZeroLike()
@@ -80,6 +82,7 @@ public class FoodQueryRepositoryImpl implements FoodQueryRepository {
                         loeMaxPrice(foodPageSearch.getMaxPrice()),
                         lessThanCreateTime(foodPageSearch.getSearchTime()),
                         eqCategory(foodPageSearch.getCategory()),
+                        reportStatusNormal(),
                         statusShared()
                 )
                 .orderBy(findCriteria(foodPageSearch.getOrder(), foodPageSearch.getSort()))
@@ -107,6 +110,7 @@ public class FoodQueryRepositoryImpl implements FoodQueryRepository {
                                                 lessThanCreateTime(foodPageSearch.getSearchTime()),
                                                 eqCategory(foodPageSearch.getCategory()),
                                                 containTags(foodPageSearch.getTags()),
+                                                reportStatusNormal(),
                                                 statusShared()
                                         )
                         )
@@ -134,6 +138,7 @@ public class FoodQueryRepositoryImpl implements FoodQueryRepository {
                                                 lessThanCreateTime(foodPageSearch.getSearchTime()),
                                                 eqCategory(foodPageSearch.getCategory()),
                                                 containFlavors(foodPageSearch.getFlavors()),
+                                                reportStatusNormal(),
                                                 statusShared()
                                         )
                         )
@@ -154,6 +159,10 @@ public class FoodQueryRepositoryImpl implements FoodQueryRepository {
 
     private BooleanExpression goeMinPrice(Integer minPrice) {
         return minPrice == null ? null : food.price.goe(minPrice);
+    }
+
+    private BooleanExpression reportStatusNormal() {
+        return food.reportStatus.eq(FoodReportStatus.NORMAL);
     }
 
     private BooleanExpression statusShared() {
