@@ -181,6 +181,7 @@ class FoodFindPageTest {
                     .reviewMsg("review")
                     .writer(this.ownerUser)
                     .build();
+            if (i == 9) food.addReport(FoodReportType.POSTING_OBSCENE_CONTENT.getMessage());
             foods.add(food);
         }
         foodRepository.saveAll(foods);
@@ -233,11 +234,13 @@ class FoodFindPageTest {
         FoodPageResponse foodPageResponse = foodService.searchFoodsPage(foodPageSearchRequest, user);
 
         // then
+        List<Food> expectList = foods.stream().filter(food -> food.getReportStatus() == FoodReportStatus.NORMAL).collect(Collectors.toList());
+
         assertEquals(5, foodPageResponse.getPageSize());
         assertEquals(0L, foodPageResponse.getOffset());
         assertThat(foodPageResponse.getFoods())
                 .hasSize(5);
-        Long lastFoodId = foods.get(foods.size() - 1).getId();
+        Long lastFoodId = expectList.get(expectList.size() - 1).getId();
         assertThat(lastFoodId).isNotNull();
         FoodPageDto lastSearchFood = foodPageResponse.getFoods().get(foodPageResponse.getFoods().size() - 1);
         assertEquals(lastFoodId, lastSearchFood.getId());
@@ -276,9 +279,9 @@ class FoodFindPageTest {
 
     static Stream<Arguments> foodPageSearchByPriceTest_Success() {
         return Stream.of(
-                Arguments.of(null, null, 0L, 5, List.of("title_9", "title_8", "title_7", "title_6", "title_5")),
+                Arguments.of(null, null, 0L, 5, List.of("title_8", "title_7", "title_6", "title_5", "title_4")),
                 Arguments.of(null, 8, 0L, 5, List.of("title_8", "title_7", "title_6", "title_5", "title_4")),
-                Arguments.of(7, null, -1L, 5, List.of("title_9", "title_8", "title_7")),
+                Arguments.of(7, null, -1L, 5, List.of("title_8", "title_7")),
                 Arguments.of(2, 4, -1L, 5, List.of("title_4", "title_3", "title_2"))
         );
     }
@@ -319,7 +322,7 @@ class FoodFindPageTest {
 
     @MethodSource
     @ParameterizedTest(name = "food flavor 로 조회한 케이스 테스트")
-    void foodSearchWithFlavorsTest_Success(List<FlavorType> flavorTypes, List<Integer> foodIndex, List<String> flavorRequset, List<String> matchTitles) throws Exception {
+    void foodSearchWithFlavorsTest_Success(List<FlavorType> flavorTypes, List<Integer> foodIndex, List<String> flavorRequest, List<String> matchTitles) throws Exception {
         // given
         User user = saveTestUser("nickname_for_test", "name_for_inneer_test", "oauthId_test");
         List<Flavor> flavors = flavorTypes.stream().map(this::findFlavor)
@@ -342,7 +345,7 @@ class FoodFindPageTest {
                 .offset(0L)
                 .pageSize(5)
                 .tags(new ArrayList<>())
-                .flavors(flavorRequset)
+                .flavors(flavorRequest)
                 .firstSearchTime(LocalDateTime.now())
                 .build();
 
@@ -363,6 +366,8 @@ class FoodFindPageTest {
         return Stream.of(
                 Arguments.of(List.of(FlavorType.BITTER, FlavorType.COOL_DETAIL), List.of(1, 2, 3, 4, 5, 6), List.of("쓴맛", "시원한"),
                         List.of("title_6", "title_5", "title_4", "title_3", "title_2")),
+                Arguments.of(List.of(FlavorType.BITTER, FlavorType.COOL_DETAIL), List.of(1, 2, 3, 4, 5, 6, 7, 8, 9), List.of("쓴맛", "시원한"),
+                        List.of("title_8", "title_7", "title_6", "title_5", "title_4")),
                 Arguments.of(List.of(FlavorType.BITTER, FlavorType.COOL_DETAIL), new ArrayList<>(), List.of("쓴맛", "시원한"),
                         new ArrayList<>())
         );
@@ -413,6 +418,7 @@ class FoodFindPageTest {
     static Stream<Arguments> foodSearchFromTag_Success() {
         return Stream.of(
                 Arguments.of(List.of("카푸치노", "시럽", "크림"), List.of(1, 2, 3, 4, 5, 6), List.of("title_6", "title_5", "title_4", "title_3", "title_2")),
+                Arguments.of(List.of("카푸치노", "시럽", "크림"), List.of(1, 2, 3, 4, 5, 6, 7, 8, 9), List.of("title_8", "title_7", "title_6", "title_5", "title_4")),
                 Arguments.of(List.of("카푸치노", "시럽", "크림"), new ArrayList<>(), new ArrayList<>())
         );
     }
