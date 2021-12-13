@@ -10,6 +10,7 @@ import com.yapp.sharefood.user.domain.User;
 import com.yapp.sharefood.user.domain.UserReportStatus;
 import com.yapp.sharefood.user.domain.UserReportType;
 import com.yapp.sharefood.user.dto.request.UserNicknameRequest;
+import com.yapp.sharefood.user.exception.UserBanndedException;
 import com.yapp.sharefood.user.exception.UserNicknameExistException;
 import com.yapp.sharefood.user.rand.UserNicknameRandomComponent;
 import com.yapp.sharefood.user.repository.UserRepository;
@@ -213,7 +214,7 @@ class UserServiceTest {
     }
 
     @Test
-    @DisplayName("해당 다른 유저가 존재하지 않느느 경우")
+    @DisplayName("다른 유저정보 조회 실패 - 해당 다른 유저가 존재하지 않는 경우")
     void notFoundOtherUserTest() {
         //given
 
@@ -221,6 +222,28 @@ class UserServiceTest {
 
         //then
         assertThrows(UserNotFoundException.class, () -> userService.findOtherUserInfo(0L));
+    }
+
+    @Test
+    @DisplayName("다른 유저정보 조회 실패 - 해당 다른 유저가 존재하지 않는 경우")
+    void findOtherUserInfo_Fail_User_Bannded() {
+        //given
+        User user = User.builder()
+                .name("donghwan")
+                .nickname("donghwan")
+                .oauthId("kakao-id")
+                .oAuthType(OAuthType.KAKAO)
+                .build();
+
+        user.addReport(UserReportType.POSTING_OBSCENE_USER.getMessage());
+
+        userRepository.save(user);
+
+        //when
+
+        //then
+        Long userId = user.getId();
+        assertThrows(UserBanndedException.class, () -> userService.findOtherUserInfo(userId));
     }
 
     @Test
