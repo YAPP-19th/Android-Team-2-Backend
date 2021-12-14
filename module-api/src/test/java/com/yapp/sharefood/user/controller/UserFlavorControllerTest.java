@@ -12,7 +12,6 @@ import com.yapp.sharefood.flavor.dto.response.UpdateUserFlavorResponse;
 import com.yapp.sharefood.flavor.exception.FlavorNotFoundException;
 import com.yapp.sharefood.flavor.service.FlavorService;
 import com.yapp.sharefood.oauth.exception.UserNotFoundException;
-import com.yapp.sharefood.user.domain.OAuthType;
 import com.yapp.sharefood.user.domain.User;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -66,7 +65,7 @@ public class UserFlavorControllerTest extends PreprocessController {
                 .given(flavorService).findUserFlavors(any(User.class));
 
         //when
-        ResultActions perform = mockMvc.perform(get(String.format("/api/v1/users/%d/flavors", authUserId))
+        ResultActions perform = mockMvc.perform(get("/api/v1/users/me/flavors")
                 .header(HttpHeaders.AUTHORIZATION, "token"));
 
         //then
@@ -92,7 +91,7 @@ public class UserFlavorControllerTest extends PreprocessController {
                 .given(flavorService).findUserFlavors(any(User.class));
 
         //when
-        ResultActions perform = mockMvc.perform(get(String.format("/api/v1/users/%d/flavors", authUserId))
+        ResultActions perform = mockMvc.perform(get("/api/v1/users/me/flavors")
                 .header(HttpHeaders.AUTHORIZATION, "token"));
 
         //then
@@ -116,7 +115,7 @@ public class UserFlavorControllerTest extends PreprocessController {
                 .given(flavorService).findUserFlavors(any(User.class));
 
         //when
-        ResultActions perform = mockMvc.perform(get(String.format("/api/v1/users/%d/flavors", authUserId))
+        ResultActions perform = mockMvc.perform(get("/api/v1/users/me/flavors")
                 .header(HttpHeaders.AUTHORIZATION, "token"));
 
         //then
@@ -136,17 +135,14 @@ public class UserFlavorControllerTest extends PreprocessController {
     @Test
     void updateUserFlavorTest() throws Exception {
         //given
-        UserFlavorRequest request = new UserFlavorRequest();
-        List<FlavorDto> flavors = new ArrayList<>();
-        flavors.add(FlavorDto.of(1L, FlavorType.SPICY));
-        flavors.add(FlavorDto.of(2L, FlavorType.SWEET));
-        request.setFlavors(flavors);
+        UserFlavorRequest request = UserFlavorRequest.of(List.of(FlavorType.SPICY.getFlavorName(), FlavorType.SWEET.getFlavorName()));
+        request.setFlavors(List.of(FlavorType.SPICY.getFlavorName(), FlavorType.SWEET.getFlavorName()));
 
-        willReturn(UpdateUserFlavorResponse.of(2))
+        willReturn(UpdateUserFlavorResponse.of(List.of(FlavorDto.of(1L, FlavorType.SPICY), FlavorDto.of(2L, FlavorType.SWEET))))
                 .given(flavorService).updateUserFlavors(any(User.class), any(UserFlavorRequest.class));
 
         //when
-        ResultActions perform = mockMvc.perform(put(String.format("/api/v1/users/%d/flavors", authUserId))
+        ResultActions perform = mockMvc.perform(put("/api/v1/users/me/flavors")
                 .header(HttpHeaders.AUTHORIZATION, "token")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)));
@@ -159,21 +155,24 @@ public class UserFlavorControllerTest extends PreprocessController {
                 .getContentAsString(StandardCharsets.UTF_8), new TypeReference<>() {
         });
 
-        assertEquals(2, response.getUpdateSuccessCount());
+        assertThat(response.getFlavors())
+                .isNotNull()
+                .hasSize(2)
+                .extracting("flavorName")
+                .containsExactlyInAnyOrderElementsOf(List.of("매운맛", "단맛"));
     }
 
     @DisplayName("입맛 등록 요청 중 유저 정보가 일치하지 않는 경우")
     @Test
     void updateUserFlavorFailValidUserIdPathTest() throws Exception {
         //given
-        UserFlavorRequest request = new UserFlavorRequest();
-        request.setFlavors(Collections.emptyList());
+        UserFlavorRequest request = UserFlavorRequest.of(Collections.emptyList());
 
         willThrow(new ForbiddenException())
                 .given(flavorService).updateUserFlavors(any(User.class), any(UserFlavorRequest.class));
 
         //when
-        ResultActions perform = mockMvc.perform(put(String.format("/api/v1/users/%d/flavors", authUserId))
+        ResultActions perform = mockMvc.perform(put("/api/v1/users/me/flavors")
                 .header(HttpHeaders.AUTHORIZATION, "token")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)));
@@ -195,14 +194,13 @@ public class UserFlavorControllerTest extends PreprocessController {
     @Test
     void updateUserFlavorFailFlavorNotFoundTest() throws Exception {
         //given
-        UserFlavorRequest request = new UserFlavorRequest();
-        request.setFlavors(Collections.emptyList());
+        UserFlavorRequest request = UserFlavorRequest.of(Collections.emptyList());
 
         willThrow(new FlavorNotFoundException())
                 .given(flavorService).updateUserFlavors(any(User.class), any(UserFlavorRequest.class));
 
         //when
-        ResultActions perform = mockMvc.perform(put(String.format("/api/v1/users/%d/flavors", authUserId))
+        ResultActions perform = mockMvc.perform(put("/api/v1/users/me/flavors")
                 .header(HttpHeaders.AUTHORIZATION, "token")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)));

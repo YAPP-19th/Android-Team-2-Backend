@@ -65,8 +65,7 @@ public class FoodService {
         Category findCategory = categoryRepository.findByName(foodCreationRequest.getCategoryName())
                 .orElseThrow(CategoryNotFoundException::new);
         List<Flavor> flavors = flavorRepository.findByFlavorTypeIsIn(
-                foodCreationRequest.getFlavors().stream()
-                        .map(flavorDto -> FlavorType.of(flavorDto.getFlavorName()))
+                foodCreationRequest.getFlavors().stream().map(FlavorType::of)
                         .collect(Collectors.toList()));
 
         Food food = Food.builder()
@@ -94,7 +93,7 @@ public class FoodService {
         Food food = foodRepository.findById(id)
                 .orElseThrow(FoodNotFoundException::new);
 
-        if(food.getReportStatus() != FoodReportStatus.NORMAL) throw new FoodBanndedException();
+        if (food.getReportStatus() != FoodReportStatus.NORMAL) throw new FoodBanndedException();
 
         return FoodDetailResponse.builder()
                 .id(food.getId())
