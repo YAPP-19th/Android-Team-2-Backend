@@ -5,7 +5,6 @@ import com.yapp.sharefood.category.exception.CategoryNotFoundException;
 import com.yapp.sharefood.category.repository.CategoryRepository;
 import com.yapp.sharefood.flavor.domain.Flavor;
 import com.yapp.sharefood.flavor.domain.FlavorType;
-import com.yapp.sharefood.flavor.dto.FlavorDto;
 import com.yapp.sharefood.flavor.repository.FlavorRepository;
 import com.yapp.sharefood.food.domain.*;
 import com.yapp.sharefood.food.dto.FoodTagDto;
@@ -141,8 +140,8 @@ class FoodServiceTest {
                 new TagWrapper(saveTag("tag3"), FoodIngredientType.EXTRACT));
         List<Flavor> flavors = findFlavors(List.of(FlavorType.SWEET, FlavorType.SPICY, FlavorType.BITTER));
 
-        List<FlavorDto> flavorDtos = flavors.stream()
-                .map(flavor -> FlavorDto.of(null, flavor.getFlavorType()))
+        List<String> flavorDtos = flavors.stream()
+                .map(flavor -> flavor.getFlavorType().getFlavorName())
                 .collect(Collectors.toList());
 
         List<FoodTagDto> dtoTags = wrapperTags.stream()
@@ -191,8 +190,8 @@ class FoodServiceTest {
                 new TagWrapper(saveTag("tag3"), FoodIngredientType.EXTRACT));
         List<Flavor> flavors = findFlavors(List.of(FlavorType.SWEET, FlavorType.SPICY, FlavorType.BITTER));
 
-        List<FlavorDto> flavorDtos = flavors.stream()
-                .map(flavor -> FlavorDto.of(null, flavor.getFlavorType()))
+        List<String> flavorDtos = flavors.stream()
+                .map(flavor -> flavor.getFlavorType().getFlavorName())
                 .collect(Collectors.toList());
 
         List<FoodTagDto> dtoTags = wrapperTags.stream()
