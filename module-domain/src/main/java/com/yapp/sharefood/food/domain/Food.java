@@ -154,7 +154,7 @@ public class Food extends BaseEntity {
     }
 
     public void deleteFavorite(User user) {
-        deleteFavorite(user);
+        this.favorites.deleteFavorite(user.getId());
     }
 
     public void assignWrapperTags(List<TagWrapper> wrapperTags) {
