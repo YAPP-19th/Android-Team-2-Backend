@@ -87,6 +87,19 @@ public class FoodService {
         return saveFood.getId();
     }
 
+    @Transactional
+    public void updateFood(User user, Long foodId, List<TagWrapper> wrapperTags, FoodCreationRequest foodCreationRequest) {
+        Food findFood = foodRepository.findById(foodId)
+                .orElseThrow(FoodNotFoundException::new);
+        List<Flavor> flavors = flavorRepository.findByFlavorTypeIsIn(
+                foodCreationRequest.getFlavors().stream()
+                        .map(flavorDto -> FlavorType.of(flavorDto.getFlavorName()))
+                        .collect(Collectors.toList()));
+
+        findFood.getFoodFlavors().updateFlavors(flavors, findFood); // update flavors
+        findFood.getFoodTags().updateTags(wrapperTags, findFood); // update tags
+    }
+
 
     public FoodDetailResponse findFoodDetailById(User user, Long id) {
         Food food = foodRepository.findById(id)
