@@ -32,6 +32,9 @@ public class Favorites {
         validateAlreadyFavoriteUser(favorite.getUser().getId());
 
         favorite.assignFood(food);
+        if(!favorites.contains(favorite)) {
+            favorites.add(favorite);
+        }
     }
 
     public void deleteFavorite(Long userId) {
