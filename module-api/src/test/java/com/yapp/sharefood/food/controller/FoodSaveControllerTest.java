@@ -70,7 +70,7 @@ class FoodSaveControllerTest extends PreprocessController {
                 .categoryName("샌드위치")
                 .title("title")
                 .price(10000)
-                .flavors(List.of(FlavorDto.of(1L, FlavorType.SWEET), FlavorDto.of(2L, FlavorType.REFRESH_DETAIL)))
+                .flavors(List.of(FlavorType.SWEET.getFlavorName(), FlavorType.REFRESH_DETAIL.getFlavorName()))
                 .tags(List.of(FoodTagDto.of(1L, "샷추가", FoodIngredientType.MAIN), FoodTagDto.of(2L, "커피", FoodIngredientType.ADD)))
                 .reviewMsg("review msg")
                 .foodStatus(FoodStatus.SHARED)
@@ -106,7 +106,7 @@ class FoodSaveControllerTest extends PreprocessController {
                 .categoryName("notExistCategory")
                 .title("title")
                 .price(10000)
-                .flavors(List.of(FlavorDto.of(1L, FlavorType.SWEET), FlavorDto.of(2L, FlavorType.REFRESH_DETAIL)))
+                .flavors(List.of(FlavorType.SWEET.getFlavorName(), FlavorType.REFRESH_DETAIL.getFlavorName()))
                 .tags(List.of(FoodTagDto.of(1L, "샷추가", FoodIngredientType.MAIN), FoodTagDto.of(2L, "커피", FoodIngredientType.ADD)))
                 .reviewMsg("review msg")
                 .foodStatus(FoodStatus.SHARED)
@@ -140,7 +140,7 @@ class FoodSaveControllerTest extends PreprocessController {
                 .categoryName("샌드위치")
                 .title("title")
                 .price(10000)
-                .flavors(List.of(FlavorDto.of(1L, FlavorType.SWEET), FlavorDto.of(2L, FlavorType.REFRESH_DETAIL)))
+                .flavors(List.of(FlavorType.SWEET.getFlavorName(), FlavorType.REFRESH_DETAIL.getFlavorName()))
                 .tags(List.of(FoodTagDto.of(1L, "샷추가", FoodIngredientType.MAIN), FoodTagDto.of(1L, "샷추가", FoodIngredientType.ADD)))
                 .reviewMsg("review msg")
                 .foodStatus(FoodStatus.SHARED)
@@ -174,7 +174,7 @@ class FoodSaveControllerTest extends PreprocessController {
                 .categoryName("샌드위치")
                 .title("title")
                 .price(10000)
-                .flavors(List.of(FlavorDto.of(1L, FlavorType.SWEET), FlavorDto.of(1L, FlavorType.SWEET)))
+                .flavors(List.of(FlavorType.SWEET.getFlavorName(), FlavorType.SWEET.getFlavorName()))
                 .tags(List.of(FoodTagDto.of(1L, "샷추가", FoodIngredientType.MAIN), FoodTagDto.of(null, "커피", FoodIngredientType.ADD)))
                 .reviewMsg("review msg")
                 .foodStatus(FoodStatus.SHARED)
@@ -208,7 +208,7 @@ class FoodSaveControllerTest extends PreprocessController {
                 .categoryName("샌드위치")
                 .title("title")
                 .price(10000)
-                .flavors(List.of(FlavorDto.of(1L, FlavorType.SWEET), FlavorDto.of(2L, FlavorType.BITTER)))
+                .flavors(List.of(FlavorType.SWEET.getFlavorName(), FlavorType.BITTER.getFlavorName()))
                 .tags(List.of(FoodTagDto.of(1L, "샷추가", FoodIngredientType.EXTRACT), FoodTagDto.of(2L, "커피", FoodIngredientType.ADD)))
                 .reviewMsg("review msg")
                 .foodStatus(FoodStatus.SHARED)
@@ -276,7 +276,7 @@ class FoodSaveControllerTest extends PreprocessController {
                         .andDo(documentIdentify("food/images/post/success"))
                         .andReturn()
                         .getResponse()
-                        .getContentAsString(StandardCharsets.UTF_8), new TypeReference<FoodImageCreateResponse>() {
+                        .getContentAsString(StandardCharsets.UTF_8), new TypeReference<>() {
                 }
         );
 

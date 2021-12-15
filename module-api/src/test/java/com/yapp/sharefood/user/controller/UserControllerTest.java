@@ -4,11 +4,14 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yapp.sharefood.common.PreprocessController;
 import com.yapp.sharefood.oauth.exception.UserNotFoundException;
+import com.yapp.sharefood.report.exception.ReportNotDefineException;
 import com.yapp.sharefood.user.domain.OAuthType;
 import com.yapp.sharefood.user.domain.User;
+import com.yapp.sharefood.user.domain.UserReportType;
 import com.yapp.sharefood.user.dto.OtherUserInfoDto;
 import com.yapp.sharefood.user.dto.UserInfoDto;
 import com.yapp.sharefood.user.dto.request.UserNicknameRequest;
+import com.yapp.sharefood.user.dto.request.UserReportRequest;
 import com.yapp.sharefood.user.dto.response.MyUserInfoResponse;
 import com.yapp.sharefood.user.dto.response.OtherUserInfoResponse;
 import com.yapp.sharefood.user.dto.response.UserNicknameResponse;
@@ -32,8 +35,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.mockito.BDDMockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(controllers = UserController.class)
@@ -310,5 +312,84 @@ class UserControllerTest extends PreprocessController {
                 .isNotNull()
                 .isNotEmpty()
                 .isEqualTo(USER_NOT_FOUND_EXCEPTION_MSG);
+    }
+
+    @Test
+    @DisplayName("유저 신고 성공")
+    void userReport_Success() throws Exception {
+        //given
+        UserReportRequest request = UserReportRequest.builder().reportMessage(UserReportType.POSTING_NO_RELATION_USER.getMessage()).build();
+
+        //when
+        RequestBuilder requestBuilder = post(String.format("/api/v1/users/%d/report", 1L))
+                .header(HttpHeaders.AUTHORIZATION, "token")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request));
+
+        ResultActions perform = mockMvc.perform(requestBuilder);
+
+        //then
+        perform.andExpect(status().isOk())
+                .andDo(documentIdentify("user/report/success"))
+                .andReturn()
+                .getResponse();
+    }
+
+    @Test
+    @DisplayName("유저 신고 실패 - 신고 대상 유저를 찾을 수 없음")
+    void userReport_Fail_User_Not_Found() throws Exception {
+        //given
+        willThrow(new UserNotFoundException())
+                .given(userService).createUserReport(anyLong(), any(UserReportRequest.class));
+        UserReportRequest request = UserReportRequest.builder().reportMessage(UserReportType.POSTING_NO_RELATION_USER.getMessage()).build();
+
+        //when
+        RequestBuilder requestBuilder = post(String.format("/api/v1/users/%d/report", 1L))
+                .header(HttpHeaders.AUTHORIZATION, "token")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request));
+
+        ResultActions perform = mockMvc.perform(requestBuilder);
+
+        //then
+        String errMsg = perform.andExpect(status().isNotFound())
+                .andDo(documentIdentify("user/report/fail/userNotFound"))
+                .andReturn()
+                .getResponse()
+                .getContentAsString(StandardCharsets.UTF_8);
+
+        assertThat(errMsg)
+                .isNotNull()
+                .isNotEmpty()
+                .isEqualTo(USER_NOT_FOUND_EXCEPTION_MSG);
+    }
+
+    @Test
+    @DisplayName("유저 신고 실패 - 정의되지 않은 신고 사유")
+    void userReport_Fail_Report_Not_Define() throws Exception {
+        //given
+        willThrow(new ReportNotDefineException())
+                .given(userService).createUserReport(anyLong(), any(UserReportRequest.class));
+        UserReportRequest request = UserReportRequest.builder().reportMessage(UserReportType.POSTING_NO_RELATION_USER.getMessage()).build();
+
+        //when
+        RequestBuilder requestBuilder = post(String.format("/api/v1/users/%d/report", 1L))
+                .header(HttpHeaders.AUTHORIZATION, "token")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request));
+
+        ResultActions perform = mockMvc.perform(requestBuilder);
+
+        //then
+        String errMsg = perform.andExpect(status().isBadRequest())
+                .andDo(documentIdentify("user/report/fail/reportNotDefine"))
+                .andReturn()
+                .getResponse()
+                .getContentAsString(StandardCharsets.UTF_8);
+
+        assertThat(errMsg)
+                .isNotNull()
+                .isNotEmpty()
+                .isEqualTo(ReportNotDefineException.NOT_DEFINE_REPORT_EXCEPTION_MSG);
     }
 }

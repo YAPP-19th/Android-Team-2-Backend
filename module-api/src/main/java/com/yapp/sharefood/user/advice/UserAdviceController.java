@@ -1,6 +1,7 @@
 package com.yapp.sharefood.user.advice;
 
 
+import com.yapp.sharefood.user.exception.UserBanndedException;
 import com.yapp.sharefood.user.exception.UserNicknameExistException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,5 +19,12 @@ public class UserAdviceController {
         log.error(exception.getMessage(), exception);
 
         return ResponseEntity.status(HttpStatus.CONFLICT).body(exception.getMessage());
+    }
+
+    @ExceptionHandler(UserBanndedException.class)
+    protected ResponseEntity<Object> handleUserBanndedException(final UserBanndedException exception) {
+        log.error(exception.getMessage(), exception);
+
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(exception.getMessage());
     }
 }

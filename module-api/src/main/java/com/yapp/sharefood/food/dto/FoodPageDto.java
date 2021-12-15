@@ -20,6 +20,7 @@ public class FoodPageDto {
     private String categoryName;
     private int price;
     private long numberOfLikes;
+    private boolean isMeFavorite;
     private boolean isMeBookmark;
     private boolean isMeLike;
     private List<FoodImageDto> foodimages;

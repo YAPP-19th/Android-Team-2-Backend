@@ -7,10 +7,7 @@ import com.yapp.sharefood.flavor.domain.Flavor;
 import com.yapp.sharefood.flavor.domain.FlavorType;
 import com.yapp.sharefood.flavor.dto.FlavorDto;
 import com.yapp.sharefood.flavor.repository.FlavorRepository;
-import com.yapp.sharefood.food.domain.Food;
-import com.yapp.sharefood.food.domain.FoodIngredientType;
-import com.yapp.sharefood.food.domain.FoodStatus;
-import com.yapp.sharefood.food.domain.TagWrapper;
+import com.yapp.sharefood.food.domain.*;
 import com.yapp.sharefood.food.dto.FoodTagDto;
 import com.yapp.sharefood.food.dto.request.FoodCreationRequest;
 import com.yapp.sharefood.food.dto.request.FoodTopRankRequest;
@@ -19,6 +16,7 @@ import com.yapp.sharefood.food.dto.request.RecommendationFoodRequest;
 import com.yapp.sharefood.food.dto.response.FoodDetailResponse;
 import com.yapp.sharefood.food.dto.response.RecommendationFoodResponse;
 import com.yapp.sharefood.food.dto.response.TopRankFoodResponse;
+import com.yapp.sharefood.food.exception.FoodBanndedException;
 import com.yapp.sharefood.food.repository.FoodRepository;
 import com.yapp.sharefood.like.service.LikeService;
 import com.yapp.sharefood.tag.domain.Tag;
@@ -145,8 +143,8 @@ class FoodServiceTest {
                 new TagWrapper(saveTag("tag3"), FoodIngredientType.EXTRACT));
         List<Flavor> flavors = findFlavors(List.of(FlavorType.SWEET, FlavorType.SPICY, FlavorType.BITTER));
 
-        List<FlavorDto> flavorDtos = flavors.stream()
-                .map(flavor -> FlavorDto.of(null, flavor.getFlavorType()))
+        List<String> flavorDtos = flavors.stream()
+                .map(flavor -> flavor.getFlavorType().getFlavorName())
                 .collect(Collectors.toList());
 
         List<FoodTagDto> dtoTags = wrapperTags.stream()
@@ -195,8 +193,8 @@ class FoodServiceTest {
                 new TagWrapper(saveTag("tag3"), FoodIngredientType.EXTRACT));
         List<Flavor> flavors = findFlavors(List.of(FlavorType.SWEET, FlavorType.SPICY, FlavorType.BITTER));
 
-        List<FlavorDto> flavorDtos = flavors.stream()
-                .map(flavor -> FlavorDto.of(null, flavor.getFlavorType()))
+        List<String> flavorDtos = flavors.stream()
+                .map(flavor -> flavor.getFlavorType().getFlavorName())
                 .collect(Collectors.toList());
 
         List<FoodTagDto> dtoTags = wrapperTags.stream()
@@ -252,6 +250,35 @@ class FoodServiceTest {
         assertFalse(foodResponse.isMeBookmark());
         assertFalse(foodResponse.isMeLike());
         assertEquals(3, foodResponse.getFoodTags().size());
+    }
+
+    @Test
+    @DisplayName("food Detail 정보 조회 실패 - 정지된 게시글")
+    void findFoodDetailTest_Fail_Bannded() throws Exception {
+        // given
+        User saveUser = saveTestUser("nickname", "name", "oauthId");
+        Category saveCategory = saveTestCategory("A");
+        List<TagWrapper> tags = new ArrayList<>();
+        tags.add(new TagWrapper(saveTag("A"), FoodIngredientType.ADD));
+        tags.add(new TagWrapper(saveTag("B"), FoodIngredientType.EXTRACT));
+        tags.add(new TagWrapper(saveTag("C"), FoodIngredientType.MAIN));
+
+        Food newFood = Food.builder()
+                .foodTitle("title")
+                .price(1000)
+                .reviewMsg("reviewMsg")
+                .foodStatus(FoodStatus.SHARED)
+                .writer(saveUser)
+                .category(saveCategory)
+                .build();
+        newFood.getFoodTags().addAllTags(tags, newFood);
+        Food saveFood = foodRepository.save(newFood);
+        saveFood.addReport(FoodReportType.POSTING_OBSCENE_CONTENT.getMessage());
+
+        // when
+
+        // then
+        assertThrows(FoodBanndedException.class, () -> foodService.findFoodDetailById(saveUser, saveFood.getId()));
     }
 
     @Test

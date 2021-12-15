@@ -10,16 +10,14 @@ import com.yapp.sharefood.flavor.domain.Flavor;
 import com.yapp.sharefood.flavor.domain.FlavorType;
 import com.yapp.sharefood.flavor.dto.FlavorDto;
 import com.yapp.sharefood.flavor.repository.FlavorRepository;
-import com.yapp.sharefood.food.domain.Food;
-import com.yapp.sharefood.food.domain.FoodFlavor;
-import com.yapp.sharefood.food.domain.FoodTag;
-import com.yapp.sharefood.food.domain.TagWrapper;
+import com.yapp.sharefood.food.domain.*;
 import com.yapp.sharefood.food.dto.*;
 import com.yapp.sharefood.food.dto.request.*;
 import com.yapp.sharefood.food.dto.response.FoodDetailResponse;
 import com.yapp.sharefood.food.dto.response.FoodPageResponse;
 import com.yapp.sharefood.food.dto.response.RecommendationFoodResponse;
 import com.yapp.sharefood.food.dto.response.TopRankFoodResponse;
+import com.yapp.sharefood.food.exception.FoodBanndedException;
 import com.yapp.sharefood.food.exception.FoodNotFoundException;
 import com.yapp.sharefood.food.repository.FoodRepository;
 import com.yapp.sharefood.food.repository.FoodTagRepository;
@@ -62,8 +60,7 @@ public class FoodService {
         Category findCategory = categoryRepository.findByName(foodCreationRequest.getCategoryName())
                 .orElseThrow(CategoryNotFoundException::new);
         List<Flavor> flavors = flavorRepository.findByFlavorTypeIsIn(
-                foodCreationRequest.getFlavors().stream()
-                        .map(flavorDto -> FlavorType.of(flavorDto.getFlavorName()))
+                foodCreationRequest.getFlavors().stream().map(FlavorType::of)
                         .collect(Collectors.toList()));
 
         Food food = Food.builder()
@@ -114,6 +111,8 @@ public class FoodService {
     public FoodDetailResponse findFoodDetailById(User user, Long id) {
         Food food = foodRepository.findById(id)
                 .orElseThrow(FoodNotFoundException::new);
+
+        if (food.getReportStatus() != FoodReportStatus.NORMAL) throw new FoodBanndedException();
 
         return FoodDetailResponse.builder()
                 .id(food.getId())
