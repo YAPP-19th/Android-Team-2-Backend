@@ -36,13 +36,12 @@ class AuthServiceTest {
     AuthService authService;
 
     @Autowired
-    TokenProvider tokenProvider;
-
-    @Autowired
     UserRepository userRepository;
 
     @MockBean
     AuthenticationManager authenticationManager;
+    @MockBean
+    TokenProvider tokenProvider;
 
     @Test
     @DisplayName("kakao oauth 로그인 테스트")
@@ -60,13 +59,15 @@ class AuthServiceTest {
 
         willReturn(KakaoOAuthProfile.of("kakao_id", now, nickname))
                 .given(authenticationManager).requestOAuthUserInfo(any(OAuthType.class), anyString());
+        willReturn("mock_token_data")
+                .given(tokenProvider).createToken(any(User.class));
 
         // when
         OAuthDto authenticate = authService.authenticate(authRequestDto);
 
         // then
         assertEquals(OAuthType.KAKAO, authenticate.getAuthType());
-        assertEquals(tokenProvider.createToken(savedUser), authenticate.getToken());
+        assertEquals("mock_token_data", authenticate.getToken());
     }
 
     @Test
@@ -106,6 +107,8 @@ class AuthServiceTest {
         LocalDateTime now = LocalDateTime.now();
         willReturn(KakaoOAuthProfile.of("kakao_id", now, "kkh"))
                 .given(authenticationManager).requestOAuthUserInfo(any(OAuthType.class), anyString());
+        willReturn("mock_token_data")
+                .given(tokenProvider).createToken(any(User.class));
 
         // when
         OAuthDto oAuthDto = authService.signUp(authCreationRequestDto);
@@ -115,7 +118,7 @@ class AuthServiceTest {
         User realuser = kakaSingUpUser.get();
         assertEquals(OAuthType.KAKAO, oAuthDto.getAuthType());
         assertEquals(realuser.getId(), oAuthDto.getUserId());
-        assertEquals(tokenProvider.createToken(realuser), oAuthDto.getToken());
+        assertEquals("mock_token_data", oAuthDto.getToken());
     }
 
     @Test

@@ -177,15 +177,18 @@ public class Food extends BaseEntity {
         return this.bookmarks.isAlreadyBookmark(user.getId());
     }
 
-    public boolean isMeFavorite(User user) {
-        return this.favorites.isAlreadyFavorite(user.getId());
+    public void updateAllElements(String foodTitle, String reviewMsg, Integer price, FoodStatus foodStatus, Category category) {
+        this.foodTitle = foodTitle;
+        this.reviewMsg = reviewMsg;
+        this.price = price;
+        this.foodStatus = foodStatus;
+        this.category = category;
     }
 
     public void addReport(String reportMessage) {
         FoodReportType reportType = FoodReportType.getFoodReportType(reportMessage);
         reportPoint += reportType.getPoint();
 
-        FoodReportStatus reportStatus = FoodReportStatus.getReportStatus(reportPoint);
-        this.reportStatus = reportStatus;
+        this.reportStatus = FoodReportStatus.getReportStatus(reportPoint);
     }
 }
