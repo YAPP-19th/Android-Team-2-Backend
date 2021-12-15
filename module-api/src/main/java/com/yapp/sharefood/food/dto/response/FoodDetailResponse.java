@@ -22,14 +22,14 @@ public class FoodDetailResponse {
 
     private boolean isMeLike;
     private boolean isMeBookmark;
-    private boolean isMyFlavorite;
+    private boolean isMyFavorite;
 
     private List<FoodTagDto> foodTags;
     private List<FoodImageDto> foodImages;
 
     @Builder
     public FoodDetailResponse(Long id, String foodTitle, String reviewDetail, int price, long numberOfLike, boolean isMeLike, boolean isMeBookmark,
-                              boolean isMyFlavorite, String writerName, List<FoodTagDto> foodTags, List<FoodImageDto> foodImages) {
+                              boolean isMyFavorite, String writerName, List<FoodTagDto> foodTags, List<FoodImageDto> foodImages) {
         this.id = id;
         this.foodTitle = foodTitle;
         this.reviewDetail = reviewDetail;
@@ -37,7 +37,7 @@ public class FoodDetailResponse {
         this.numberOfLike = numberOfLike;
         this.isMeLike = isMeLike;
         this.isMeBookmark = isMeBookmark;
-        this.isMyFlavorite = isMyFlavorite;
+        this.isMyFavorite = isMyFavorite;
         this.writerName = writerName;
         this.foodTags = foodTags;
         this.foodImages = foodImages;
