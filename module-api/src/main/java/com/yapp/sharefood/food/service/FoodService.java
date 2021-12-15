@@ -90,6 +90,8 @@ public class FoodService {
     public FoodDetailResponse updateFood(User user, Long foodId, List<TagWrapper> wrapperTags, FoodUpdateRequest foodUpdateRequest) {
         Food findFood = foodRepository.findByIdWithUser(foodId, user)
                 .orElseThrow(FoodNotFoundException::new);
+        Category category = categoryRepository.findByName(foodUpdateRequest.getCategoryName())
+                .orElseThrow(CategoryNotFoundException::new);
 
         List<Flavor> flavors = flavorRepository.findByFlavorTypeIsIn(
                 foodUpdateRequest.getFlavors().stream()
@@ -99,7 +101,8 @@ public class FoodService {
         findFood.updateAllElements(foodUpdateRequest.getTitle(),
                 foodUpdateRequest.getReviewMsg(),
                 foodUpdateRequest.getPrice(),
-                foodUpdateRequest.getFoodStatus());
+                foodUpdateRequest.getFoodStatus(),
+                category);
 
         findFood.getFoodFlavors().updateFlavors(flavors, findFood); // update flavors
         findFood.getFoodTags().updateTags(wrapperTags, findFood); // update tags

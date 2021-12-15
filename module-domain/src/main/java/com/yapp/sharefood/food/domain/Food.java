@@ -155,10 +155,11 @@ public class Food extends BaseEntity {
         return this.bookmarks.isAlreadyBookmark(user.getId());
     }
 
-    public void updateAllElements(String foodTitle, String reviewMsg, Integer price, FoodStatus foodStatus) {
+    public void updateAllElements(String foodTitle, String reviewMsg, Integer price, FoodStatus foodStatus, Category category) {
         this.foodTitle = foodTitle;
         this.reviewMsg = reviewMsg;
         this.price = price;
         this.foodStatus = foodStatus;
+        this.category = category;
     }
 }
