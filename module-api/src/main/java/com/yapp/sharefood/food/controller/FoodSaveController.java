@@ -7,6 +7,8 @@ import com.yapp.sharefood.food.domain.TagWrapper;
 import com.yapp.sharefood.food.dto.FoodTagDto;
 import com.yapp.sharefood.food.dto.request.FoodCreationRequest;
 import com.yapp.sharefood.food.dto.request.FoodImageCreateRequest;
+import com.yapp.sharefood.food.dto.request.FoodUpdateRequest;
+import com.yapp.sharefood.food.dto.response.FoodDetailResponse;
 import com.yapp.sharefood.food.dto.response.FoodImageCreateResponse;
 import com.yapp.sharefood.food.service.FoodImageService;
 import com.yapp.sharefood.food.service.FoodService;
@@ -17,10 +19,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.validation.Valid;
@@ -47,6 +46,16 @@ public class FoodSaveController {
                 .toUri();
 
         return ResponseEntity.created(userCreateUri).build();
+    }
+
+    @PutMapping("/api/v1/foods/{foodId}")
+    public ResponseEntity<FoodDetailResponse> updateFood(@AuthUser User user,
+                                                         @PathVariable("foodId") Long foodId,
+                                                         @Valid @RequestBody FoodUpdateRequest foodUpdateRequest) {
+        List<TagWrapper> wrapperTags = getSavedWrapperTags(foodUpdateRequest.getTags());
+
+        return ResponseEntity
+                .ok(foodService.updateFood(user, foodId, wrapperTags, foodUpdateRequest));
     }
 
     private List<TagWrapper> getSavedWrapperTags(List<FoodTagDto> foodTags) {

@@ -8,15 +8,14 @@ import com.yapp.sharefood.common.exception.InvalidOperationException;
 import com.yapp.sharefood.common.utils.LocalDateTimePeriodUtils;
 import com.yapp.sharefood.flavor.domain.Flavor;
 import com.yapp.sharefood.flavor.domain.FlavorType;
+import com.yapp.sharefood.flavor.dto.FlavorDto;
 import com.yapp.sharefood.flavor.repository.FlavorRepository;
 import com.yapp.sharefood.food.domain.Food;
+import com.yapp.sharefood.food.domain.FoodFlavor;
 import com.yapp.sharefood.food.domain.FoodTag;
 import com.yapp.sharefood.food.domain.TagWrapper;
 import com.yapp.sharefood.food.dto.*;
-import com.yapp.sharefood.food.dto.request.FoodCreationRequest;
-import com.yapp.sharefood.food.dto.request.FoodPageSearchRequest;
-import com.yapp.sharefood.food.dto.request.FoodTopRankRequest;
-import com.yapp.sharefood.food.dto.request.RecommendationFoodRequest;
+import com.yapp.sharefood.food.dto.request.*;
 import com.yapp.sharefood.food.dto.response.FoodDetailResponse;
 import com.yapp.sharefood.food.dto.response.FoodPageResponse;
 import com.yapp.sharefood.food.dto.response.RecommendationFoodResponse;
@@ -88,16 +87,24 @@ public class FoodService {
     }
 
     @Transactional
-    public void updateFood(User user, Long foodId, List<TagWrapper> wrapperTags, FoodCreationRequest foodCreationRequest) {
-        Food findFood = foodRepository.findById(foodId)
+    public FoodDetailResponse updateFood(User user, Long foodId, List<TagWrapper> wrapperTags, FoodUpdateRequest foodUpdateRequest) {
+        Food findFood = foodRepository.findByIdWithUser(foodId, user)
                 .orElseThrow(FoodNotFoundException::new);
+
         List<Flavor> flavors = flavorRepository.findByFlavorTypeIsIn(
-                foodCreationRequest.getFlavors().stream()
+                foodUpdateRequest.getFlavors().stream()
                         .map(flavorDto -> FlavorType.of(flavorDto.getFlavorName()))
                         .collect(Collectors.toList()));
 
+        findFood.updateAllElements(foodUpdateRequest.getTitle(),
+                foodUpdateRequest.getReviewMsg(),
+                foodUpdateRequest.getPrice(),
+                foodUpdateRequest.getFoodStatus());
+
         findFood.getFoodFlavors().updateFlavors(flavors, findFood); // update flavors
         findFood.getFoodTags().updateTags(wrapperTags, findFood); // update tags
+
+        return FoodDetailResponse.toFoodDetailDto(findFood);
     }
 
 
@@ -116,6 +123,7 @@ public class FoodService {
                 .isMeBookmark(food.isMeBookMark(user))
                 .foodImages(FoodImageDto.toList(food.getImages().getImages()))
                 .foodTags(findFoodTagsByFoodTag(food.getFoodTags().getFoodTags()))
+                .foodFlavors(findFlavorFromFood(food.getFoodFlavors().getFoodFlavors()))
                 .build();
     }
 
@@ -141,6 +149,12 @@ public class FoodService {
                 .collect(Collectors.toList());
         return foodTagRepository.findFoodtagsWithTag(tagIds)
                 .stream().map(foodTag -> FoodTagDto.of(foodTag.getTag().getId(), foodTag.getTag().getName(), foodTag.getIngredientType()))
+                .collect(Collectors.toList());
+    }
+
+    private List<FlavorDto> findFlavorFromFood(List<FoodFlavor> foodFlavors) {
+        return foodFlavors.stream()
+                .map(foodFlavor -> FlavorDto.of(foodFlavor.getFlavor().getId(), foodFlavor.getFlavor().getFlavorType()))
                 .collect(Collectors.toList());
     }
 
