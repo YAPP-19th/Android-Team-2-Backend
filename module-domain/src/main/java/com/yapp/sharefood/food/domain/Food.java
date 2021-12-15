@@ -5,6 +5,7 @@ import com.yapp.sharefood.category.domain.Category;
 import com.yapp.sharefood.category.exception.CategoryNotFoundException;
 import com.yapp.sharefood.common.domain.BaseEntity;
 import com.yapp.sharefood.common.exception.InvalidOperationException;
+import com.yapp.sharefood.favorite.domain.Favorite;
 import com.yapp.sharefood.flavor.domain.Flavor;
 import com.yapp.sharefood.like.domain.Like;
 import com.yapp.sharefood.oauth.exception.UserNotFoundException;
@@ -71,6 +72,9 @@ public class Food extends BaseEntity {
 
     @Embedded
     private final Bookmarks bookmarks = new Bookmarks();
+
+    @Embedded
+    private final Favorites favorites = new Favorites();
 
     @Embedded
     private final FoodFlavors foodFlavors = new FoodFlavors();
@@ -145,6 +149,14 @@ public class Food extends BaseEntity {
         bookmarks.deleteBookmark(user.getId());
     }
 
+    public void assignFavorite(Favorite favorite) {
+        this.favorites.assignFavorite(this, favorite);
+    }
+
+    public void deleteFavorite(User user) {
+        this.favorites.deleteFavorite(user.getId());
+    }
+
     public void assignWrapperTags(List<TagWrapper> wrapperTags) {
         getFoodTags().addAllTags(wrapperTags, this);
     }
@@ -163,6 +175,10 @@ public class Food extends BaseEntity {
 
     public boolean isMeBookMark(User user) {
         return this.bookmarks.isAlreadyBookmark(user.getId());
+    }
+
+    public boolean isMeFavorite(User user) {
+        return this.favorites.isAlreadyFavorite(user.getId());
     }
 
     public void addReport(String reportMessage) {

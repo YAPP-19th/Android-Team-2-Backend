@@ -31,7 +31,7 @@ public class Bookmarks {
             throw new BookmarkNotFoundException();
         }
 
-        validateAlreadyBookmarkUser(bookmark.getId());
+        validateAlreadyBookmarkUser(bookmark.getUser().getId());
 
         bookmark.assignFood(food);
         if (!bookmarks.contains(bookmark)) {
