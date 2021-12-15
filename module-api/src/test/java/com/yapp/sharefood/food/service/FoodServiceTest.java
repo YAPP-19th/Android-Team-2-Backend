@@ -14,6 +14,7 @@ import com.yapp.sharefood.food.domain.TagWrapper;
 import com.yapp.sharefood.food.dto.FoodTagDto;
 import com.yapp.sharefood.food.dto.request.FoodCreationRequest;
 import com.yapp.sharefood.food.dto.request.FoodTopRankRequest;
+import com.yapp.sharefood.food.dto.request.FoodUpdateRequest;
 import com.yapp.sharefood.food.dto.request.RecommendationFoodRequest;
 import com.yapp.sharefood.food.dto.response.FoodDetailResponse;
 import com.yapp.sharefood.food.dto.response.RecommendationFoodResponse;
@@ -39,6 +40,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
@@ -533,5 +535,61 @@ class FoodServiceTest {
 
         // then
         assertEquals(4, foodRecommendation.getRecommendationFoods().size());
+    }
+
+    @Test
+    @DisplayName("food update 기능 테스트 - 성공")
+    void updateFood_Success() throws Exception {
+        // given
+        User user = saveTestUser("userNickname", "name", "123124");
+        Category category = saveTestCategory("샌드위치");
+        saveTestCategory("마라탕");
+        List<TagWrapper> tagWrappers = new ArrayList<>();
+
+        Food food = Food.builder()
+                .foodTitle("title0")
+                .reviewMsg("review msg before")
+                .price(1000)
+                .category(category)
+                .foodStatus(FoodStatus.MINE)
+                .writer(user)
+                .build();
+        food.assignWrapperTags(tagWrappers);
+        foodRepository.save(food);
+        List<Tag> beforeSaveTags = List.of(Tag.of("재료1"), Tag.of("재료2"), Tag.of("재료3"));
+        List<Tag> saveTags = tagRepository.saveAll(beforeSaveTags);
+        List<TagWrapper> newTagWrapper = List.of(
+                new TagWrapper(saveTags.get(0), FoodIngredientType.MAIN),
+                new TagWrapper(saveTags.get(1), FoodIngredientType.ADD),
+                new TagWrapper(saveTags.get(2), FoodIngredientType.EXTRACT));
+
+        // when
+        FoodUpdateRequest foodUpdateRequest = FoodUpdateRequest.builder()
+                .categoryName("커피")
+                .title("title1")
+                .reviewMsg("reviewDetail")
+                .price(1000)
+                .categoryName("마라탕")
+                .foodStatus(FoodStatus.SHARED)
+                .tags(List.of(FoodTagDto.of(null, "재료1", FoodIngredientType.MAIN),
+                        FoodTagDto.of(null, "재료2", FoodIngredientType.ADD),
+                        FoodTagDto.of(null, "재료3", FoodIngredientType.EXTRACT)))
+                .flavors(List.of(FlavorDto.of(1L, FlavorType.SWEET), FlavorDto.of(2L, FlavorType.SOUR), FlavorDto.of(3L, FlavorType.PLAIN_DETAIL)))
+                .build();
+
+
+        // then
+        FoodDetailResponse foodDetailResponse = foodService.updateFood(user, food.getId(), newTagWrapper, foodUpdateRequest);
+
+        assertEquals("title1", foodDetailResponse.getFoodTitle());
+        assertEquals("reviewDetail", foodDetailResponse.getReviewDetail());
+        assertThat(foodUpdateRequest.getTags())
+                .hasSize(3)
+                .extracting("name")
+                .containsExactlyInAnyOrderElementsOf(List.of("재료1", "재료2", "재료3"));
+        assertThat(foodUpdateRequest.getFlavors())
+                .hasSize(3)
+                .extracting("flavorName")
+                .containsExactlyInAnyOrderElementsOf(List.of("단맛", "씬맛", "단백한"));
     }
 }
