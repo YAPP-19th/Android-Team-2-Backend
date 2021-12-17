@@ -1,49 +1,72 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
 <configuration>
+    <timestamp key="FILE_BY_DATE" datePattern="yyyy-MM-dd"/>
+    <property name="DEFAULT_LOG_PATTERN"
+              value="[%d{yyyy-MM-dd HH:mm:ss}:%-4relative] %green([%thread]) %highlight(%-5level) %boldWhite([%C.%M:%yellow(%L)]) - %msg%n"/>
+    <property name="LOG_PATTERN_AWS"
+              value="메세지: [%msg] 클래스: [%C{0}.%M:#%L] 스레드: [%thread] %n"/>
 
-    <springProperty scope="context" name="application_name" source="spring.application.name"/>
+    <property name="LOG_LOCATION" value="./logs"/>
+    <property name="BACKUP_LOCATION" value="./logs/backup"/>
+    <property name="AWS" value="aws"/>
 
-    <springProfile name="local">
+    <property name="INFO_LOCATION" value="info"/>
+    <property name="WARN_LOCATION" value="warn"/>
+    <property name="ERROR_LOCATION" value="error"/>
 
-        <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
-            <layout class="ch.qos.logback.classic.PatternLayout">
-                <Pattern>
-                    %green(%d{yyyy-MM-dd HH:mm:ss}) %magenta([%thread]) %blue(%-5level) %yellow(%logger{36}) : %msg%n
-                </Pattern>
-            </layout>
-        </appender>
+    <property name="MAX_FILE_SIZE" value="100MB"/>
+    <property name="MAX_HISTORY" value="30"/>
 
-        <!-- 파일로 로그를 작성할 때 -->
-        <appender name="LOG_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-            <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-                <fileNamePattern>logs/sharedfood-%d{yyyy-MM-dd}.log</fileNamePattern>
-                <maxHistory>30</maxHistory>
-            </rollingPolicy>
-            <encoder>
-                <pattern>%date [%thread] %level : %msg%n</pattern>
-            </encoder>
-        </appender>
-
+    <springProfile name="local|test">
+        <include resource="console-appender.xml"/>
         <root level="INFO">
-            <appender-ref ref="STDOUT"/>
-            <appender-ref ref="LOG_FILE"/>
+            <appender-ref ref="CONSOLE"/>
         </root>
-
     </springProfile>
 
     <springProfile name="dev">
+        <include resource="console-appender.xml"/>
+        <include resource="file-error-appender.xml"/>
+        <include resource="file-warn-appender.xml"/>
+        <include resource="file-info-appender.xml"/>
 
-        <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
-            <layout class="ch.qos.logback.classic.PatternLayout">
-                <Pattern>
-                    %green(%d{yyyy-MM-dd HH:mm:ss}) %magenta([%thread]) %blue(%-5level) %yellow(%logger{36}) - %msg%n
-                </Pattern>
-            </layout>
-        </appender>
+        <include resource="file-error-aws-appender.xml"/>
+        <include resource="file-warn-aws-appender.xml"/>
+        <include resource="file-info-aws-appender.xml"/>
 
-        <root level="ERROR">
-            <appender-ref ref="STDOUT"/>
+        <logger name="com.yapp.sharefood" level="DEBUG">
+            <appender-ref ref="CONSOLE"/>
+        </logger>
+        <logger name="com.yapp.sharefood.external.s3" level="INFO">
+            <appender-ref ref="FILE-AWS-ERROR"/>
+            <appender-ref ref="FILE-AWS-WARN"/>
+            <appender-ref ref="FILE-AWS-INFO"/>
+        </logger>
+
+        <root level="INFO">
+            <appender-ref ref="FILE-ERROR"/>
+            <appender-ref ref="FILE-WARN"/>
+            <appender-ref ref="FILE-INFO"/>
         </root>
+    </springProfile>
 
+    <springProfile name="prod">
+        <include resource="console-appender.xml"/>
+        <include resource="file-error-appender.xml"/>
+        <include resource="file-warn-appender.xml"/>
+        <include resource="file-error-aws-appender.xml"/>
+        <include resource="file-warn-aws-appender.xml"/>
+        <include resource="file-info-aws-appender.xml"/>
+
+        <logger name="com.yapp.sharefood.external.s3" level="INFO">
+            <appender-ref ref="FILE-AWS-ERROR"/>
+            <appender-ref ref="FILE-AWS-WARN"/>
+            <appender-ref ref="FILE-AWS-INFO"/>
+        </logger>
+        <root level="WARN">
+            <appender-ref ref="FILE-ERROR"/>
+            <appender-ref ref="FILE-WARN"/>
+        </root>
     </springProfile>
 </configuration>
