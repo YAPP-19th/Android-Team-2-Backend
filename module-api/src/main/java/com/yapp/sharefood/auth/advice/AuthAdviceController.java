@@ -3,6 +3,7 @@ package com.yapp.sharefood.auth.advice;
 import com.yapp.sharefood.common.exception.ForbiddenException;
 import com.yapp.sharefood.external.exception.BadGatewayException;
 import com.yapp.sharefood.oauth.exception.*;
+import io.jsonwebtoken.ExpiredJwtException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -23,7 +24,7 @@ public class AuthAdviceController {
      */
     @ExceptionHandler(BadGatewayException.class)
     protected ResponseEntity<Object> handleBadGatewayException(final BadGatewayException exception) {
-        log.error(exception.getMessage(), exception);
+        log.warn("BadGatewayException: {}", exception.getMessage(), exception);
         // add event publisher for let me know in slack or other application
         return ResponseEntity.status(HttpStatus.BAD_GATEWAY).body(exception.getMessage());
     }
@@ -34,7 +35,7 @@ public class AuthAdviceController {
      */
     @ExceptionHandler(UserNotFoundException.class)
     protected ResponseEntity<Object> handleUserNotFoundException(final UserNotFoundException exception) {
-        log.error(exception.getMessage(), exception);
+        log.info("UserNotFoundException: {}", exception.getMessage(), exception);
 
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(exception.getMessage());
     }
@@ -44,8 +45,8 @@ public class AuthAdviceController {
      * OAuth 요청 정보가 적절하지 못한 경우
      */
     @ExceptionHandler(InvalidParameterException.class)
-    protected ResponseEntity<String> handleParamterIsNotValidException(final InvalidParameterException exception) {
-        log.error(exception.getMessage(), exception);
+    protected ResponseEntity<String> handleParameterIsNotValidException(final InvalidParameterException exception) {
+        log.info("InvalidParameterException: {}", exception.getMessage(), exception);
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(exception.getMessage());
     }
@@ -56,7 +57,7 @@ public class AuthAdviceController {
      */
     @ExceptionHandler(OAUthExistException.class)
     protected ResponseEntity<String> handleOAuthUserExistException(final OAUthExistException exception) {
-        log.error(exception.getMessage(), exception);
+        log.info("OAUthExistException: {}", exception.getMessage(), exception);
 
         return ResponseEntity.status(HttpStatus.CONFLICT).body(exception.getMessage());
     }
@@ -65,9 +66,9 @@ public class AuthAdviceController {
      * 401 Unauthorized
      * token이 적절하지 않을 경우
      */
-    @ExceptionHandler({AuthHeaderOmittedException.class, TokenValidationException.class, TokenExpireExcetion.class})
+    @ExceptionHandler({AuthHeaderOmittedException.class, TokenValidationException.class, TokenExpireExcetion.class, ExpiredJwtException.class})
     protected ResponseEntity<String> handleUnAuthorizedException(final RuntimeException exception) {
-        log.error(exception.getMessage(), exception);
+        log.info("UnAuthException: {}", exception.getMessage(), exception);
 
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(exception.getMessage());
     }
@@ -78,7 +79,7 @@ public class AuthAdviceController {
      */
     @ExceptionHandler(ForbiddenException.class)
     protected ResponseEntity<String> handleForbiddenException(final RuntimeException execException) {
-        log.error(execException.getMessage(), execException);
+        log.info("ForbiddenException: {}", execException.getMessage(), execException);
 
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(execException.getMessage());
     }
