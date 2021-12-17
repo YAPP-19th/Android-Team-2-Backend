@@ -68,5 +68,4 @@ public class CommonAdviceController {
 
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(exception.getMessage());
     }
-
 }
