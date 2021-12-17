@@ -57,15 +57,4 @@ public class CommonAdviceController {
         log.error("MethodArgumentNotValidException: {}", e.getMessage(), e);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
     }
-
-    /**
-     * 500 Interval server Error Default
-     * 적절하지 못한 모든 Exception 발생
-     */
-    @ExceptionHandler({Exception.class})
-    protected ResponseEntity<Object> handleDefaultException(final Exception exception) {
-        log.error("Exception: {}", exception.getMessage(), exception);
-
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(exception.getMessage());
-    }
 }
