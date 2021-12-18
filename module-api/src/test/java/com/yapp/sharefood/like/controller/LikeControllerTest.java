@@ -1,10 +1,9 @@
 package com.yapp.sharefood.like.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yapp.sharefood.common.PreprocessController;
 import com.yapp.sharefood.common.exception.ForbiddenException;
 import com.yapp.sharefood.common.exception.InvalidOperationException;
-import com.yapp.sharefood.config.lock.UserlevelLock;
+import com.yapp.sharefood.config.lock.UserLevelLock;
 import com.yapp.sharefood.food.exception.FoodNotFoundException;
 import com.yapp.sharefood.like.service.LikeService;
 import com.yapp.sharefood.user.domain.User;
@@ -36,9 +35,7 @@ class LikeControllerTest extends PreprocessController {
     @MockBean
     LikeService likeService;
     @MockBean
-    UserlevelLock userlevelLock;
-
-    ObjectMapper objectMapper = new ObjectMapper();
+    UserLevelLock userlevelLock;
 
     @Test
     @DisplayName("게시글에 좋아요를 누른 경우")
