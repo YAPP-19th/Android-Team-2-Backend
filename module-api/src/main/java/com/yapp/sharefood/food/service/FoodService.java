@@ -110,8 +110,8 @@ public class FoodService {
     }
 
 
-    public FoodDetailResponse findFoodDetailById(User user, Long id) {
-        Food food = foodRepository.findById(id)
+    public FoodDetailResponse findFoodDetailById(User user, Long foodId) {
+        Food food = foodRepository.findFoodWithWriterAndCategoryById(foodId)
                 .orElseThrow(FoodNotFoundException::new);
 
         if (food.getReportStatus() != FoodReportStatus.NORMAL) throw new FoodBanndedException();
@@ -124,6 +124,7 @@ public class FoodService {
                 .price(food.getPrice())
                 .numberOfLike(food.getLikeNumber())
                 .isMeLike(food.isMeLike(user))
+                .categoryName(food.getCategory().getName())
                 .isMeBookmark(food.isMeBookMark(user))
                 .foodImages(FoodImageDto.toList(food.getImages().getImages()))
                 .foodTags(findFoodTagsByFoodTag(food.getFoodTags().getFoodTags()))

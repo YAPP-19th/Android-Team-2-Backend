@@ -329,6 +329,7 @@ class FoodSaveControllerTest extends PreprocessController {
                 .writerName("writer")
                 .isMeLike(false)
                 .isMeBookmark(false)
+                .categoryName("샌드위치")
                 .foodTags(List.of(FoodTagDto.of(1L, "재료1", FoodIngredientType.MAIN),
                         FoodTagDto.of(2L, "재료2", FoodIngredientType.ADD),
                         FoodTagDto.of(3L, "재료3", FoodIngredientType.EXTRACT)))
