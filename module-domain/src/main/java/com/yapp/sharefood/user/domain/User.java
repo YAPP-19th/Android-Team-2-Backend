@@ -3,7 +3,6 @@ package com.yapp.sharefood.user.domain;
 import com.yapp.sharefood.common.domain.BaseEntity;
 import com.yapp.sharefood.common.exception.InvalidOperationException;
 import com.yapp.sharefood.flavor.domain.Flavor;
-import com.yapp.sharefood.flavor.exception.FlavorNotFoundException;
 import com.yapp.sharefood.food.domain.Food;
 import com.yapp.sharefood.food.exception.FoodNotFoundException;
 import com.yapp.sharefood.userflavor.domain.UserFlavor;
@@ -16,6 +15,8 @@ import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.yapp.sharefood.user.domain.Grade.*;
 
@@ -35,26 +36,36 @@ public class User extends BaseEntity {
     @Column(length = 20, unique = true)
     private String nickname;
 
-    @Column(name = "user_point", columnDefinition = "integer default 0")
-    private Integer point;
-
     @Column(name = "user_grade")
     @Enumerated(EnumType.STRING)
     private Grade grade;
 
+    @Column(name = "user_grade_point")
+    private Integer gradePoint;
+
+    @Column(name = "user_report_status", nullable = false)
+    @Enumerated(EnumType.STRING)
+    private UserReportStatus reportStatus;
+
+    @Column(name = "user_report_point", nullable = false)
+    private Integer reportPoint;
+
     @Embedded
-    private OAuthInfo oAuthInfo = new OAuthInfo();
+    private final OAuthInfo oAuthInfo = new OAuthInfo();
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<UserFlavor> userFlavors = new ArrayList<>();
+    private final List<UserFlavor> userFlavors = new ArrayList<>();
 
     @Builder
     public User(Long id, String oauthId, String name, OAuthType oAuthType, String nickname) {
         this.id = id;
         this.nickname = nickname;
         this.grade = Grade.STUDENT;
-        this.point = 0;
+        this.gradePoint = 0;
         this.oAuthInfo.initOAuthInfo(oauthId, name, oAuthType);
+
+        this.reportStatus = UserReportStatus.NORMAL;
+        this.reportPoint = 0;
     }
 
     public void changeNickname(String newNickname) {
@@ -70,7 +81,7 @@ public class User extends BaseEntity {
 
         if (!canEarnPoint(food.getWriter().getGrade())) return;
 
-        this.point += POINT_REGISTER_FOOD;
+        this.gradePoint += POINT_REGISTER_FOOD;
     }
 
     public void addPointByOpenFood(Food food) {
@@ -82,28 +93,36 @@ public class User extends BaseEntity {
 
         if (!canEarnPoint(food.getWriter().getGrade())) return;
 
-        this.point += (food.getFoodStatus().isShared()) ? POINT_OPEN_FOOD : 0;
+        this.gradePoint += (food.getFoodStatus().isShared()) ? POINT_OPEN_FOOD : 0;
     }
 
     public void upgrade() {
-        int point = this.point != null ? this.point : -1;
+        int point = this.gradePoint != null ? this.gradePoint : -1;
         this.grade = Grade.gradeByPoint(point);
     }
 
-    public void assignFlavors(List<Flavor> flavors) {
-        if (Objects.isNull(flavors)) {
-            throw new FlavorNotFoundException();
-        }
-        flavors.forEach(this::validateDuplicateFlavor);
+    public void updateUserFlavors(Set<Flavor> flavorSet) {
+        this.userFlavors.removeIf(userFlavor -> !flavorSet.contains(userFlavor.getFlavor()));
+        Set<Flavor> userExistFlavor = getUserFlavrs();
 
-        flavors.stream()
-                .map(flavor -> UserFlavor.of(this, flavor))
-                .forEach(userFlavors::add);
+        for (Flavor flavor : flavorSet) {
+            if (!userExistFlavor.contains(flavor)) {
+                this.userFlavors.add(UserFlavor.of(this, flavor));
+            }
+        }
     }
 
-    private void validateDuplicateFlavor(Flavor flavor) {
-        if (userFlavors.stream().anyMatch(userFlavor -> userFlavor.isSame(flavor))) {
-            throw new InvalidOperationException("이미 등록된 맛 입니다.");
-        }
+    private Set<Flavor> getUserFlavrs() {
+        return userFlavors.stream()
+                .map(UserFlavor::getFlavor)
+                .collect(Collectors.toSet());
+    }
+
+    public void addReport(String reportMessage) {
+        UserReportType reportType = UserReportType.getFoodReportType(reportMessage);
+        this.reportPoint += reportType.getPoint();
+
+        this.reportStatus = UserReportStatus.getReportStatus(this.reportPoint);
+        // TODO: 2021/12/12 Token 제거 로직 필요
     }
 }

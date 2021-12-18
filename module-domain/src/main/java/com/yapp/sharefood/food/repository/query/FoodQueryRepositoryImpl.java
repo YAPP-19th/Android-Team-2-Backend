@@ -5,15 +5,19 @@ import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.yapp.sharefood.category.domain.Category;
+import com.yapp.sharefood.common.exception.BadRequestException;
 import com.yapp.sharefood.common.order.SortType;
 import com.yapp.sharefood.common.utils.QueryUtils;
 import com.yapp.sharefood.flavor.domain.Flavor;
 import com.yapp.sharefood.food.domain.Food;
+import com.yapp.sharefood.food.domain.FoodReportStatus;
 import com.yapp.sharefood.food.domain.FoodStatus;
+import com.yapp.sharefood.food.dto.FoodMinePageSearch;
 import com.yapp.sharefood.food.dto.FoodPageSearch;
 import com.yapp.sharefood.food.dto.FoodRecommendSearch;
 import com.yapp.sharefood.food.dto.OrderType;
 import com.yapp.sharefood.tag.domain.Tag;
+import com.yapp.sharefood.user.domain.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
@@ -23,10 +27,12 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
+import static com.yapp.sharefood.bookmark.domain.QBookmark.bookmark;
 import static com.yapp.sharefood.category.domain.QCategory.category;
 import static com.yapp.sharefood.food.domain.QFood.food;
 import static com.yapp.sharefood.food.domain.QFoodFlavor.foodFlavor;
 import static com.yapp.sharefood.food.domain.QFoodTag.foodTag;
+import static com.yapp.sharefood.user.domain.QUser.user;
 
 @Repository
 @RequiredArgsConstructor
@@ -42,6 +48,7 @@ public class FoodQueryRepositoryImpl implements FoodQueryRepository {
         }
 
         return queryFactory.selectFrom(food)
+                .leftJoin(food.writer, user).fetchJoin()
                 .leftJoin(food.category, category).fetchJoin()
                 .where(inIds(ids))
                 .fetch();
@@ -59,8 +66,10 @@ public class FoodQueryRepositoryImpl implements FoodQueryRepository {
 
         return queryFactory.selectFrom(food)
                 .innerJoin(food.foodFlavors.foodFlavors, foodFlavor)
+                .leftJoin(food.writer, user).fetchJoin()
                 .where(
                         statusShared(),
+                        reportStatusNormal(),
                         containCategories(foodRecommendSearch.getCategories()),
                         containFlavors(foodRecommendSearch.getFlavors()),
                         notZeroLike()
@@ -80,6 +89,7 @@ public class FoodQueryRepositoryImpl implements FoodQueryRepository {
                         loeMaxPrice(foodPageSearch.getMaxPrice()),
                         lessThanCreateTime(foodPageSearch.getSearchTime()),
                         eqCategory(foodPageSearch.getCategory()),
+                        reportStatusNormal(),
                         statusShared()
                 )
                 .orderBy(findCriteria(foodPageSearch.getOrder(), foodPageSearch.getSort()))
@@ -95,6 +105,7 @@ public class FoodQueryRepositoryImpl implements FoodQueryRepository {
         QueryUtils.validateNotEmptyList(foodPageSearch.getTags());
 
         return queryFactory.selectFrom(food)
+                .leftJoin(food.writer, user).fetchJoin()
                 .where(
                         food.id.in(
                                 JPAExpressions
@@ -107,6 +118,7 @@ public class FoodQueryRepositoryImpl implements FoodQueryRepository {
                                                 lessThanCreateTime(foodPageSearch.getSearchTime()),
                                                 eqCategory(foodPageSearch.getCategory()),
                                                 containTags(foodPageSearch.getTags()),
+                                                reportStatusNormal(),
                                                 statusShared()
                                         )
                         )
@@ -122,6 +134,7 @@ public class FoodQueryRepositoryImpl implements FoodQueryRepository {
         QueryUtils.validateNotEmptyList(foodPageSearch.getFlavors());
 
         return queryFactory.selectFrom(food)
+                .leftJoin(food.writer, user).fetchJoin()
                 .where(
                         food.id.in(
                                 JPAExpressions
@@ -134,6 +147,7 @@ public class FoodQueryRepositoryImpl implements FoodQueryRepository {
                                                 lessThanCreateTime(foodPageSearch.getSearchTime()),
                                                 eqCategory(foodPageSearch.getCategory()),
                                                 containFlavors(foodPageSearch.getFlavors()),
+                                                reportStatusNormal(),
                                                 statusShared()
                                         )
                         )
@@ -144,7 +158,54 @@ public class FoodQueryRepositoryImpl implements FoodQueryRepository {
                 .fetch();
     }
 
+    @Override
+    public List<Food> findMineFoodSearch(User ownerUser, FoodMinePageSearch foodMinePageSearch) {
+        return queryFactory
+                .selectFrom(food)
+                .leftJoin(food.foodFlavors.foodFlavors, foodFlavor)
+                .where(
+                        food.writer.eq(ownerUser),
+                        goeMinPrice(foodMinePageSearch.getMinPrice()),
+                        loeMaxPrice(foodMinePageSearch.getMaxPrice()),
+                        lessThanCreateTime(foodMinePageSearch.getSearchTime()),
+                        containCategories(foodMinePageSearch.getCategories()),
+                        status(foodMinePageSearch.getStatus()),
+                        reportStatusNormal()
+                )
+                .groupBy(food.id)
+                .orderBy(findCriteria(foodMinePageSearch.getOrder(), foodMinePageSearch.getSort()))
+                .limit(foodMinePageSearch.getSize())
+                .offset(foodMinePageSearch.getOffset() * foodMinePageSearch.getSize())
+                .fetch();
+    }
+
+    @Override
+    public List<Food> findMineBookMarkFoodSearch(User ownerUser, FoodMinePageSearch foodMinePageSearch) {
+        return queryFactory
+                .selectFrom(food)
+                .leftJoin(food.bookmarks.bookmarks, bookmark)
+                .leftJoin(food.foodFlavors.foodFlavors, foodFlavor)
+                .where(
+                        bookmark.user.eq(ownerUser),
+                        goeMinPrice(foodMinePageSearch.getMinPrice()),
+                        loeMaxPrice(foodMinePageSearch.getMaxPrice()),
+                        lessThanCreateTime(foodMinePageSearch.getSearchTime()),
+                        containCategories(foodMinePageSearch.getCategories()),
+                        status(foodMinePageSearch.getStatus()),
+                        reportStatusNormal()
+                )
+                .groupBy(food.id)
+                .orderBy(findCriteria(foodMinePageSearch.getOrder(), foodMinePageSearch.getSort()))
+                .limit(foodMinePageSearch.getSize())
+                .offset(foodMinePageSearch.getOffset() * foodMinePageSearch.getSize())
+                .fetch();
+    }
+
     private BooleanExpression lessThanCreateTime(LocalDateTime searchTime) {
+        if (searchTime == null) {
+            throw new BadRequestException("search 시간을 입력하지 않았습니다.");
+        }
+
         return food.createDate.loe(searchTime);
     }
 
@@ -156,8 +217,16 @@ public class FoodQueryRepositoryImpl implements FoodQueryRepository {
         return minPrice == null ? null : food.price.goe(minPrice);
     }
 
+    private BooleanExpression reportStatusNormal() {
+        return food.reportStatus.eq(FoodReportStatus.NORMAL);
+    }
+
     private BooleanExpression statusShared() {
-        return food.foodStatus.eq(FoodStatus.SHARED);
+        return status(FoodStatus.SHARED);
+    }
+
+    private BooleanExpression status(FoodStatus foodStatus) {
+        return foodStatus == null ? null : food.foodStatus.eq(foodStatus);
     }
 
     private BooleanExpression eqCategory(Category category) {

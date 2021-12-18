@@ -5,6 +5,7 @@ import com.yapp.sharefood.category.domain.Category;
 import com.yapp.sharefood.category.exception.CategoryNotFoundException;
 import com.yapp.sharefood.common.domain.BaseEntity;
 import com.yapp.sharefood.common.exception.InvalidOperationException;
+import com.yapp.sharefood.favorite.domain.Favorite;
 import com.yapp.sharefood.flavor.domain.Flavor;
 import com.yapp.sharefood.like.domain.Like;
 import com.yapp.sharefood.oauth.exception.UserNotFoundException;
@@ -39,6 +40,10 @@ public class Food extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private FoodStatus foodStatus;
 
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private FoodReportStatus reportStatus;
+
     @Column(length = 50)
     private String writerNickname;
 
@@ -53,6 +58,9 @@ public class Food extends BaseEntity {
     @JoinColumn(name = "category_id")
     private Category category;
 
+    @Column(nullable = false)
+    private Integer reportPoint;
+
     @Embedded
     private final FoodTags foodTags = new FoodTags();
 
@@ -64,6 +72,9 @@ public class Food extends BaseEntity {
 
     @Embedded
     private final Bookmarks bookmarks = new Bookmarks();
+
+    @Embedded
+    private final Favorites favorites = new Favorites();
 
     @Embedded
     private final FoodFlavors foodFlavors = new FoodFlavors();
@@ -78,6 +89,9 @@ public class Food extends BaseEntity {
         this.numberOfLikes = 0L;
         assignWriter(writer);
         assignCategory(category);
+
+        this.reportStatus = FoodReportStatus.NORMAL;
+        this.reportPoint = 0;
     }
 
     public void assignWriter(User user) {
@@ -135,6 +149,14 @@ public class Food extends BaseEntity {
         bookmarks.deleteBookmark(user.getId());
     }
 
+    public void assignFavorite(Favorite favorite) {
+        this.favorites.assignFavorite(this, favorite);
+    }
+
+    public void deleteFavorite(User user) {
+        this.favorites.deleteFavorite(user.getId());
+    }
+
     public void assignWrapperTags(List<TagWrapper> wrapperTags) {
         getFoodTags().addAllTags(wrapperTags, this);
     }
@@ -153,5 +175,20 @@ public class Food extends BaseEntity {
 
     public boolean isMeBookMark(User user) {
         return this.bookmarks.isAlreadyBookmark(user.getId());
+    }
+
+    public void updateAllElements(String foodTitle, String reviewMsg, Integer price, FoodStatus foodStatus, Category category) {
+        this.foodTitle = foodTitle;
+        this.reviewMsg = reviewMsg;
+        this.price = price;
+        this.foodStatus = foodStatus;
+        this.category = category;
+    }
+
+    public void addReport(String reportMessage) {
+        FoodReportType reportType = FoodReportType.getFoodReportType(reportMessage);
+        reportPoint += reportType.getPoint();
+
+        this.reportStatus = FoodReportStatus.getReportStatus(reportPoint);
     }
 }

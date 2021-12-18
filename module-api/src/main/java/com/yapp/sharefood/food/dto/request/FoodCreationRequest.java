@@ -1,6 +1,5 @@
 package com.yapp.sharefood.food.dto.request;
 
-import com.yapp.sharefood.flavor.dto.FlavorDto;
 import com.yapp.sharefood.food.domain.FoodStatus;
 import com.yapp.sharefood.food.dto.FoodTagDto;
 import lombok.AccessLevel;
@@ -33,7 +32,7 @@ public class FoodCreationRequest {
     private Integer price;
 
     @NotNull
-    private List<FlavorDto> flavors = new ArrayList<>();
+    private List<String> flavors = new ArrayList<>();
 
     @NotNull
     @NotBlank
@@ -43,7 +42,7 @@ public class FoodCreationRequest {
     private FoodStatus foodStatus;
 
     @Builder
-    public FoodCreationRequest(String categoryName, String title, List<FoodTagDto> tags, Integer price, List<FlavorDto> flavors, String reviewMsg, FoodStatus foodStatus) {
+    public FoodCreationRequest(String categoryName, String title, List<FoodTagDto> tags, Integer price, List<String> flavors, String reviewMsg, FoodStatus foodStatus) {
         this.categoryName = categoryName;
         this.title = title;
         this.tags = tags;

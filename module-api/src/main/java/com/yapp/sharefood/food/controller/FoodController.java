@@ -1,6 +1,7 @@
 package com.yapp.sharefood.food.controller;
 
 import com.yapp.sharefood.auth.resolver.AuthUser;
+import com.yapp.sharefood.food.dto.request.FoodMinePageSearchRequest;
 import com.yapp.sharefood.food.dto.request.FoodPageSearchRequest;
 import com.yapp.sharefood.food.dto.request.FoodTopRankRequest;
 import com.yapp.sharefood.food.dto.request.RecommendationFoodRequest;
@@ -50,5 +51,10 @@ public class FoodController {
     @GetMapping("/api/v1/foods")
     public ResponseEntity<FoodPageResponse> findFoodsSearch(@AuthUser User user, @Valid FoodPageSearchRequest foodPageSearchRequest) {
         return ResponseEntity.ok(foodService.searchFoodsPage(foodPageSearchRequest, user));
+    }
+
+    @GetMapping("/api/v1/foods/me")
+    public ResponseEntity<FoodPageResponse> findMyFoods(@AuthUser User user, @Valid FoodMinePageSearchRequest foodMinePageSearchRequest) {
+        return ResponseEntity.ok(foodService.findOnlyMineFoods(user, foodMinePageSearchRequest));
     }
 }

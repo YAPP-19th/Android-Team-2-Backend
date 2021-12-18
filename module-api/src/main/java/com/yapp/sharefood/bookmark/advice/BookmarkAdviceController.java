@@ -14,13 +14,13 @@ public class BookmarkAdviceController {
 
     @ExceptionHandler(BookmarkNotFoundException.class)
     protected ResponseEntity<Object> handleBookmarkNotFoundException(final BookmarkNotFoundException exception) {
-        log.error(exception.getMessage(), exception);
+        log.info("BookmarkNotFoundException: {}", exception.getMessage(), exception);
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(exception.getMessage());
     }
 
     @ExceptionHandler(BookmarkAlreadyExistException.class)
     protected ResponseEntity<Object> handleBookmarkAlreadyExistException(final BookmarkAlreadyExistException exception) {
-        log.error(exception.getMessage(), exception);
+        log.info("BookmarkAlreadyExistException: {}", exception.getMessage(), exception);
         return ResponseEntity.status(HttpStatus.CONFLICT).body(exception.getMessage());
     }
 }

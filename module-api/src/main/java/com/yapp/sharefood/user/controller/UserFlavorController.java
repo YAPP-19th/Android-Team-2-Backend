@@ -8,31 +8,26 @@ import com.yapp.sharefood.flavor.service.FlavorService;
 import com.yapp.sharefood.user.domain.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
-
-import static com.yapp.sharefood.auth.utils.AuthUtils.validateUserIdPath;
 
 @RestController
 @RequiredArgsConstructor
 public class UserFlavorController {
     private final FlavorService flavorService;
 
-    @GetMapping("/api/v1/users/{userId}/flavors")
-    public ResponseEntity<FlavorsResponse> findUserFlavor(@AuthUser User user,
-                                                          @PathVariable("userId") Long userId) {
-        validateUserIdPath(userId, user);
-
+    @GetMapping("/api/v1/users/me/flavors")
+    public ResponseEntity<FlavorsResponse> findUserFlavor(@AuthUser User user) {
         return ResponseEntity.ok(flavorService.findUserFlavors(user));
     }
 
-    @PutMapping("/api/v1/users/{userId}/flavors")
+    @PutMapping("/api/v1/users/me/flavors")
     public ResponseEntity<UpdateUserFlavorResponse> updateUserFlavor(@AuthUser User user,
-                                                                     @PathVariable("userId") Long userId,
                                                                      @Valid @RequestBody UserFlavorRequest request) {
-        validateUserIdPath(userId, user);
-
         return ResponseEntity.ok(flavorService.updateUserFlavors(user, request));
     }
 }

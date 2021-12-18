@@ -7,17 +7,16 @@ import com.yapp.sharefood.flavor.domain.Flavor;
 import com.yapp.sharefood.flavor.domain.FlavorType;
 import com.yapp.sharefood.flavor.dto.FlavorDto;
 import com.yapp.sharefood.flavor.repository.FlavorRepository;
-import com.yapp.sharefood.food.domain.Food;
-import com.yapp.sharefood.food.domain.FoodIngredientType;
-import com.yapp.sharefood.food.domain.FoodStatus;
-import com.yapp.sharefood.food.domain.TagWrapper;
+import com.yapp.sharefood.food.domain.*;
 import com.yapp.sharefood.food.dto.FoodTagDto;
 import com.yapp.sharefood.food.dto.request.FoodCreationRequest;
 import com.yapp.sharefood.food.dto.request.FoodTopRankRequest;
+import com.yapp.sharefood.food.dto.request.FoodUpdateRequest;
 import com.yapp.sharefood.food.dto.request.RecommendationFoodRequest;
 import com.yapp.sharefood.food.dto.response.FoodDetailResponse;
 import com.yapp.sharefood.food.dto.response.RecommendationFoodResponse;
 import com.yapp.sharefood.food.dto.response.TopRankFoodResponse;
+import com.yapp.sharefood.food.exception.FoodBanndedException;
 import com.yapp.sharefood.food.repository.FoodRepository;
 import com.yapp.sharefood.like.service.LikeService;
 import com.yapp.sharefood.tag.domain.Tag;
@@ -39,6 +38,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
@@ -143,14 +143,13 @@ class FoodServiceTest {
                 new TagWrapper(saveTag("tag3"), FoodIngredientType.EXTRACT));
         List<Flavor> flavors = findFlavors(List.of(FlavorType.SWEET, FlavorType.SPICY, FlavorType.BITTER));
 
-        List<FlavorDto> flavorDtos = flavors.stream()
-                .map(flavor -> FlavorDto.of(null, flavor.getFlavorType()))
+        List<String> flavorDtos = flavors.stream()
+                .map(flavor -> flavor.getFlavorType().getFlavorName())
                 .collect(Collectors.toList());
 
         List<FoodTagDto> dtoTags = wrapperTags.stream()
                 .map(wrapperTag -> FoodTagDto.of(wrapperTag.getTag().getId(), wrapperTag.getTag().getName(), wrapperTag.getIngredientType()))
                 .collect(Collectors.toList());
-
 
         FoodCreationRequest request = FoodCreationRequest.builder()
                 .title("title")
@@ -193,8 +192,8 @@ class FoodServiceTest {
                 new TagWrapper(saveTag("tag3"), FoodIngredientType.EXTRACT));
         List<Flavor> flavors = findFlavors(List.of(FlavorType.SWEET, FlavorType.SPICY, FlavorType.BITTER));
 
-        List<FlavorDto> flavorDtos = flavors.stream()
-                .map(flavor -> FlavorDto.of(null, flavor.getFlavorType()))
+        List<String> flavorDtos = flavors.stream()
+                .map(flavor -> flavor.getFlavorType().getFlavorName())
                 .collect(Collectors.toList());
 
         List<FoodTagDto> dtoTags = wrapperTags.stream()
@@ -219,7 +218,7 @@ class FoodServiceTest {
 
     @Test
     @DisplayName("food Detail 정보 조회 기능")
-    void findFoodDetailTest() throws Exception {
+    void findFoodDetailTest() {
         // given
         User saveUser = saveTestUser("nickname", "name", "oauthId");
         Category saveCategory = saveTestCategory("A");
@@ -253,8 +252,37 @@ class FoodServiceTest {
     }
 
     @Test
+    @DisplayName("food Detail 정보 조회 실패 - 정지된 게시글")
+    void findFoodDetailTest_Fail_Bannded() {
+        // given
+        User saveUser = saveTestUser("nickname", "name", "oauthId");
+        Category saveCategory = saveTestCategory("A");
+        List<TagWrapper> tags = new ArrayList<>();
+        tags.add(new TagWrapper(saveTag("A"), FoodIngredientType.ADD));
+        tags.add(new TagWrapper(saveTag("B"), FoodIngredientType.EXTRACT));
+        tags.add(new TagWrapper(saveTag("C"), FoodIngredientType.MAIN));
+
+        Food newFood = Food.builder()
+                .foodTitle("title")
+                .price(1000)
+                .reviewMsg("reviewMsg")
+                .foodStatus(FoodStatus.SHARED)
+                .writer(saveUser)
+                .category(saveCategory)
+                .build();
+        newFood.getFoodTags().addAllTags(tags, newFood);
+        Food saveFood = foodRepository.save(newFood);
+        saveFood.addReport(FoodReportType.POSTING_OBSCENE_CONTENT.getMessage());
+
+        // when
+
+        // then
+        assertThrows(FoodBanndedException.class, () -> foodService.findFoodDetailById(saveUser, saveFood.getId()));
+    }
+
+    @Test
     @DisplayName("food rank 조회 기능")
-    void findTopRankFoodsTest() throws Exception {
+    void findTopRankFoodsTest() {
         // given
         FoodTopRankRequest foodTopRankRequest = FoodTopRankRequest.of(4, 7, "A");
         Category saveCategory = saveTestCategory("A");
@@ -268,19 +296,19 @@ class FoodServiceTest {
         Food food2 = saveFood("food title2", user1, saveCategory);
         Food food3 = saveFood("food title3", user1, saveCategory);
         Food food4 = saveFood("food title4", user1, saveCategory);
-        likeService.saveLike(user2, food1.getId(), saveCategory.getName());
-        likeService.saveLike(user3, food1.getId(), saveCategory.getName());
-        likeService.saveLike(user4, food1.getId(), saveCategory.getName());
-        likeService.saveLike(user5, food1.getId(), saveCategory.getName());
+        likeService.saveLike(user2, food1.getId());
+        likeService.saveLike(user3, food1.getId());
+        likeService.saveLike(user4, food1.getId());
+        likeService.saveLike(user5, food1.getId());
 
-        likeService.saveLike(user3, food3.getId(), saveCategory.getName());
-        likeService.saveLike(user4, food3.getId(), saveCategory.getName());
-        likeService.saveLike(user5, food3.getId(), saveCategory.getName());
+        likeService.saveLike(user3, food3.getId());
+        likeService.saveLike(user4, food3.getId());
+        likeService.saveLike(user5, food3.getId());
 
-        likeService.saveLike(user4, food2.getId(), saveCategory.getName());
-        likeService.saveLike(user5, food2.getId(), saveCategory.getName());
+        likeService.saveLike(user4, food2.getId());
+        likeService.saveLike(user5, food2.getId());
 
-        likeService.saveLike(user5, food4.getId(), saveCategory.getName());
+        likeService.saveLike(user5, food4.getId());
 
         // when
         TopRankFoodResponse topRankFoods = foodService.findTopRankFoods(foodTopRankRequest, user1);
@@ -295,7 +323,7 @@ class FoodServiceTest {
 
     @Test
     @DisplayName("food rank 조회 기능 Child category 까지 조회")
-    void findTopRankWithChildrensFoodsTest() throws Exception {
+    void findTopRankWithChildrensFoodsTest() {
         // given
         FoodTopRankRequest foodTopRankRequest = FoodTopRankRequest.of(4, 7, "A");
         Category saveCategoryParent = saveTestCategory("A");
@@ -310,19 +338,19 @@ class FoodServiceTest {
         Food food2 = saveFood("food title2", user1, saveCategoryChild);
         Food food3 = saveFood("food title3", user1, saveCategoryChild);
         Food food4 = saveFood("food title4", user1, saveCategoryChild);
-        likeService.saveLike(user2, food1.getId(), saveCategoryChild.getName());
-        likeService.saveLike(user3, food1.getId(), saveCategoryChild.getName());
-        likeService.saveLike(user4, food1.getId(), saveCategoryChild.getName());
-        likeService.saveLike(user5, food1.getId(), saveCategoryChild.getName());
+        likeService.saveLike(user2, food1.getId());
+        likeService.saveLike(user3, food1.getId());
+        likeService.saveLike(user4, food1.getId());
+        likeService.saveLike(user5, food1.getId());
 
-        likeService.saveLike(user3, food3.getId(), saveCategoryChild.getName());
-        likeService.saveLike(user4, food3.getId(), saveCategoryChild.getName());
-        likeService.saveLike(user5, food3.getId(), saveCategoryChild.getName());
+        likeService.saveLike(user3, food3.getId());
+        likeService.saveLike(user4, food3.getId());
+        likeService.saveLike(user5, food3.getId());
 
-        likeService.saveLike(user4, food2.getId(), saveCategoryChild.getName());
-        likeService.saveLike(user5, food2.getId(), saveCategoryChild.getName());
+        likeService.saveLike(user4, food2.getId());
+        likeService.saveLike(user5, food2.getId());
 
-        likeService.saveLike(user5, food4.getId(), saveCategoryChild.getName());
+        likeService.saveLike(user5, food4.getId());
 
         // when
         TopRankFoodResponse topRankFoods = foodService.findTopRankFoods(foodTopRankRequest, user1);
@@ -337,7 +365,7 @@ class FoodServiceTest {
 
     @Test
     @DisplayName("food rank 조회 기능 카테고리 범위가 아닌 경우 테스트")
-    void findTopRankNotAssociatedCategoryFoodsTest() throws Exception {
+    void findTopRankNotAssociatedCategoryFoodsTest() {
         // given
         FoodTopRankRequest foodTopRankRequest = FoodTopRankRequest.of(4, 7, "A");
         Category saveExternalCategoryParent = saveTestCategory("external");
@@ -352,19 +380,19 @@ class FoodServiceTest {
         Food food2 = saveFood("food title2", user1, saveExternalCategoryParent);
         Food food3 = saveFood("food title3", user1, saveExternalCategoryParent);
         Food food4 = saveFood("food title4", user1, saveExternalCategoryParent);
-        likeService.saveLike(user2, food1.getId(), saveExternalCategoryParent.getName());
-        likeService.saveLike(user3, food1.getId(), saveExternalCategoryParent.getName());
-        likeService.saveLike(user4, food1.getId(), saveExternalCategoryParent.getName());
-        likeService.saveLike(user5, food1.getId(), saveExternalCategoryParent.getName());
+        likeService.saveLike(user2, food1.getId());
+        likeService.saveLike(user3, food1.getId());
+        likeService.saveLike(user4, food1.getId());
+        likeService.saveLike(user5, food1.getId());
 
-        likeService.saveLike(user3, food3.getId(), saveExternalCategoryParent.getName());
-        likeService.saveLike(user4, food3.getId(), saveExternalCategoryParent.getName());
-        likeService.saveLike(user5, food3.getId(), saveExternalCategoryParent.getName());
+        likeService.saveLike(user3, food3.getId());
+        likeService.saveLike(user4, food3.getId());
+        likeService.saveLike(user5, food3.getId());
 
-        likeService.saveLike(user4, food2.getId(), saveExternalCategoryParent.getName());
-        likeService.saveLike(user5, food2.getId(), saveExternalCategoryParent.getName());
+        likeService.saveLike(user4, food2.getId());
+        likeService.saveLike(user5, food2.getId());
 
-        likeService.saveLike(user5, food4.getId(), saveExternalCategoryParent.getName());
+        likeService.saveLike(user5, food4.getId());
 
         // when
         TopRankFoodResponse topRankFoods = foodService.findTopRankFoods(foodTopRankRequest, user1);
@@ -375,7 +403,7 @@ class FoodServiceTest {
 
     @Test
     @DisplayName("food rank 조회할 때 전체 food 보다 작은 걍우")
-    void findRankFoodLessThanAllTest() throws Exception {
+    void findRankFoodLessThanAllTest() {
         FoodTopRankRequest foodTopRankRequest = FoodTopRankRequest.of(4, 7, "A");
         Category saveCategory = saveTestCategory("A");
         User user1 = saveTestUser("user1_nick", "user1_name", "oauthId1");
@@ -388,19 +416,19 @@ class FoodServiceTest {
         Food food2 = saveFood("food title2", user1, saveCategory);
         Food food3 = saveFood("food title3", user1, saveCategory);
         Food food4 = saveFood("food title4", user1, saveCategory);
-        likeService.saveLike(user2, food1.getId(), saveCategory.getName());
-        likeService.saveLike(user3, food1.getId(), saveCategory.getName());
-        likeService.saveLike(user4, food1.getId(), saveCategory.getName());
-        likeService.saveLike(user5, food1.getId(), saveCategory.getName());
+        likeService.saveLike(user2, food1.getId());
+        likeService.saveLike(user3, food1.getId());
+        likeService.saveLike(user4, food1.getId());
+        likeService.saveLike(user5, food1.getId());
 
-        likeService.saveLike(user3, food3.getId(), saveCategory.getName());
-        likeService.saveLike(user4, food3.getId(), saveCategory.getName());
-        likeService.saveLike(user5, food3.getId(), saveCategory.getName());
+        likeService.saveLike(user3, food3.getId());
+        likeService.saveLike(user4, food3.getId());
+        likeService.saveLike(user5, food3.getId());
 
-        likeService.saveLike(user4, food2.getId(), saveCategory.getName());
-        likeService.saveLike(user5, food2.getId(), saveCategory.getName());
+        likeService.saveLike(user4, food2.getId());
+        likeService.saveLike(user5, food2.getId());
 
-        likeService.saveLike(user5, food4.getId(), saveCategory.getName());
+        likeService.saveLike(user5, food4.getId());
 
         // when
         TopRankFoodResponse topRankFoods = foodService.findTopRankFoods(foodTopRankRequest, user1);
@@ -415,7 +443,7 @@ class FoodServiceTest {
 
     @Test
     @DisplayName("food rank 조회 기능 0개의 like를 가진 food는 재외하는 경우 테스트")
-    void findFoodRankIfZeroLikeExist() throws Exception {
+    void findFoodRankIfZeroLikeExist() {
         // given
         FoodTopRankRequest foodTopRankRequest = FoodTopRankRequest.of(4, 7, "A");
         Category saveCategory = saveTestCategory("A");
@@ -429,19 +457,19 @@ class FoodServiceTest {
         Food food2 = saveFood("food title2", user1, saveCategory);
         Food food3 = saveFood("food title3", user1, saveCategory);
         Food food4 = saveFood("food title4", user1, saveCategory);
-        likeService.saveLike(user2, food1.getId(), saveCategory.getName());
-        likeService.saveLike(user3, food1.getId(), saveCategory.getName());
-        likeService.saveLike(user4, food1.getId(), saveCategory.getName());
-        likeService.saveLike(user5, food1.getId(), saveCategory.getName());
+        likeService.saveLike(user2, food1.getId());
+        likeService.saveLike(user3, food1.getId());
+        likeService.saveLike(user4, food1.getId());
+        likeService.saveLike(user5, food1.getId());
 
-        likeService.saveLike(user3, food3.getId(), saveCategory.getName());
-        likeService.saveLike(user4, food3.getId(), saveCategory.getName());
-        likeService.saveLike(user5, food3.getId(), saveCategory.getName());
+        likeService.saveLike(user3, food3.getId());
+        likeService.saveLike(user4, food3.getId());
+        likeService.saveLike(user5, food3.getId());
 
-        likeService.saveLike(user4, food2.getId(), saveCategory.getName());
-        likeService.saveLike(user5, food2.getId(), saveCategory.getName());
+        likeService.saveLike(user4, food2.getId());
+        likeService.saveLike(user5, food2.getId());
 
-        likeService.saveLike(user5, food4.getId(), saveCategory.getName());
+        likeService.saveLike(user5, food4.getId());
 
         // when
         TopRankFoodResponse topRankFoods = foodService.findTopRankFoods(foodTopRankRequest, user1);
@@ -457,7 +485,7 @@ class FoodServiceTest {
 
     @Test
     @DisplayName("food 추천 기능 테스트")
-    void foodRecommendataionTest() throws Exception {
+    void foodRecommendataionTest() {
         // given
         RecommendationFoodRequest request = RecommendationFoodRequest.of(4, 7, "A");
         List<Flavor> flavors = findFlavors(List.of(FlavorType.BITTER));
@@ -475,19 +503,19 @@ class FoodServiceTest {
         Food food2 = saveFoodWithFlavors("food title2", user1, saveCategory, findFlavors(List.of(FlavorType.BITTER, FlavorType.COOL_DETAIL)));
         Food food3 = saveFoodWithFlavors("food title3", user1, saveCategory, findFlavors(List.of(FlavorType.BITTER, FlavorType.REFRESH_DETAIL)));
         Food food4 = saveFoodWithFlavors("food title4", user1, saveCategory, findFlavors(List.of(FlavorType.SOUR)));
-        likeService.saveLike(user2, food1.getId(), saveCategory.getName());
-        likeService.saveLike(user3, food1.getId(), saveCategory.getName());
-        likeService.saveLike(user4, food1.getId(), saveCategory.getName());
-        likeService.saveLike(user5, food1.getId(), saveCategory.getName());
+        likeService.saveLike(user2, food1.getId());
+        likeService.saveLike(user3, food1.getId());
+        likeService.saveLike(user4, food1.getId());
+        likeService.saveLike(user5, food1.getId());
 
-        likeService.saveLike(user3, food3.getId(), saveCategory.getName());
-        likeService.saveLike(user4, food3.getId(), saveCategory.getName());
-        likeService.saveLike(user5, food3.getId(), saveCategory.getName());
+        likeService.saveLike(user3, food3.getId());
+        likeService.saveLike(user4, food3.getId());
+        likeService.saveLike(user5, food3.getId());
 
-        likeService.saveLike(user4, food2.getId(), saveCategory.getName());
-        likeService.saveLike(user5, food2.getId(), saveCategory.getName());
+        likeService.saveLike(user4, food2.getId());
+        likeService.saveLike(user5, food2.getId());
 
-        likeService.saveLike(user5, food4.getId(), saveCategory.getName());
+        likeService.saveLike(user5, food4.getId());
 
         // when
         RecommendationFoodResponse foodRecommendation = foodService.findFoodRecommendation(request, user1);
@@ -498,7 +526,7 @@ class FoodServiceTest {
 
     @Test
     @DisplayName("food 추천 기능 User가 flavor설정 하지 않은 경우 테스트")
-    void foodRecommendataionUserFlavorIsEmptyTest_Success() throws Exception {
+    void foodRecommendataionUserFlavorIsEmptyTest_Success() {
         // given
         RecommendationFoodRequest request = RecommendationFoodRequest.of(4, 7, "A");
 
@@ -514,24 +542,80 @@ class FoodServiceTest {
         Food food2 = saveFoodWithFlavors("food title2", user1, saveCategory, findFlavors(List.of(FlavorType.BITTER, FlavorType.COOL_DETAIL)));
         Food food3 = saveFoodWithFlavors("food title3", user1, saveCategory, findFlavors(List.of(FlavorType.BITTER, FlavorType.REFRESH_DETAIL)));
         Food food4 = saveFoodWithFlavors("food title4", user1, saveCategory, findFlavors(List.of(FlavorType.BITTER, FlavorType.SOUR)));
-        likeService.saveLike(user2, food1.getId(), saveCategory.getName());
-        likeService.saveLike(user3, food1.getId(), saveCategory.getName());
-        likeService.saveLike(user4, food1.getId(), saveCategory.getName());
-        likeService.saveLike(user5, food1.getId(), saveCategory.getName());
+        likeService.saveLike(user2, food1.getId());
+        likeService.saveLike(user3, food1.getId());
+        likeService.saveLike(user4, food1.getId());
+        likeService.saveLike(user5, food1.getId());
 
-        likeService.saveLike(user3, food3.getId(), saveCategory.getName());
-        likeService.saveLike(user4, food3.getId(), saveCategory.getName());
-        likeService.saveLike(user5, food3.getId(), saveCategory.getName());
+        likeService.saveLike(user3, food3.getId());
+        likeService.saveLike(user4, food3.getId());
+        likeService.saveLike(user5, food3.getId());
 
-        likeService.saveLike(user4, food2.getId(), saveCategory.getName());
-        likeService.saveLike(user5, food2.getId(), saveCategory.getName());
+        likeService.saveLike(user4, food2.getId());
+        likeService.saveLike(user5, food2.getId());
 
-        likeService.saveLike(user5, food4.getId(), saveCategory.getName());
+        likeService.saveLike(user5, food4.getId());
 
         // when
         RecommendationFoodResponse foodRecommendation = foodService.findFoodRecommendation(request, user1);
 
         // then
         assertEquals(4, foodRecommendation.getRecommendationFoods().size());
+    }
+
+    @Test
+    @DisplayName("food update 기능 테스트 - 성공")
+    void updateFood_Success() {
+        // given
+        User user = saveTestUser("userNickname", "name", "123124");
+        Category category = saveTestCategory("샌드위치");
+        saveTestCategory("마라탕");
+        List<TagWrapper> tagWrappers = new ArrayList<>();
+
+        Food food = Food.builder()
+                .foodTitle("title0")
+                .reviewMsg("review msg before")
+                .price(1000)
+                .category(category)
+                .foodStatus(FoodStatus.MINE)
+                .writer(user)
+                .build();
+        food.assignWrapperTags(tagWrappers);
+        foodRepository.save(food);
+        List<Tag> beforeSaveTags = List.of(Tag.of("재료1"), Tag.of("재료2"), Tag.of("재료3"));
+        List<Tag> saveTags = tagRepository.saveAll(beforeSaveTags);
+        List<TagWrapper> newTagWrapper = List.of(
+                new TagWrapper(saveTags.get(0), FoodIngredientType.MAIN),
+                new TagWrapper(saveTags.get(1), FoodIngredientType.ADD),
+                new TagWrapper(saveTags.get(2), FoodIngredientType.EXTRACT));
+
+        // when
+        FoodUpdateRequest foodUpdateRequest = FoodUpdateRequest.builder()
+                .categoryName("커피")
+                .title("title1")
+                .reviewMsg("reviewDetail")
+                .price(1000)
+                .categoryName("마라탕")
+                .foodStatus(FoodStatus.SHARED)
+                .tags(List.of(FoodTagDto.of(null, "재료1", FoodIngredientType.MAIN),
+                        FoodTagDto.of(null, "재료2", FoodIngredientType.ADD),
+                        FoodTagDto.of(null, "재료3", FoodIngredientType.EXTRACT)))
+                .flavors(List.of(FlavorDto.of(1L, FlavorType.SWEET), FlavorDto.of(2L, FlavorType.SOUR), FlavorDto.of(3L, FlavorType.PLAIN_DETAIL)))
+                .build();
+
+
+        // then
+        FoodDetailResponse foodDetailResponse = foodService.updateFood(user, food.getId(), newTagWrapper, foodUpdateRequest);
+
+        assertEquals("title1", foodDetailResponse.getFoodTitle());
+        assertEquals("reviewDetail", foodDetailResponse.getReviewDetail());
+        assertThat(foodUpdateRequest.getTags())
+                .hasSize(3)
+                .extracting("name")
+                .containsExactlyInAnyOrderElementsOf(List.of("재료1", "재료2", "재료3"));
+        assertThat(foodUpdateRequest.getFlavors())
+                .hasSize(3)
+                .extracting("flavorName")
+                .containsExactlyInAnyOrderElementsOf(List.of("단맛", "신맛", "담백한"));
     }
 }

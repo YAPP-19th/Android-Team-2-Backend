@@ -2,9 +2,9 @@ package com.yapp.sharefood.flavor.service;
 
 import com.yapp.sharefood.flavor.domain.Flavor;
 import com.yapp.sharefood.flavor.domain.FlavorType;
-import com.yapp.sharefood.flavor.dto.FlavorDto;
 import com.yapp.sharefood.flavor.dto.request.UserFlavorRequest;
 import com.yapp.sharefood.flavor.dto.response.FlavorsResponse;
+import com.yapp.sharefood.flavor.dto.response.UpdateUserFlavorResponse;
 import com.yapp.sharefood.flavor.exception.FlavorNotFoundException;
 import com.yapp.sharefood.flavor.repository.FlavorRepository;
 import com.yapp.sharefood.oauth.exception.UserNotFoundException;
@@ -19,8 +19,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -87,14 +85,19 @@ class FlavorServiceTest {
         flavorRepository.save(flavor2);
 
         List<Flavor> findFlavors = flavorRepository.findAll();
-        UserFlavorRequest request = new UserFlavorRequest();
-        request.setFlavors(findFlavors.stream().map(flavor -> FlavorDto.of(flavor.getId(), flavor.getFlavorType())).collect(Collectors.toList()));
+        UserFlavorRequest request = UserFlavorRequest.of(findFlavors.stream()
+                .map(flavor -> flavor.getFlavorType().getFlavorName())
+                .collect(Collectors.toList()));
 
         //when
-        int result = flavorService.updateUserFlavors(user, request).getUpdateSuccessCount();
+        UpdateUserFlavorResponse response = flavorService.updateUserFlavors(user, request);
 
         //then
-        assertEquals(2, result);
+        assertThat(response.getFlavors())
+                .isNotNull()
+                .hasSize(2)
+                .extracting("flavorName")
+                .containsExactlyInAnyOrderElementsOf(List.of("매운맛", "단맛"));
     }
 
     @Test
@@ -108,12 +111,7 @@ class FlavorServiceTest {
                 .build();
         userRepository.save(user);
 
-        FlavorDto flavorDto = FlavorDto.of(-1L, FlavorType.SPICY);
-        List<FlavorDto> flavorDtos = Arrays.asList(flavorDto);
-
-        List<Flavor> findFlavors = flavorRepository.findAll();
-        UserFlavorRequest request = new UserFlavorRequest();
-        request.setFlavors(flavorDtos);
+        UserFlavorRequest request = UserFlavorRequest.of(List.of("존재 하지 않는 맛"));
 
         //when
 

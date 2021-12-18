@@ -13,6 +13,8 @@ import com.yapp.sharefood.food.domain.FoodStatus;
 import com.yapp.sharefood.food.dto.FoodImageDto;
 import com.yapp.sharefood.food.dto.FoodTagDto;
 import com.yapp.sharefood.food.dto.request.FoodCreationRequest;
+import com.yapp.sharefood.food.dto.request.FoodUpdateRequest;
+import com.yapp.sharefood.food.dto.response.FoodDetailResponse;
 import com.yapp.sharefood.food.dto.response.FoodImageCreateResponse;
 import com.yapp.sharefood.food.service.FoodImageService;
 import com.yapp.sharefood.food.service.FoodService;
@@ -36,11 +38,11 @@ import java.util.List;
 
 import static com.yapp.sharefood.common.documentation.DocumentationUtils.documentIdentify;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.willReturn;
 import static org.mockito.BDDMockito.willThrow;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -68,7 +70,7 @@ class FoodSaveControllerTest extends PreprocessController {
                 .categoryName("샌드위치")
                 .title("title")
                 .price(10000)
-                .flavors(List.of(FlavorDto.of(1L, FlavorType.SWEET), FlavorDto.of(2L, FlavorType.REFRESH_DETAIL)))
+                .flavors(List.of(FlavorType.SWEET.getFlavorName(), FlavorType.REFRESH_DETAIL.getFlavorName()))
                 .tags(List.of(FoodTagDto.of(1L, "샷추가", FoodIngredientType.MAIN), FoodTagDto.of(2L, "커피", FoodIngredientType.ADD)))
                 .reviewMsg("review msg")
                 .foodStatus(FoodStatus.SHARED)
@@ -104,7 +106,7 @@ class FoodSaveControllerTest extends PreprocessController {
                 .categoryName("notExistCategory")
                 .title("title")
                 .price(10000)
-                .flavors(List.of(FlavorDto.of(1L, FlavorType.SWEET), FlavorDto.of(2L, FlavorType.REFRESH_DETAIL)))
+                .flavors(List.of(FlavorType.SWEET.getFlavorName(), FlavorType.REFRESH_DETAIL.getFlavorName()))
                 .tags(List.of(FoodTagDto.of(1L, "샷추가", FoodIngredientType.MAIN), FoodTagDto.of(2L, "커피", FoodIngredientType.ADD)))
                 .reviewMsg("review msg")
                 .foodStatus(FoodStatus.SHARED)
@@ -138,7 +140,7 @@ class FoodSaveControllerTest extends PreprocessController {
                 .categoryName("샌드위치")
                 .title("title")
                 .price(10000)
-                .flavors(List.of(FlavorDto.of(1L, FlavorType.SWEET), FlavorDto.of(2L, FlavorType.REFRESH_DETAIL)))
+                .flavors(List.of(FlavorType.SWEET.getFlavorName(), FlavorType.REFRESH_DETAIL.getFlavorName()))
                 .tags(List.of(FoodTagDto.of(1L, "샷추가", FoodIngredientType.MAIN), FoodTagDto.of(1L, "샷추가", FoodIngredientType.ADD)))
                 .reviewMsg("review msg")
                 .foodStatus(FoodStatus.SHARED)
@@ -172,7 +174,7 @@ class FoodSaveControllerTest extends PreprocessController {
                 .categoryName("샌드위치")
                 .title("title")
                 .price(10000)
-                .flavors(List.of(FlavorDto.of(1L, FlavorType.SWEET), FlavorDto.of(1L, FlavorType.SWEET)))
+                .flavors(List.of(FlavorType.SWEET.getFlavorName(), FlavorType.SWEET.getFlavorName()))
                 .tags(List.of(FoodTagDto.of(1L, "샷추가", FoodIngredientType.MAIN), FoodTagDto.of(null, "커피", FoodIngredientType.ADD)))
                 .reviewMsg("review msg")
                 .foodStatus(FoodStatus.SHARED)
@@ -206,7 +208,7 @@ class FoodSaveControllerTest extends PreprocessController {
                 .categoryName("샌드위치")
                 .title("title")
                 .price(10000)
-                .flavors(List.of(FlavorDto.of(1L, FlavorType.SWEET), FlavorDto.of(2L, FlavorType.BITTER)))
+                .flavors(List.of(FlavorType.SWEET.getFlavorName(), FlavorType.BITTER.getFlavorName()))
                 .tags(List.of(FoodTagDto.of(1L, "샷추가", FoodIngredientType.EXTRACT), FoodTagDto.of(2L, "커피", FoodIngredientType.ADD)))
                 .reviewMsg("review msg")
                 .foodStatus(FoodStatus.SHARED)
@@ -274,7 +276,7 @@ class FoodSaveControllerTest extends PreprocessController {
                         .andDo(documentIdentify("food/images/post/success"))
                         .andReturn()
                         .getResponse()
-                        .getContentAsString(StandardCharsets.UTF_8), new TypeReference<FoodImageCreateResponse>() {
+                        .getContentAsString(StandardCharsets.UTF_8), new TypeReference<>() {
                 }
         );
 
@@ -312,5 +314,70 @@ class FoodSaveControllerTest extends PreprocessController {
 
         assertThat(result)
                 .isNotNull();
+    }
+
+    @Test
+    @DisplayName("음식 정보 update 기능 구현 - 성공")
+    void updateFood_Success() throws Exception {
+        // given
+        FoodDetailResponse foodDetailResponse = FoodDetailResponse.builder()
+                .id(1L)
+                .foodTitle("title1")
+                .reviewDetail("reviewDetail")
+                .price(1000)
+                .numberOfLike(10)
+                .writerName("writer")
+                .isMeLike(false)
+                .isMeBookmark(false)
+                .categoryName("샌드위치")
+                .foodTags(List.of(FoodTagDto.of(1L, "재료1", FoodIngredientType.MAIN),
+                        FoodTagDto.of(2L, "재료2", FoodIngredientType.ADD),
+                        FoodTagDto.of(3L, "재료3", FoodIngredientType.EXTRACT)))
+                .foodFlavors(List.of(FlavorDto.of(1L, FlavorType.SWEET), FlavorDto.of(2L, FlavorType.SOUR), FlavorDto.of(3L, FlavorType.PLAIN_DETAIL)))
+                .build();
+
+        willReturn(foodDetailResponse)
+                .given(foodService).updateFood(any(User.class), anyLong(), anyList(), any(FoodUpdateRequest.class));
+        FoodUpdateRequest foodCreationRequest = FoodUpdateRequest.builder()
+                .categoryName("커피")
+                .title("title1")
+                .reviewMsg("reviewDetail")
+                .price(1000)
+                .foodStatus(FoodStatus.SHARED)
+                .tags(List.of(FoodTagDto.of(1L, "재료1", FoodIngredientType.MAIN),
+                        FoodTagDto.of(2L, "재료2", FoodIngredientType.ADD),
+                        FoodTagDto.of(3L, "재료3", FoodIngredientType.EXTRACT)))
+                .flavors(List.of(FlavorDto.of(1L, FlavorType.SWEET), FlavorDto.of(2L, FlavorType.SOUR), FlavorDto.of(3L, FlavorType.PLAIN_DETAIL)))
+                .build();
+
+        // when
+        String requestBodyStr = objectMapper.writeValueAsString(foodCreationRequest);
+        ResultActions perform = mockMvc.perform(put("/api/v1/foods/1")
+                .header(HttpHeaders.AUTHORIZATION, "token")
+                .content(requestBodyStr)
+                .contentType(MediaType.APPLICATION_JSON_VALUE));
+
+        // then
+        FoodDetailResponse detailData = objectMapper
+                .readValue(perform.andExpect(status().isOk())
+                        .andDo(documentIdentify("food/put/success"))
+                        .andReturn()
+                        .getResponse()
+                        .getContentAsString(StandardCharsets.UTF_8), new TypeReference<>() {
+                });
+
+        assertEquals(detailData.getFoodTitle(), "title1");
+        assertEquals(detailData.getReviewDetail(), "reviewDetail");
+        assertEquals(detailData.getPrice(), 1000);
+        assertThat(detailData.getFoodTags())
+                .hasSize(3)
+                .extracting("name")
+                .containsExactlyInAnyOrderElementsOf(List.of("재료1", "재료2", "재료3"));
+
+        assertThat(detailData.getFoodFlavors())
+                .hasSize(3)
+                .extracting("flavorName")
+                .containsExactlyInAnyOrderElementsOf(List.of(FlavorType.SWEET.getFlavorName(),
+                        FlavorType.SOUR.getFlavorName(), FlavorType.PLAIN_DETAIL.getFlavorName()));
     }
 }

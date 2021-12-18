@@ -3,24 +3,23 @@ package com.yapp.sharefood.food.service;
 import com.yapp.sharefood.category.domain.Category;
 import com.yapp.sharefood.category.exception.CategoryNotFoundException;
 import com.yapp.sharefood.category.repository.CategoryRepository;
+import com.yapp.sharefood.common.exception.BadRequestException;
 import com.yapp.sharefood.common.exception.ForbiddenException;
 import com.yapp.sharefood.common.exception.InvalidOperationException;
+import com.yapp.sharefood.common.order.SortType;
 import com.yapp.sharefood.common.utils.LocalDateTimePeriodUtils;
 import com.yapp.sharefood.flavor.domain.Flavor;
 import com.yapp.sharefood.flavor.domain.FlavorType;
+import com.yapp.sharefood.flavor.dto.FlavorDto;
 import com.yapp.sharefood.flavor.repository.FlavorRepository;
-import com.yapp.sharefood.food.domain.Food;
-import com.yapp.sharefood.food.domain.FoodTag;
-import com.yapp.sharefood.food.domain.TagWrapper;
+import com.yapp.sharefood.food.domain.*;
 import com.yapp.sharefood.food.dto.*;
-import com.yapp.sharefood.food.dto.request.FoodCreationRequest;
-import com.yapp.sharefood.food.dto.request.FoodPageSearchRequest;
-import com.yapp.sharefood.food.dto.request.FoodTopRankRequest;
-import com.yapp.sharefood.food.dto.request.RecommendationFoodRequest;
+import com.yapp.sharefood.food.dto.request.*;
 import com.yapp.sharefood.food.dto.response.FoodDetailResponse;
 import com.yapp.sharefood.food.dto.response.FoodPageResponse;
 import com.yapp.sharefood.food.dto.response.RecommendationFoodResponse;
 import com.yapp.sharefood.food.dto.response.TopRankFoodResponse;
+import com.yapp.sharefood.food.exception.FoodBanndedException;
 import com.yapp.sharefood.food.exception.FoodNotFoundException;
 import com.yapp.sharefood.food.repository.FoodRepository;
 import com.yapp.sharefood.food.repository.FoodTagRepository;
@@ -63,8 +62,7 @@ public class FoodService {
         Category findCategory = categoryRepository.findByName(foodCreationRequest.getCategoryName())
                 .orElseThrow(CategoryNotFoundException::new);
         List<Flavor> flavors = flavorRepository.findByFlavorTypeIsIn(
-                foodCreationRequest.getFlavors().stream()
-                        .map(flavorDto -> FlavorType.of(flavorDto.getFlavorName()))
+                foodCreationRequest.getFlavors().stream().map(FlavorType::of)
                         .collect(Collectors.toList()));
 
         Food food = Food.builder()
@@ -87,10 +85,36 @@ public class FoodService {
         return saveFood.getId();
     }
 
-
-    public FoodDetailResponse findFoodDetailById(User user, Long id) {
-        Food food = foodRepository.findById(id)
+    @Transactional
+    public FoodDetailResponse updateFood(User user, Long foodId, List<TagWrapper> wrapperTags, FoodUpdateRequest foodUpdateRequest) {
+        Food findFood = foodRepository.findByIdWithUser(foodId, user)
                 .orElseThrow(FoodNotFoundException::new);
+        Category category = categoryRepository.findByName(foodUpdateRequest.getCategoryName())
+                .orElseThrow(CategoryNotFoundException::new);
+
+        List<Flavor> flavors = flavorRepository.findByFlavorTypeIsIn(
+                foodUpdateRequest.getFlavors().stream()
+                        .map(flavorDto -> FlavorType.of(flavorDto.getFlavorName()))
+                        .collect(Collectors.toList()));
+
+        findFood.updateAllElements(foodUpdateRequest.getTitle(),
+                foodUpdateRequest.getReviewMsg(),
+                foodUpdateRequest.getPrice(),
+                foodUpdateRequest.getFoodStatus(),
+                category);
+
+        findFood.getFoodFlavors().updateFlavors(flavors, findFood); // update flavors
+        findFood.getFoodTags().updateTags(wrapperTags, findFood); // update tags
+
+        return FoodDetailResponse.toFoodDetailDto(findFood);
+    }
+
+
+    public FoodDetailResponse findFoodDetailById(User user, Long foodId) {
+        Food food = foodRepository.findFoodWithWriterAndCategoryById(foodId)
+                .orElseThrow(FoodNotFoundException::new);
+
+        if (food.getReportStatus() != FoodReportStatus.NORMAL) throw new FoodBanndedException();
 
         return FoodDetailResponse.builder()
                 .id(food.getId())
@@ -100,9 +124,11 @@ public class FoodService {
                 .price(food.getPrice())
                 .numberOfLike(food.getLikeNumber())
                 .isMeLike(food.isMeLike(user))
+                .categoryName(food.getCategory().getName())
                 .isMeBookmark(food.isMeBookMark(user))
                 .foodImages(FoodImageDto.toList(food.getImages().getImages()))
                 .foodTags(findFoodTagsByFoodTag(food.getFoodTags().getFoodTags()))
+                .foodFlavors(findFlavorFromFood(food.getFoodFlavors().getFoodFlavors()))
                 .build();
     }
 
@@ -128,6 +154,12 @@ public class FoodService {
                 .collect(Collectors.toList());
         return foodTagRepository.findFoodtagsWithTag(tagIds)
                 .stream().map(foodTag -> FoodTagDto.of(foodTag.getTag().getId(), foodTag.getTag().getName(), foodTag.getIngredientType()))
+                .collect(Collectors.toList());
+    }
+
+    private List<FlavorDto> findFlavorFromFood(List<FoodFlavor> foodFlavors) {
+        return foodFlavors.stream()
+                .map(foodFlavor -> FlavorDto.of(foodFlavor.getFlavor().getId(), foodFlavor.getFlavor().getFlavorType()))
                 .collect(Collectors.toList());
     }
 
@@ -224,5 +256,42 @@ public class FoodService {
         }
 
         return foodRepository.findFoodNormalSearch(foodPageSearch);
+    }
+
+    public FoodPageResponse findOnlyMineFoods(User user, FoodMinePageSearchRequest foodMinePageSearchRequest) {
+        List<Flavor> flavors = flavorRepository.findByFlavorTypeIsIn(FlavorType.toList(foodMinePageSearchRequest.getFlavors()));
+        List<Category> categoryWithChildrenByName = findCategoryWithChildrenByName(foodMinePageSearchRequest.getCategoryName());
+        List<Food> pageFoods = findMineFoods(user, flavors, categoryWithChildrenByName, foodMinePageSearchRequest);
+
+        if (pageFoods.size() < foodMinePageSearchRequest.getPageSize()) {
+            return FoodPageResponse.ofLastPage(pageFoods, foodMinePageSearchRequest.getPageSize(), user);
+        }
+
+        return FoodPageResponse.of(pageFoods, foodMinePageSearchRequest.getPageSize(), foodMinePageSearchRequest.getOffset(), user);
+    }
+
+
+    private List<Food> findMineFoods(User user, List<Flavor> flavors, List<Category> categories,
+                                     FoodMinePageSearchRequest foodMinePageSearchRequest) {
+        FoodMinePageSearch foodMinePageSearch = FoodMinePageSearch.builder()
+                .minPrice(foodMinePageSearchRequest.getMinPrice())
+                .maxPrice(foodMinePageSearchRequest.getMaxPrice())
+                .flavors(flavors)
+                .sort(SortType.of(foodMinePageSearchRequest.getSort()))
+                .order(OrderType.of(foodMinePageSearchRequest.getOrder()))
+                .categories(categories)
+                .offset(foodMinePageSearchRequest.getOffset())
+                .size(foodMinePageSearchRequest.getPageSize())
+                .status(foodMinePageSearchRequest.getStatus())
+                .searchTime(foodMinePageSearchRequest.getFirstSearchTime())
+                .build();
+
+        if (foodMinePageSearchRequest.getMineFoodType() == MineFoodType.MYFOOD) {
+            return foodRepository.findMineFoodSearch(user, foodMinePageSearch);
+        } else if (foodMinePageSearchRequest.getMineFoodType() == MineFoodType.BOOKMARK) {
+            return foodRepository.findMineBookMarkFoodSearch(user, foodMinePageSearch);
+        }
+
+        throw new BadRequestException();
     }
 }
