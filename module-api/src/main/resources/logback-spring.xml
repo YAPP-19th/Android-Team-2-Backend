@@ -23,6 +23,9 @@
         <root level="INFO">
             <appender-ref ref="CONSOLE"/>
         </root>
+        <logger name="org.hibernate.type" level="TRACE">
+            <appender-ref ref="CONSOLE"/>
+        </logger>
     </springProfile>
 
     <springProfile name="dev">
