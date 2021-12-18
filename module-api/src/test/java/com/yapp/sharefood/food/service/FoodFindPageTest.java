@@ -150,7 +150,7 @@ class FoodFindPageTest {
 
     private List<User> initUser() {
         List<User> users = new ArrayList<>();
-        for (int i = 0; i < 20; i++) {
+        for (int i = 0; i < 10; i++) {
             users.add(User.builder()
                     .nickname("nickname" + i)
                     .name("name" + i)
@@ -193,19 +193,6 @@ class FoodFindPageTest {
             foods.add(food);
         }
 
-        for (int i = 0; i < 10; i++) {
-            Food food = Food.builder()
-                    .foodTitle("other_title_" + i)
-                    .foodStatus(FoodStatus.SHARED)
-                    .category(this.category)
-                    .price(i)
-                    .reviewMsg("review")
-                    .writer(this.otherUser)
-                    .build();
-            if (i == 9) food.addReport(FoodReportType.POSTING_OBSCENE_CONTENT.getMessage());
-            foods.add(food);
-        }
-
         foodRepository.saveAll(foods);
 
         return foods;
@@ -215,6 +202,7 @@ class FoodFindPageTest {
         if (foods.size() != users.size()) {
             throw new InvalidOperationException("user food size 다름");
         }
+
         List<Like> likes = new ArrayList<>();
         for (int i = 0; i < foods.size(); i++) {
             for (int j = 0; j < i; j++) {
@@ -249,7 +237,7 @@ class FoodFindPageTest {
                 .pageSize(5)
                 .tags(new ArrayList<>())
                 .flavors(new ArrayList<>())
-                .firstSearchTime(LocalDateTime.now())
+                .firstSearchTime(LocalDateTime.now().plusDays(3))
                 .build();
 
         // when
@@ -284,7 +272,7 @@ class FoodFindPageTest {
                 .pageSize(5)
                 .tags(new ArrayList<>())
                 .flavors(new ArrayList<>())
-                .firstSearchTime(LocalDateTime.now())
+                .firstSearchTime(LocalDateTime.now().plusDays(3))
                 .build();
 
         // when
@@ -386,11 +374,11 @@ class FoodFindPageTest {
 
     static Stream<Arguments> foodSearchWithFlavorsTest_Success() {
         return Stream.of(
-                Arguments.of(List.of(FlavorType.BITTER, FlavorType.COOL_DETAIL), List.of(1, 2, 3, 4, 5, 6), List.of("쓴맛", "시원한"),
+                Arguments.of(List.of(FlavorType.BITTER, FlavorType.COOL_DETAIL), List.of(1, 2, 3, 4, 5, 6), List.of(FlavorType.BITTER.getFlavorName(), FlavorType.COOL_DETAIL.getFlavorName()),
                         List.of("title_6", "title_5", "title_4", "title_3", "title_2")),
-                Arguments.of(List.of(FlavorType.BITTER, FlavorType.COOL_DETAIL), List.of(1, 2, 3, 4, 5, 6, 7, 8, 9), List.of("쓴맛", "시원한"),
+                Arguments.of(List.of(FlavorType.BITTER, FlavorType.COOL_DETAIL), List.of(1, 2, 3, 4, 5, 6, 7, 8, 9), List.of(FlavorType.BITTER.getFlavorName(), FlavorType.COOL_DETAIL.getFlavorName()),
                         List.of("title_8", "title_7", "title_6", "title_5", "title_4")),
-                Arguments.of(List.of(FlavorType.BITTER, FlavorType.COOL_DETAIL), new ArrayList<>(), List.of("쓴맛", "시원한"),
+                Arguments.of(List.of(FlavorType.BITTER, FlavorType.COOL_DETAIL), new ArrayList<>(), List.of(FlavorType.BITTER.getFlavorName(), FlavorType.COOL_DETAIL.getFlavorName()),
                         new ArrayList<>())
         );
     }
@@ -504,6 +492,21 @@ class FoodFindPageTest {
     void findMineBookMarkFoodTest_Success(List<FlavorType> flavorTypes, List<Integer> flavorAssignFoodIndex,
                                           List<String> realDataTitles) throws Exception {
         // given
+        List<Food> otherUserFood = new ArrayList<>();
+        for (int i = 0; i < 10; i++) {
+            Food food = Food.builder()
+                    .foodTitle("other_title_" + i)
+                    .foodStatus(FoodStatus.SHARED)
+                    .category(this.category)
+                    .price(i)
+                    .reviewMsg("review")
+                    .writer(this.otherUser)
+                    .build();
+            if (i == 9) food.addReport(FoodReportType.POSTING_OBSCENE_CONTENT.getMessage());
+            otherUserFood.add(food);
+        }
+        foodRepository.saveAll(otherUserFood);
+
         User ownerUser = this.ownerUser;
         LocalDateTime localDateTime = LocalDateTime.now();
         localDateTime = localDateTime.plusDays(3L);
@@ -513,7 +516,7 @@ class FoodFindPageTest {
         List<String> flavorNames = new ArrayList<>();
 
         for (int index : flavorAssignFoodIndex) {
-            Food food = this.foods.get(index);
+            Food food = otherUserFood.get(index);
             for (Flavor flavor : flavors) {
                 foodFlavorRepository.save(new FoodFlavor(food, flavor));
             }
@@ -553,8 +556,8 @@ class FoodFindPageTest {
     static Stream<Arguments> findMineBookMarkFoodTest_Success() {
         return Stream.of(
                 Arguments.of(List.of(), List.of(), List.of()),
-                Arguments.of(List.of(), List.of(7, 6, 5), List.of("title_7", "title_6", "title_5")),
-                Arguments.of(List.of(FlavorType.BITTER, FlavorType.SPICY), List.of(7, 6, 5), List.of("title_7", "title_6", "title_5"))
+                Arguments.of(List.of(), List.of(7, 6, 5), List.of("other_title_7", "other_title_6", "other_title_5")),
+                Arguments.of(List.of(FlavorType.BITTER, FlavorType.SPICY), List.of(7, 6, 5), List.of("other_title_7", "other_title_6", "other_title_5"))
         );
     }
 }
