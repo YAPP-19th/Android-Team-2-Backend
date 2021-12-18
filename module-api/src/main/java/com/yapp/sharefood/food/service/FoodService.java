@@ -3,8 +3,10 @@ package com.yapp.sharefood.food.service;
 import com.yapp.sharefood.category.domain.Category;
 import com.yapp.sharefood.category.exception.CategoryNotFoundException;
 import com.yapp.sharefood.category.repository.CategoryRepository;
+import com.yapp.sharefood.common.exception.BadRequestException;
 import com.yapp.sharefood.common.exception.ForbiddenException;
 import com.yapp.sharefood.common.exception.InvalidOperationException;
+import com.yapp.sharefood.common.order.SortType;
 import com.yapp.sharefood.common.utils.LocalDateTimePeriodUtils;
 import com.yapp.sharefood.flavor.domain.Flavor;
 import com.yapp.sharefood.flavor.domain.FlavorType;
@@ -253,5 +255,42 @@ public class FoodService {
         }
 
         return foodRepository.findFoodNormalSearch(foodPageSearch);
+    }
+
+    public FoodPageResponse findOnlyMineFoods(User user, FoodMinePageSearchRequest foodMinePageSearchRequest) {
+        List<Flavor> flavors = flavorRepository.findByFlavorTypeIsIn(FlavorType.toList(foodMinePageSearchRequest.getFlavors()));
+        List<Category> categoryWithChildrenByName = findCategoryWithChildrenByName(foodMinePageSearchRequest.getCategoryName());
+        List<Food> pageFoods = findMineFoods(user, flavors, categoryWithChildrenByName, foodMinePageSearchRequest);
+
+        if (pageFoods.size() < foodMinePageSearchRequest.getPageSize()) {
+            return FoodPageResponse.ofLastPage(pageFoods, foodMinePageSearchRequest.getPageSize(), user);
+        }
+
+        return FoodPageResponse.of(pageFoods, foodMinePageSearchRequest.getPageSize(), foodMinePageSearchRequest.getOffset(), user);
+    }
+
+
+    private List<Food> findMineFoods(User user, List<Flavor> flavors, List<Category> categories,
+                                     FoodMinePageSearchRequest foodMinePageSearchRequest) {
+        FoodMinePageSearch foodMinePageSearch = FoodMinePageSearch.builder()
+                .minPrice(foodMinePageSearchRequest.getMinPrice())
+                .maxPrice(foodMinePageSearchRequest.getMaxPrice())
+                .flavors(flavors)
+                .sort(SortType.of(foodMinePageSearchRequest.getSort()))
+                .order(OrderType.of(foodMinePageSearchRequest.getOrder()))
+                .categories(categories)
+                .offset(foodMinePageSearchRequest.getOffset())
+                .size(foodMinePageSearchRequest.getPageSize())
+                .status(foodMinePageSearchRequest.getStatus())
+                .searchTime(foodMinePageSearchRequest.getFirstSearchTime())
+                .build();
+
+        if (foodMinePageSearchRequest.getMineFoodType() == MineFoodType.MYFOOD) {
+            return foodRepository.findMineFoodSearch(user, foodMinePageSearch);
+        } else if (foodMinePageSearchRequest.getMineFoodType() == MineFoodType.BOOKMARK) {
+            return foodRepository.findMineBookMarkFoodSearch(user, foodMinePageSearch);
+        }
+
+        throw new BadRequestException();
     }
 }

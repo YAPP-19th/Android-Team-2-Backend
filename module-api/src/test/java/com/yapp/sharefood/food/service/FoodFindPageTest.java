@@ -1,13 +1,19 @@
 package com.yapp.sharefood.food.service;
 
+import com.yapp.sharefood.bookmark.domain.Bookmark;
+import com.yapp.sharefood.bookmark.repository.BookmarkRepository;
 import com.yapp.sharefood.category.domain.Category;
 import com.yapp.sharefood.category.repository.CategoryRepository;
 import com.yapp.sharefood.common.exception.InvalidOperationException;
+import com.yapp.sharefood.common.order.SortType;
 import com.yapp.sharefood.flavor.domain.Flavor;
 import com.yapp.sharefood.flavor.domain.FlavorType;
 import com.yapp.sharefood.flavor.repository.FlavorRepository;
 import com.yapp.sharefood.food.domain.*;
 import com.yapp.sharefood.food.dto.FoodPageDto;
+import com.yapp.sharefood.food.dto.MineFoodType;
+import com.yapp.sharefood.food.dto.OrderType;
+import com.yapp.sharefood.food.dto.request.FoodMinePageSearchRequest;
 import com.yapp.sharefood.food.dto.request.FoodPageSearchRequest;
 import com.yapp.sharefood.food.dto.response.FoodPageResponse;
 import com.yapp.sharefood.food.repository.FoodFlavorRepository;
@@ -74,6 +80,8 @@ class FoodFindPageTest {
     FoodFlavorRepository foodFlavorRepository;
     @Autowired
     FoodTagRepository foodTagRepository;
+    @Autowired
+    BookmarkRepository bookmarkRepository;
 
     private Category saveTestCategory(String categoryName) {
         Category category = Category.of(categoryName);
@@ -184,6 +192,7 @@ class FoodFindPageTest {
             if (i == 9) food.addReport(FoodReportType.POSTING_OBSCENE_CONTENT.getMessage());
             foods.add(food);
         }
+
         foodRepository.saveAll(foods);
 
         return foods;
@@ -193,6 +202,7 @@ class FoodFindPageTest {
         if (foods.size() != users.size()) {
             throw new InvalidOperationException("user food size 다름");
         }
+
         List<Like> likes = new ArrayList<>();
         for (int i = 0; i < foods.size(); i++) {
             for (int j = 0; j < i; j++) {
@@ -227,7 +237,7 @@ class FoodFindPageTest {
                 .pageSize(5)
                 .tags(new ArrayList<>())
                 .flavors(new ArrayList<>())
-                .firstSearchTime(LocalDateTime.now())
+                .firstSearchTime(LocalDateTime.now().plusDays(3))
                 .build();
 
         // when
@@ -262,7 +272,7 @@ class FoodFindPageTest {
                 .pageSize(5)
                 .tags(new ArrayList<>())
                 .flavors(new ArrayList<>())
-                .firstSearchTime(LocalDateTime.now())
+                .firstSearchTime(LocalDateTime.now().plusDays(3))
                 .build();
 
         // when
@@ -364,11 +374,11 @@ class FoodFindPageTest {
 
     static Stream<Arguments> foodSearchWithFlavorsTest_Success() {
         return Stream.of(
-                Arguments.of(List.of(FlavorType.BITTER, FlavorType.COOL_DETAIL), List.of(1, 2, 3, 4, 5, 6), List.of("쓴맛", "시원한"),
+                Arguments.of(List.of(FlavorType.BITTER, FlavorType.COOL_DETAIL), List.of(1, 2, 3, 4, 5, 6), List.of(FlavorType.BITTER.getFlavorName(), FlavorType.COOL_DETAIL.getFlavorName()),
                         List.of("title_6", "title_5", "title_4", "title_3", "title_2")),
-                Arguments.of(List.of(FlavorType.BITTER, FlavorType.COOL_DETAIL), List.of(1, 2, 3, 4, 5, 6, 7, 8, 9), List.of("쓴맛", "시원한"),
+                Arguments.of(List.of(FlavorType.BITTER, FlavorType.COOL_DETAIL), List.of(1, 2, 3, 4, 5, 6, 7, 8, 9), List.of(FlavorType.BITTER.getFlavorName(), FlavorType.COOL_DETAIL.getFlavorName()),
                         List.of("title_8", "title_7", "title_6", "title_5", "title_4")),
-                Arguments.of(List.of(FlavorType.BITTER, FlavorType.COOL_DETAIL), new ArrayList<>(), List.of("쓴맛", "시원한"),
+                Arguments.of(List.of(FlavorType.BITTER, FlavorType.COOL_DETAIL), new ArrayList<>(), List.of(FlavorType.BITTER.getFlavorName(), FlavorType.COOL_DETAIL.getFlavorName()),
                         new ArrayList<>())
         );
     }
@@ -420,6 +430,134 @@ class FoodFindPageTest {
                 Arguments.of(List.of("카푸치노", "시럽", "크림"), List.of(1, 2, 3, 4, 5, 6), List.of("title_6", "title_5", "title_4", "title_3", "title_2")),
                 Arguments.of(List.of("카푸치노", "시럽", "크림"), List.of(1, 2, 3, 4, 5, 6, 7, 8, 9), List.of("title_8", "title_7", "title_6", "title_5", "title_4")),
                 Arguments.of(List.of("카푸치노", "시럽", "크림"), new ArrayList<>(), new ArrayList<>())
+        );
+    }
+
+    @MethodSource
+    @ParameterizedTest(name = "나의 레시피 조회 기능 테스트")
+    void findMineFoodTest_Success(List<FlavorType> flavorTypes, List<Integer> flavorAssignFoodIndex,
+                                  List<String> realDataTitles) throws Exception {
+        // given
+        User ownerUser = this.ownerUser;
+        LocalDateTime localDateTime = LocalDateTime.now();
+        localDateTime = localDateTime.plusDays(3L);
+
+        List<Flavor> flavors = flavorTypes.stream().map(this::findFlavor)
+                .collect(Collectors.toList());
+        List<String> flavorNames = new ArrayList<>();
+
+        for (int index : flavorAssignFoodIndex) {
+            Food food = this.foods.get(index);
+            for (Flavor flavor : flavors) {
+                foodFlavorRepository.save(new FoodFlavor(food, flavor));
+            }
+        }
+        for (Flavor flavor : flavors) {
+            flavorNames.add(flavor.getFlavorType().getFlavorName());
+        }
+        em.flush();
+        em.clear();
+
+        FoodMinePageSearchRequest foodMinePageSearch = FoodMinePageSearchRequest.builder()
+                .flavors(flavorNames)
+                .sort(SortType.ID.getValue())
+                .order(OrderType.DESC.getOrder())
+                .categoryName(category.getName())
+                .offset(0L)
+                .pageSize(3)
+                .mineFoodType(MineFoodType.MYFOOD)
+                .firstSearchTime(localDateTime)
+                .build();
+
+        // when
+        FoodPageResponse onlyMineFoods = foodService.findOnlyMineFoods(ownerUser, foodMinePageSearch);
+
+        // then
+        assertThat(onlyMineFoods.getFoods())
+                .hasSize(realDataTitles.size())
+                .extracting("foodTitle")
+                .containsExactlyInAnyOrderElementsOf(realDataTitles);
+    }
+
+    static Stream<Arguments> findMineFoodTest_Success() {
+        return Stream.of(
+                Arguments.of(List.of(), List.of(), List.of("title_8", "title_7", "title_6")),
+                Arguments.of(List.of(FlavorType.BITTER, FlavorType.SPICY), List.of(7, 6, 5), List.of("title_8", "title_7", "title_6"))
+        );
+    }
+
+
+    @MethodSource
+    @ParameterizedTest(name = "Bookmark한 레시피 조회 기능 테스트")
+    void findMineBookMarkFoodTest_Success(List<FlavorType> flavorTypes, List<Integer> flavorAssignFoodIndex,
+                                          List<String> realDataTitles) throws Exception {
+        // given
+        List<Food> otherUserFood = new ArrayList<>();
+        for (int i = 0; i < 10; i++) {
+            Food food = Food.builder()
+                    .foodTitle("other_title_" + i)
+                    .foodStatus(FoodStatus.SHARED)
+                    .category(this.category)
+                    .price(i)
+                    .reviewMsg("review")
+                    .writer(this.otherUser)
+                    .build();
+            if (i == 9) food.addReport(FoodReportType.POSTING_OBSCENE_CONTENT.getMessage());
+            otherUserFood.add(food);
+        }
+        foodRepository.saveAll(otherUserFood);
+
+        User ownerUser = this.ownerUser;
+        LocalDateTime localDateTime = LocalDateTime.now();
+        localDateTime = localDateTime.plusDays(3L);
+
+        List<Flavor> flavors = flavorTypes.stream().map(this::findFlavor)
+                .collect(Collectors.toList());
+        List<String> flavorNames = new ArrayList<>();
+
+        for (int index : flavorAssignFoodIndex) {
+            Food food = otherUserFood.get(index);
+            for (Flavor flavor : flavors) {
+                foodFlavorRepository.save(new FoodFlavor(food, flavor));
+            }
+
+            Bookmark bookmark = Bookmark.of(this.ownerUser);
+            food.assignBookmark(bookmark);
+            bookmarkRepository.save(bookmark);
+        }
+        for (Flavor flavor : flavors) {
+            flavorNames.add(flavor.getFlavorType().getFlavorName());
+        }
+
+        em.flush();
+        em.clear();
+
+        FoodMinePageSearchRequest foodMinePageSearch = FoodMinePageSearchRequest.builder()
+                .flavors(flavorNames)
+                .sort(SortType.ID.getValue())
+                .order(OrderType.DESC.getOrder())
+                .categoryName(category.getName())
+                .offset(0L)
+                .pageSize(3)
+                .mineFoodType(MineFoodType.BOOKMARK)
+                .firstSearchTime(localDateTime)
+                .build();
+
+        // when
+        FoodPageResponse onlyMineFoods = foodService.findOnlyMineFoods(ownerUser, foodMinePageSearch);
+
+        // then
+        assertThat(onlyMineFoods.getFoods())
+                .hasSize(realDataTitles.size())
+                .extracting("foodTitle")
+                .containsExactlyInAnyOrderElementsOf(realDataTitles);
+    }
+
+    static Stream<Arguments> findMineBookMarkFoodTest_Success() {
+        return Stream.of(
+                Arguments.of(List.of(), List.of(), List.of()),
+                Arguments.of(List.of(), List.of(7, 6, 5), List.of("other_title_7", "other_title_6", "other_title_5")),
+                Arguments.of(List.of(FlavorType.BITTER, FlavorType.SPICY), List.of(7, 6, 5), List.of("other_title_7", "other_title_6", "other_title_5"))
         );
     }
 }

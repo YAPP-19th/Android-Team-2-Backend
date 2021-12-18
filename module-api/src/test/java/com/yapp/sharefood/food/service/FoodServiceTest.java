@@ -616,6 +616,6 @@ class FoodServiceTest {
         assertThat(foodUpdateRequest.getFlavors())
                 .hasSize(3)
                 .extracting("flavorName")
-                .containsExactlyInAnyOrderElementsOf(List.of("단맛", "씬맛", "단백한"));
+                .containsExactlyInAnyOrderElementsOf(List.of("단맛", "신맛", "담백한"));
     }
 }
