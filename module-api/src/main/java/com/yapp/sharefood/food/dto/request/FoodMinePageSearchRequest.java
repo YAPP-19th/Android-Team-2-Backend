@@ -1,6 +1,7 @@
 package com.yapp.sharefood.food.dto.request;
 
 import com.yapp.sharefood.food.domain.FoodStatus;
+import com.yapp.sharefood.food.dto.MineFoodType;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Data;
@@ -44,9 +45,12 @@ public class FoodMinePageSearchRequest {
     @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime firstSearchTime;
 
+    @NotNull
+    private MineFoodType mineFoodType;
+
     @Builder
     public FoodMinePageSearchRequest(Integer minPrice, Integer maxPrice, List<String> flavors, String sort, String order, FoodStatus status,
-                                     String categoryName, Long offset, Integer pageSize, LocalDateTime firstSearchTime) {
+                                     String categoryName, Long offset, Integer pageSize, LocalDateTime firstSearchTime, MineFoodType mineFoodType) {
         this.minPrice = minPrice;
         this.maxPrice = maxPrice;
         this.flavors = flavors;
@@ -57,5 +61,6 @@ public class FoodMinePageSearchRequest {
         this.offset = offset;
         this.pageSize = pageSize;
         this.firstSearchTime = firstSearchTime;
+        this.mineFoodType = mineFoodType;
     }
 }

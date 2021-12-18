@@ -20,4 +20,6 @@ public interface FoodQueryRepository {
     List<Food> findFoodFilterWithFlavor(FoodPageSearch foodPageSearch);
 
     List<Food> findMineFoodSearch(User ownerUser, FoodMinePageSearch foodMinePageSearch);
+
+    List<Food> findMineBookMarkFoodSearch(User ownerUser, FoodMinePageSearch foodMinePageSearch);
 }

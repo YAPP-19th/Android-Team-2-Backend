@@ -160,53 +160,45 @@ public class FoodQueryRepositoryImpl implements FoodQueryRepository {
 
     @Override
     public List<Food> findMineFoodSearch(User ownerUser, FoodMinePageSearch foodMinePageSearch) {
-        return queryFactory.selectFrom(food)
-                .leftJoin(food.writer, user).fetchJoin()
+        return queryFactory
+                .selectFrom(food)
+                .leftJoin(food.foodFlavors.foodFlavors, foodFlavor)
                 .where(
-                        food.writer.eq(ownerUser).orAllOf(
-                                findSemiJoinFlavors(foodMinePageSearch),
-                                food.id.in(
-                                        JPAExpressions
-                                                .select(bookmark.food.id)
-                                                .from(bookmark)
-                                                .where(
-                                                        bookmark.user.eq(ownerUser),
-                                                        goeMinPrice(foodMinePageSearch.getMinPrice()),
-                                                        loeMaxPrice(foodMinePageSearch.getMaxPrice()),
-                                                        lessThanCreateTime(foodMinePageSearch.getSearchTime()),
-                                                        eqCategory(foodMinePageSearch.getCategory()),
-                                                        reportStatusNormal(),
-                                                        status(foodMinePageSearch.getStatus())
-                                                )
-                                )
-                        )
+                        food.writer.eq(ownerUser),
+                        goeMinPrice(foodMinePageSearch.getMinPrice()),
+                        loeMaxPrice(foodMinePageSearch.getMaxPrice()),
+                        lessThanCreateTime(foodMinePageSearch.getSearchTime()),
+                        containCategories(foodMinePageSearch.getCategories()),
+                        status(foodMinePageSearch.getStatus()),
+                        reportStatusNormal()
                 )
+                .groupBy(food.id)
                 .orderBy(findCriteria(foodMinePageSearch.getOrder(), foodMinePageSearch.getSort()))
                 .limit(foodMinePageSearch.getSize())
                 .offset(foodMinePageSearch.getOffset() * foodMinePageSearch.getSize())
                 .fetch();
     }
 
-    private BooleanExpression findSemiJoinFlavors(FoodMinePageSearch foodMinePageSearch) {
-        if (QueryUtils.isEmpty(foodMinePageSearch.getFlavors())) {
-            return null;
-        }
-
-        return food.id.in(
-                JPAExpressions
-                        .select(foodFlavor.food.id)
-                        .from(foodFlavor)
-                        .where(
-                                foodFlavor.food.eq(food),
-                                goeMinPrice(foodMinePageSearch.getMinPrice()),
-                                loeMaxPrice(foodMinePageSearch.getMaxPrice()),
-                                lessThanCreateTime(foodMinePageSearch.getSearchTime()),
-                                eqCategory(foodMinePageSearch.getCategory()),
-                                containFlavors(foodMinePageSearch.getFlavors()),
-                                reportStatusNormal(),
-                                status(foodMinePageSearch.getStatus())
-                        )
-        );
+    @Override
+    public List<Food> findMineBookMarkFoodSearch(User ownerUser, FoodMinePageSearch foodMinePageSearch) {
+        return queryFactory
+                .selectFrom(food)
+                .leftJoin(food.bookmarks.bookmarks, bookmark)
+                .leftJoin(food.foodFlavors.foodFlavors, foodFlavor)
+                .where(
+                        bookmark.user.eq(ownerUser),
+                        goeMinPrice(foodMinePageSearch.getMinPrice()),
+                        loeMaxPrice(foodMinePageSearch.getMaxPrice()),
+                        lessThanCreateTime(foodMinePageSearch.getSearchTime()),
+                        containCategories(foodMinePageSearch.getCategories()),
+                        status(foodMinePageSearch.getStatus()),
+                        reportStatusNormal()
+                )
+                .groupBy(food.id)
+                .orderBy(findCriteria(foodMinePageSearch.getOrder(), foodMinePageSearch.getSort()))
+                .limit(foodMinePageSearch.getSize())
+                .offset(foodMinePageSearch.getOffset() * foodMinePageSearch.getSize())
+                .fetch();
     }
 
     private BooleanExpression lessThanCreateTime(LocalDateTime searchTime) {

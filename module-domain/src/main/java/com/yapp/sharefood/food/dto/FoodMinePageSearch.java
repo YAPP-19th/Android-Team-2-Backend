@@ -20,7 +20,7 @@ public class FoodMinePageSearch {
     private final SortType sort;
     private final OrderType order;
 
-    private final Category category;
+    private final List<Category> categories;
 
     private final Long offset;
 
@@ -32,14 +32,14 @@ public class FoodMinePageSearch {
 
     @Builder
     public FoodMinePageSearch(Integer minPrice, Integer maxPrice, List<Flavor> flavors, SortType sort, OrderType order, FoodStatus status,
-                              Category category, Long offset, Integer size, LocalDateTime searchTime) {
+                              List<Category> categories, Long offset, Integer size, LocalDateTime searchTime) {
         this.minPrice = minPrice;
         this.maxPrice = maxPrice;
         this.flavors = flavors;
         this.sort = sort;
         this.order = order;
         this.status = status;
-        this.category = category;
+        this.categories = categories;
         this.offset = offset;
         this.size = size;
         this.searchTime = searchTime;

@@ -1,5 +1,7 @@
 package com.yapp.sharefood.food.service;
 
+import com.yapp.sharefood.bookmark.domain.Bookmark;
+import com.yapp.sharefood.bookmark.repository.BookmarkRepository;
 import com.yapp.sharefood.category.domain.Category;
 import com.yapp.sharefood.category.repository.CategoryRepository;
 import com.yapp.sharefood.common.exception.InvalidOperationException;
@@ -9,6 +11,7 @@ import com.yapp.sharefood.flavor.domain.FlavorType;
 import com.yapp.sharefood.flavor.repository.FlavorRepository;
 import com.yapp.sharefood.food.domain.*;
 import com.yapp.sharefood.food.dto.FoodPageDto;
+import com.yapp.sharefood.food.dto.MineFoodType;
 import com.yapp.sharefood.food.dto.OrderType;
 import com.yapp.sharefood.food.dto.request.FoodMinePageSearchRequest;
 import com.yapp.sharefood.food.dto.request.FoodPageSearchRequest;
@@ -77,6 +80,8 @@ class FoodFindPageTest {
     FoodFlavorRepository foodFlavorRepository;
     @Autowired
     FoodTagRepository foodTagRepository;
+    @Autowired
+    BookmarkRepository bookmarkRepository;
 
     private Category saveTestCategory(String categoryName) {
         Category category = Category.of(categoryName);
@@ -442,10 +447,12 @@ class FoodFindPageTest {
 
     @MethodSource
     @ParameterizedTest(name = "나의 레시피 조회 기능 테스트")
-    void findMineFoodTest_Success(List<FlavorType> flavorTypes, List<Integer> flavorAssignFoodIndex) throws Exception {
+    void findMineFoodTest_Success(List<FlavorType> flavorTypes, List<Integer> flavorAssignFoodIndex,
+                                  List<String> realDataTitles) throws Exception {
         // given
         User ownerUser = this.ownerUser;
-        LocalDateTime localDateTime = LocalDateTime.MAX;
+        LocalDateTime localDateTime = LocalDateTime.now();
+        localDateTime = localDateTime.plusDays(3L);
 
         List<Flavor> flavors = flavorTypes.stream().map(this::findFlavor)
                 .collect(Collectors.toList());
@@ -464,14 +471,13 @@ class FoodFindPageTest {
         em.clear();
 
         FoodMinePageSearchRequest foodMinePageSearch = FoodMinePageSearchRequest.builder()
-                .minPrice(0)
-                .maxPrice(100000)
                 .flavors(flavorNames)
                 .sort(SortType.ID.getValue())
                 .order(OrderType.DESC.getOrder())
                 .categoryName(category.getName())
                 .offset(0L)
-                .pageSize(1000000000)
+                .pageSize(3)
+                .mineFoodType(MineFoodType.MYFOOD)
                 .firstSearchTime(localDateTime)
                 .build();
 
@@ -479,14 +485,76 @@ class FoodFindPageTest {
         FoodPageResponse onlyMineFoods = foodService.findOnlyMineFoods(ownerUser, foodMinePageSearch);
 
         // then
-        System.out.println("사이즈" + " : " + onlyMineFoods.getFoods().size());
-        onlyMineFoods.getFoods().forEach(food -> System.out.println(food.getFoodTitle()));
+        assertThat(onlyMineFoods.getFoods())
+                .hasSize(realDataTitles.size())
+                .extracting("foodTitle")
+                .containsExactlyInAnyOrderElementsOf(realDataTitles);
     }
 
     static Stream<Arguments> findMineFoodTest_Success() {
         return Stream.of(
-                Arguments.of(List.of(), List.of()),
-                Arguments.of(List.of(FlavorType.BITTER, FlavorType.SPICY), List.of(10, 11, 12, 13))
+                Arguments.of(List.of(), List.of(), List.of("title_8", "title_7", "title_6")),
+                Arguments.of(List.of(FlavorType.BITTER, FlavorType.SPICY), List.of(7, 6, 5), List.of("title_8", "title_7", "title_6"))
+        );
+    }
+
+
+    @MethodSource
+    @ParameterizedTest(name = "Bookmark한 레시피 조회 기능 테스트")
+    void findMineBookMarkFoodTest_Success(List<FlavorType> flavorTypes, List<Integer> flavorAssignFoodIndex,
+                                          List<String> realDataTitles) throws Exception {
+        // given
+        User ownerUser = this.ownerUser;
+        LocalDateTime localDateTime = LocalDateTime.now();
+        localDateTime = localDateTime.plusDays(3L);
+
+        List<Flavor> flavors = flavorTypes.stream().map(this::findFlavor)
+                .collect(Collectors.toList());
+        List<String> flavorNames = new ArrayList<>();
+
+        for (int index : flavorAssignFoodIndex) {
+            Food food = this.foods.get(index);
+            for (Flavor flavor : flavors) {
+                foodFlavorRepository.save(new FoodFlavor(food, flavor));
+            }
+
+            Bookmark bookmark = Bookmark.of(this.ownerUser);
+            food.assignBookmark(bookmark);
+            bookmarkRepository.save(bookmark);
+        }
+        for (Flavor flavor : flavors) {
+            flavorNames.add(flavor.getFlavorType().getFlavorName());
+        }
+
+        em.flush();
+        em.clear();
+
+        FoodMinePageSearchRequest foodMinePageSearch = FoodMinePageSearchRequest.builder()
+                .flavors(flavorNames)
+                .sort(SortType.ID.getValue())
+                .order(OrderType.DESC.getOrder())
+                .categoryName(category.getName())
+                .offset(0L)
+                .pageSize(3)
+                .mineFoodType(MineFoodType.BOOKMARK)
+                .firstSearchTime(localDateTime)
+                .build();
+
+        // when
+        FoodPageResponse onlyMineFoods = foodService.findOnlyMineFoods(ownerUser, foodMinePageSearch);
+
+        // then
+        assertThat(onlyMineFoods.getFoods())
+                .hasSize(realDataTitles.size())
+                .extracting("foodTitle")
+                .containsExactlyInAnyOrderElementsOf(realDataTitles);
+    }
+
+    static Stream<Arguments> findMineBookMarkFoodTest_Success() {
+        return Stream.of(
+                Arguments.of(List.of(), List.of(), List.of()),
+                Arguments.of(List.of(), List.of(7, 6, 5), List.of("title_7", "title_6", "title_5")),
+                Arguments.of(List.of(FlavorType.BITTER, FlavorType.SPICY), List.of(7, 6, 5), List.of("title_7", "title_6", "title_5"))
         );
     }
 }
