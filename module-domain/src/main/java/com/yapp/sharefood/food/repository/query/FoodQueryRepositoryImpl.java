@@ -28,6 +28,7 @@ import static com.yapp.sharefood.category.domain.QCategory.category;
 import static com.yapp.sharefood.food.domain.QFood.food;
 import static com.yapp.sharefood.food.domain.QFoodFlavor.foodFlavor;
 import static com.yapp.sharefood.food.domain.QFoodTag.foodTag;
+import static com.yapp.sharefood.user.domain.QUser.user;
 
 @Repository
 @RequiredArgsConstructor
@@ -43,6 +44,7 @@ public class FoodQueryRepositoryImpl implements FoodQueryRepository {
         }
 
         return queryFactory.selectFrom(food)
+                .leftJoin(food.writer, user).fetchJoin()
                 .leftJoin(food.category, category).fetchJoin()
                 .where(inIds(ids))
                 .fetch();
@@ -60,6 +62,7 @@ public class FoodQueryRepositoryImpl implements FoodQueryRepository {
 
         return queryFactory.selectFrom(food)
                 .innerJoin(food.foodFlavors.foodFlavors, foodFlavor)
+                .leftJoin(food.writer, user).fetchJoin()
                 .where(
                         statusShared(),
                         reportStatusNormal(),
@@ -98,6 +101,7 @@ public class FoodQueryRepositoryImpl implements FoodQueryRepository {
         QueryUtils.validateNotEmptyList(foodPageSearch.getTags());
 
         return queryFactory.selectFrom(food)
+                .leftJoin(food.writer, user).fetchJoin()
                 .where(
                         food.id.in(
                                 JPAExpressions
@@ -126,6 +130,7 @@ public class FoodQueryRepositoryImpl implements FoodQueryRepository {
         QueryUtils.validateNotEmptyList(foodPageSearch.getFlavors());
 
         return queryFactory.selectFrom(food)
+                .leftJoin(food.writer, user).fetchJoin()
                 .where(
                         food.id.in(
                                 JPAExpressions
