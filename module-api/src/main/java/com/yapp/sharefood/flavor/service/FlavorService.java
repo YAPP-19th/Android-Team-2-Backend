@@ -43,7 +43,7 @@ public class FlavorService {
                 .collect(Collectors.toList()));
         findUser.updateUserFlavors(flavors);
 
-        return new FlavorsResponse(findUser.getUserFlavors().stream()
+        return new FlavorsResponse(findUser.getUserFlavors().getUserFlavors().stream()
                 .map(userFlavor -> FlavorDto.of(userFlavor.getId(), userFlavor.getFlavor().getFlavorType()))
                 .collect(Collectors.toList()));
     }

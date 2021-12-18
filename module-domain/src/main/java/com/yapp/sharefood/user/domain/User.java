@@ -53,8 +53,8 @@ public class User extends BaseEntity {
     @Embedded
     private final OAuthInfo oAuthInfo = new OAuthInfo();
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private final List<UserFlavor> userFlavors = new ArrayList<>();
+    @Embedded
+    private final UserFlavors userFlavors = new UserFlavors();
 
     @Builder
     public User(Long id, String oauthId, String name, OAuthType oAuthType, String nickname) {
@@ -102,11 +102,8 @@ public class User extends BaseEntity {
     }
 
     public void updateUserFlavors(List<Flavor> flavors) {
-        this.userFlavors.clear();
-
-        for (Flavor flavor : flavors) {
-            this.userFlavors.add(UserFlavor.of(this, flavor));
-        }
+        this.userFlavors.deleteAllFlavors();
+        this.userFlavors.addAllFlavors(flavors, this);
     }
 
     public void addReport(String reportMessage) {
