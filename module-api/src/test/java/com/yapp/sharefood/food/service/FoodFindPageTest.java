@@ -3,11 +3,14 @@ package com.yapp.sharefood.food.service;
 import com.yapp.sharefood.category.domain.Category;
 import com.yapp.sharefood.category.repository.CategoryRepository;
 import com.yapp.sharefood.common.exception.InvalidOperationException;
+import com.yapp.sharefood.common.order.SortType;
 import com.yapp.sharefood.flavor.domain.Flavor;
 import com.yapp.sharefood.flavor.domain.FlavorType;
 import com.yapp.sharefood.flavor.repository.FlavorRepository;
 import com.yapp.sharefood.food.domain.*;
 import com.yapp.sharefood.food.dto.FoodPageDto;
+import com.yapp.sharefood.food.dto.OrderType;
+import com.yapp.sharefood.food.dto.request.FoodMinePageSearchRequest;
 import com.yapp.sharefood.food.dto.request.FoodPageSearchRequest;
 import com.yapp.sharefood.food.dto.response.FoodPageResponse;
 import com.yapp.sharefood.food.repository.FoodFlavorRepository;
@@ -142,7 +145,7 @@ class FoodFindPageTest {
 
     private List<User> initUser() {
         List<User> users = new ArrayList<>();
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < 20; i++) {
             users.add(User.builder()
                     .nickname("nickname" + i)
                     .name("name" + i)
@@ -184,6 +187,20 @@ class FoodFindPageTest {
             if (i == 9) food.addReport(FoodReportType.POSTING_OBSCENE_CONTENT.getMessage());
             foods.add(food);
         }
+
+        for (int i = 0; i < 10; i++) {
+            Food food = Food.builder()
+                    .foodTitle("other_title_" + i)
+                    .foodStatus(FoodStatus.SHARED)
+                    .category(this.category)
+                    .price(i)
+                    .reviewMsg("review")
+                    .writer(this.otherUser)
+                    .build();
+            if (i == 9) food.addReport(FoodReportType.POSTING_OBSCENE_CONTENT.getMessage());
+            foods.add(food);
+        }
+
         foodRepository.saveAll(foods);
 
         return foods;
@@ -420,6 +437,56 @@ class FoodFindPageTest {
                 Arguments.of(List.of("카푸치노", "시럽", "크림"), List.of(1, 2, 3, 4, 5, 6), List.of("title_6", "title_5", "title_4", "title_3", "title_2")),
                 Arguments.of(List.of("카푸치노", "시럽", "크림"), List.of(1, 2, 3, 4, 5, 6, 7, 8, 9), List.of("title_8", "title_7", "title_6", "title_5", "title_4")),
                 Arguments.of(List.of("카푸치노", "시럽", "크림"), new ArrayList<>(), new ArrayList<>())
+        );
+    }
+
+    @MethodSource
+    @ParameterizedTest(name = "나의 레시피 조회 기능 테스트")
+    void findMineFoodTest_Success(List<FlavorType> flavorTypes, List<Integer> flavorAssignFoodIndex) throws Exception {
+        // given
+        User ownerUser = this.ownerUser;
+        LocalDateTime localDateTime = LocalDateTime.MAX;
+
+        List<Flavor> flavors = flavorTypes.stream().map(this::findFlavor)
+                .collect(Collectors.toList());
+        List<String> flavorNames = new ArrayList<>();
+
+        for (int index : flavorAssignFoodIndex) {
+            Food food = this.foods.get(index);
+            for (Flavor flavor : flavors) {
+                foodFlavorRepository.save(new FoodFlavor(food, flavor));
+            }
+        }
+        for (Flavor flavor : flavors) {
+            flavorNames.add(flavor.getFlavorType().getFlavorName());
+        }
+        em.flush();
+        em.clear();
+
+        FoodMinePageSearchRequest foodMinePageSearch = FoodMinePageSearchRequest.builder()
+                .minPrice(0)
+                .maxPrice(100000)
+                .flavors(flavorNames)
+                .sort(SortType.ID.getValue())
+                .order(OrderType.DESC.getOrder())
+                .categoryName(category.getName())
+                .offset(0L)
+                .pageSize(1000000000)
+                .firstSearchTime(localDateTime)
+                .build();
+
+        // when
+        FoodPageResponse onlyMineFoods = foodService.findOnlyMineFoods(ownerUser, foodMinePageSearch);
+
+        // then
+        System.out.println("사이즈" + " : " + onlyMineFoods.getFoods().size());
+        onlyMineFoods.getFoods().forEach(food -> System.out.println(food.getFoodTitle()));
+    }
+
+    static Stream<Arguments> findMineFoodTest_Success() {
+        return Stream.of(
+                Arguments.of(List.of(), List.of()),
+                Arguments.of(List.of(FlavorType.BITTER, FlavorType.SPICY), List.of(10, 11, 12, 13))
         );
     }
 }
