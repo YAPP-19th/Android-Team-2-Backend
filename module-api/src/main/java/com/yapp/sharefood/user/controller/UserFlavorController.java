@@ -26,7 +26,7 @@ public class UserFlavorController {
     }
 
     @PutMapping("/api/v1/users/me/flavors")
-    public ResponseEntity<UpdateUserFlavorResponse> updateUserFlavor(@AuthUser User user,
+    public ResponseEntity<FlavorsResponse> updateUserFlavor(@AuthUser User user,
                                                                      @Valid @RequestBody UserFlavorRequest request) {
         return ResponseEntity.ok(flavorService.updateUserFlavors(user, request));
     }

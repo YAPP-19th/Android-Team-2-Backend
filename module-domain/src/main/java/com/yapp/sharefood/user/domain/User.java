@@ -53,8 +53,8 @@ public class User extends BaseEntity {
     @Embedded
     private final OAuthInfo oAuthInfo = new OAuthInfo();
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private final List<UserFlavor> userFlavors = new ArrayList<>();
+    @Embedded
+    private final UserFlavors userFlavors = new UserFlavors();
 
     @Builder
     public User(Long id, String oauthId, String name, OAuthType oAuthType, String nickname) {
@@ -101,21 +101,9 @@ public class User extends BaseEntity {
         this.grade = Grade.gradeByPoint(point);
     }
 
-    public void updateUserFlavors(Set<Flavor> flavorSet) {
-        this.userFlavors.removeIf(userFlavor -> !flavorSet.contains(userFlavor.getFlavor()));
-        Set<Flavor> userExistFlavor = getUserFlavrs();
-
-        for (Flavor flavor : flavorSet) {
-            if (!userExistFlavor.contains(flavor)) {
-                this.userFlavors.add(UserFlavor.of(this, flavor));
-            }
-        }
-    }
-
-    private Set<Flavor> getUserFlavrs() {
-        return userFlavors.stream()
-                .map(UserFlavor::getFlavor)
-                .collect(Collectors.toSet());
+    public void updateUserFlavors(List<Flavor> flavors) {
+        this.userFlavors.deleteAllFlavors();
+        this.userFlavors.addAllFlavors(flavors, this);
     }
 
     public void addReport(String reportMessage) {

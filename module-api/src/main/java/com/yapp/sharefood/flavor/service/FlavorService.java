@@ -36,12 +36,14 @@ public class FlavorService {
     }
 
     @Transactional
-    public UpdateUserFlavorResponse updateUserFlavors(User user, UserFlavorRequest request) {
+    public FlavorsResponse updateUserFlavors(User user, UserFlavorRequest request) {
+        User findUser = userRepository.findById(user.getId()).orElseThrow(UserNotFoundException::new);
+
         List<Flavor> flavors = flavorRepository.findByFlavorTypeIsIn(request.getFlavors().stream().map(FlavorType::of)
                 .collect(Collectors.toList()));
-        user.updateUserFlavors(new HashSet<>(flavors));
+        findUser.updateUserFlavors(flavors);
 
-        return UpdateUserFlavorResponse.of(user.getUserFlavors().stream()
+        return new FlavorsResponse(findUser.getUserFlavors().getUserFlavors().stream()
                 .map(userFlavor -> FlavorDto.of(userFlavor.getId(), userFlavor.getFlavor().getFlavorType()))
                 .collect(Collectors.toList()));
     }
