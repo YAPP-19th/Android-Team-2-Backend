@@ -8,6 +8,7 @@ import com.yapp.sharefood.food.domain.FoodIngredientType;
 import com.yapp.sharefood.food.dto.FoodImageDto;
 import com.yapp.sharefood.food.dto.FoodPageDto;
 import com.yapp.sharefood.food.dto.FoodTagDto;
+import com.yapp.sharefood.food.dto.request.FoodMinePageSearchRequest;
 import com.yapp.sharefood.food.dto.request.FoodPageSearchRequest;
 import com.yapp.sharefood.food.dto.request.FoodTopRankRequest;
 import com.yapp.sharefood.food.dto.request.RecommendationFoodRequest;
@@ -451,6 +452,144 @@ public class FoodControllerTest extends PreprocessController {
         FoodPageResponse foodPageResponse = objectMapper
                 .readValue(perform.andExpect(status().isOk())
                         .andDo(documentIdentify("food/get/success/pageSearch"))
+                        .andReturn()
+                        .getResponse()
+                        .getContentAsString(StandardCharsets.UTF_8), new TypeReference<>() {
+                });
+
+        assertThat(foodPageResponse.getFoods())
+                .hasSize(3)
+                .extracting("foodTitle")
+                .containsExactlyInAnyOrderElementsOf(List.of("title_1", "title_2", "title_3"));
+        assertEquals(foodPageResponse.getPageSize(), 3);
+        assertEquals(foodPageResponse.getOffset(), 0);
+    }
+
+    @Test
+    @DisplayName("내가 작성한 food 조회")
+    void findMineFoodController_Success() throws Exception {
+        // given
+        List<FoodPageDto> foodpageContent = List.of(
+                FoodPageDto.builder().
+                        id(1L)
+                        .foodTitle("title_1")
+                        .categoryName("샌드위치")
+                        .price(1000)
+                        .numberOfLikes(12)
+                        .isMeBookmark(false)
+                        .isMeLike(false)
+                        .foodImages(List.of(new FoodImageDto(1L, "imageUrl1.jpg", "realImageName1.jpg")))
+                        .build(),
+                FoodPageDto.builder().
+                        id(2L)
+                        .foodTitle("title_2")
+                        .categoryName("샌드위치")
+                        .price(2000)
+                        .numberOfLikes(121)
+                        .isMeBookmark(false)
+                        .isMeLike(false)
+                        .foodImages(List.of(new FoodImageDto(2L, "imageUrl2.jpg", "realImageName2.jpg")))
+                        .build(),
+                FoodPageDto.builder().
+                        id(3L)
+                        .foodTitle("title_3")
+                        .categoryName("샌드위치")
+                        .price(3000)
+                        .numberOfLikes(1123)
+                        .isMeBookmark(false)
+                        .isMeLike(false)
+                        .foodImages(List.of(new FoodImageDto(3L, "imageUrl3.jpg", "realImageName3.jpg")))
+                        .build());
+        willReturn(FoodPageResponse.ofPureDto(foodpageContent, 3, 0L))
+                .given(foodService).findOnlyMineFoods(any(User.class), any(FoodMinePageSearchRequest.class));
+
+        // when
+        ResultActions perform = mockMvc.perform(get("/api/v1/foods/me")
+                .param("minPrice", "0")
+                .param("maxPrice", "100000")
+                .param("flavors", "단맛", "짠맛")
+                .param("sort", "like")
+                .param("order", "asc")
+                .param("categoryName", "샌드위치")
+                .param("firstSearchTime", "2021-12-25T12:12:12")
+                .param("offset", "0")
+                .param("mineFoodType", "MYFOOD")
+                .param("pageSize", "3")
+                .header(HttpHeaders.AUTHORIZATION, "token"));
+
+        // then
+        FoodPageResponse foodPageResponse = objectMapper
+                .readValue(perform.andExpect(status().isOk())
+                        .andDo(documentIdentify("food/get/success/myfoods"))
+                        .andReturn()
+                        .getResponse()
+                        .getContentAsString(StandardCharsets.UTF_8), new TypeReference<>() {
+                });
+
+        assertThat(foodPageResponse.getFoods())
+                .hasSize(3)
+                .extracting("foodTitle")
+                .containsExactlyInAnyOrderElementsOf(List.of("title_1", "title_2", "title_3"));
+        assertEquals(foodPageResponse.getPageSize(), 3);
+        assertEquals(foodPageResponse.getOffset(), 0);
+    }
+
+    @Test
+    @DisplayName("Bookmark한 food 조회")
+    void findBookmarkeFoodController_Success() throws Exception {
+        // given
+        List<FoodPageDto> foodpageContent = List.of(
+                FoodPageDto.builder().
+                        id(1L)
+                        .foodTitle("title_1")
+                        .categoryName("샌드위치")
+                        .price(1000)
+                        .numberOfLikes(12)
+                        .isMeBookmark(true)
+                        .isMeLike(false)
+                        .foodImages(List.of(new FoodImageDto(1L, "imageUrl1.jpg", "realImageName1.jpg")))
+                        .build(),
+                FoodPageDto.builder().
+                        id(2L)
+                        .foodTitle("title_2")
+                        .categoryName("샌드위치")
+                        .price(2000)
+                        .numberOfLikes(121)
+                        .isMeBookmark(true)
+                        .isMeLike(false)
+                        .foodImages(List.of(new FoodImageDto(2L, "imageUrl2.jpg", "realImageName2.jpg")))
+                        .build(),
+                FoodPageDto.builder().
+                        id(3L)
+                        .foodTitle("title_3")
+                        .categoryName("샌드위치")
+                        .price(3000)
+                        .numberOfLikes(1123)
+                        .isMeBookmark(true)
+                        .isMeLike(false)
+                        .foodImages(List.of(new FoodImageDto(3L, "imageUrl3.jpg", "realImageName3.jpg")))
+                        .build());
+        willReturn(FoodPageResponse.ofPureDto(foodpageContent, 3, 0L))
+                .given(foodService).findOnlyMineFoods(any(User.class), any(FoodMinePageSearchRequest.class));
+
+        // when
+        ResultActions perform = mockMvc.perform(get("/api/v1/foods/me")
+                .param("minPrice", "0")
+                .param("maxPrice", "100000")
+                .param("flavors", "단맛", "짠맛")
+                .param("sort", "like")
+                .param("order", "asc")
+                .param("categoryName", "샌드위치")
+                .param("firstSearchTime", "2021-12-25T12:12:12")
+                .param("offset", "0")
+                .param("mineFoodType", "BOOKMARK")
+                .param("pageSize", "3")
+                .header(HttpHeaders.AUTHORIZATION, "token"));
+
+        // then
+        FoodPageResponse foodPageResponse = objectMapper
+                .readValue(perform.andExpect(status().isOk())
+                        .andDo(documentIdentify("food/get/success/bookmarkFoods"))
                         .andReturn()
                         .getResponse()
                         .getContentAsString(StandardCharsets.UTF_8), new TypeReference<>() {
