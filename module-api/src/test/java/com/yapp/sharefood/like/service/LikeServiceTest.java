@@ -71,7 +71,7 @@ class LikeServiceTest {
         Food food = saveFood("food title1", user1, saveCategory, FoodStatus.SHARED);
 
         // when
-        Long likeId = likeService.saveLike(user2, food.getId(), saveCategory.getName());
+        Long likeId = likeService.saveLike(user2, food.getId());
         Like like = likeRepository.findById(likeId)
                 .orElseThrow();
 
@@ -89,7 +89,7 @@ class LikeServiceTest {
         Food food = saveFood("food title", user1, saveCategory, FoodStatus.SHARED);
 
         // when
-        Long likeId = likeService.saveLike(user1, food.getId(), saveCategory.getName());
+        Long likeId = likeService.saveLike(user1, food.getId());
         Like like = likeRepository.findById(likeId)
                 .orElseThrow();
 
@@ -109,39 +109,19 @@ class LikeServiceTest {
 
         // then
         long foodId = food.getId();
-        String categoryName = saveCategory.getName();
-        assertThrows(InvalidOperationException.class, () -> likeService.saveLike(user1, foodId, categoryName));
+        assertThrows(InvalidOperationException.class, () -> likeService.saveLike(user1, foodId));
     }
 
     @Test
     @DisplayName("없는 food를 like 추가 하는 경우")
     void saveFoodNotFoundExceptionTest_NotFoundException() throws Exception {
         // given
-        Category saveCategory = saveTestCategory("A");
         User user1 = saveTestUser("user1_nick", "user1_name", "oauthId1");
 
         // when
 
         // then
-        String categoryName = saveCategory.getName();
-        assertThrows(FoodNotFoundException.class, () -> likeService.saveLike(user1, 1L, categoryName));
-    }
-
-    @Test
-    @DisplayName("food category가 적절하지 않는 경우")
-    void saveFoodValidateCategory_NotFoundException() throws Exception {
-        // given
-        Category saveCategory = saveTestCategory("A");
-        User user1 = saveTestUser("user1_nick", "user1_name", "oauthId1");
-        Food food = saveFood("food title", user1, saveCategory, FoodStatus.MINE);
-
-        // when
-
-        // then
-        String categoryName = "B";
-        Long foodId = food.getId();
-        assertNotNull(foodId);
-        assertThrows(FoodNotFoundException.class, () -> likeService.saveLike(user1, foodId, categoryName));
+        assertThrows(FoodNotFoundException.class, () -> likeService.saveLike(user1, 1L));
     }
 
     @Test
@@ -156,8 +136,8 @@ class LikeServiceTest {
         likeRepository.flush();
 
         // when
-        likeService.deleteLike(user1, food.getId(), "A");
-        Food findFood = foodRepository.findByIdWithCategory(food.getId())
+        likeService.deleteLike(user1, food.getId());
+        Food findFood = foodRepository.findById(food.getId())
                 .orElseThrow();
 
         // then
@@ -181,7 +161,7 @@ class LikeServiceTest {
 
         // then
         long foodId = food.getId();
-        assertThrows(ForbiddenException.class, () -> likeService.deleteLike(user2, foodId, "A"));
+        assertThrows(ForbiddenException.class, () -> likeService.deleteLike(user2, foodId));
     }
 
     @Test
@@ -193,23 +173,6 @@ class LikeServiceTest {
         // when
 
         // then
-        assertThrows(FoodNotFoundException.class, () -> likeService.deleteLike(user1, 1L, "A"));
-    }
-
-    @Test
-    @DisplayName("like 취소시 food category가 적절하지 않는 경우")
-    void deleteFoodValidateCategory_NotFoundException() throws Exception {
-        // given
-        Category saveCategory = saveTestCategory("A");
-        User user1 = saveTestUser("user1_nick", "user1_name", "oauthId1");
-        Food food = saveFood("food title", user1, saveCategory, FoodStatus.MINE);
-
-        // when
-
-        // then
-        String categoryName = "B";
-        Long foodId = food.getId();
-        assertNotNull(foodId);
-        assertThrows(FoodNotFoundException.class, () -> likeService.deleteLike(user1, foodId, categoryName));
+        assertThrows(FoodNotFoundException.class, () -> likeService.deleteLike(user1, 1L));
     }
 }

@@ -2,8 +2,6 @@ package com.yapp.sharefood.like.controller;
 
 import com.yapp.sharefood.auth.resolver.AuthUser;
 import com.yapp.sharefood.config.lock.UserlevelLock;
-import com.yapp.sharefood.like.dto.request.LikeCreationRequest;
-import com.yapp.sharefood.like.dto.request.LikeDeleteRequest;
 import com.yapp.sharefood.like.service.LikeService;
 import com.yapp.sharefood.user.domain.User;
 import lombok.RequiredArgsConstructor;
@@ -26,13 +24,12 @@ public class LikeController {
 
     @PostMapping("/api/v1/foods/{foodId}/likes")
     public ResponseEntity<URI> createLike(@AuthUser User user,
-                                          @PathVariable("foodId") Long foodId,
-                                          @Valid @RequestBody LikeCreationRequest likeCreationRequest) {
+                                          @PathVariable("foodId") Long foodId) {
 
         Long likeId = userlevelLock.executeWithLock(
                 SERVICE_NAME + "_" + foodId,
                 DEFAULT_USERLEVEL_LOCk_TIME_OUT,
-                () -> likeService.saveLike(user, foodId, likeCreationRequest.getCategoryName())
+                () -> likeService.saveLike(user, foodId)
         );
 
         URI likeUri = ServletUriComponentsBuilder.fromCurrentRequest()
@@ -44,13 +41,12 @@ public class LikeController {
 
     @DeleteMapping("/api/v1/foods/{foodId}/likes")
     public ResponseEntity<Void> deleteLike(@AuthUser User user,
-                                           @PathVariable("foodId") Long foodId,
-                                           @Valid LikeDeleteRequest likeDeleteRequest) {
+                                           @PathVariable("foodId") Long foodId) {
         userlevelLock.executeWithLock(
                 SERVICE_NAME + "_" + foodId,
                 DEFAULT_USERLEVEL_LOCk_TIME_OUT,
                 () -> {
-                    likeService.deleteLike(user, foodId, likeDeleteRequest.getCategoryName());
+                    likeService.deleteLike(user, foodId);
                     return null;
                 });
         return ResponseEntity.ok().build();

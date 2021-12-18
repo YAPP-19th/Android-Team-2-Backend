@@ -19,8 +19,9 @@ public class LikeService {
     private final LikeRepository likeRepository;
 
     @Transactional
-    public Long saveLike(User user, Long foodId, String categoryName) {
-        Food findFood = findCategoryIncludeFood(foodId, categoryName);
+    public Long saveLike(User user, Long foodId) {
+        Food findFood = foodRepository.findById(foodId)
+                .orElseThrow(FoodNotFoundException::new);
 
         Like like = Like.of(user);
         findFood.assignLike(like);
@@ -30,22 +31,10 @@ public class LikeService {
     }
 
     @Transactional
-    public void deleteLike(User user, Long foodId, String categoryName) {
-        Food findFood = findCategoryIncludeFood(foodId, categoryName);
+    public void deleteLike(User user, Long foodId) {
+        Food findFood = foodRepository.findById(foodId)
+                .orElseThrow(FoodNotFoundException::new);
         findFood.deleteLike(user);
     }
 
-    private Food findCategoryIncludeFood(Long foodId, String categoryName) {
-        Food findFood = foodRepository.findByIdWithCategory(foodId)
-                .orElseThrow(FoodNotFoundException::new);
-        validateFoodCategory(findFood, categoryName);
-
-        return findFood;
-    }
-
-    private void validateFoodCategory(Food food, String categoryName) {
-        if (!food.getCategory().getName().equals(categoryName)) {
-            throw new FoodNotFoundException();
-        }
-    }
 }
