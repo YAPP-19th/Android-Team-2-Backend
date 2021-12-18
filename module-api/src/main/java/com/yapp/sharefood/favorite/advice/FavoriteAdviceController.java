@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 public class FavoriteAdviceController {
     @ExceptionHandler(FavoriteNotFoundException.class)
     protected ResponseEntity<Object> handleFavoriteNotFoundException(final FavoriteNotFoundException exception) {
-        log.error(exception.getMessage(), exception);
+        log.info("FavoriteNotFoundException: {}", exception.getMessage(), exception);
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(exception.getMessage());
     }
 }

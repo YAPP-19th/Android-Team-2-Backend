@@ -21,13 +21,15 @@ public class AwsS3Uploader implements StorageUploader {
 
     @Override
     public String upload(String s3DirPath, MultipartFile file) {
+        final String saveFileName = FileUtils.createSaveFileName(s3DirPath, file.getOriginalFilename());
         try {
-            final String saveFileName = FileUtils.createSaveFileName(s3DirPath, file.getOriginalFilename());
             ObjectMetadata saveMetadata = createSaveObjectMetadata(file);
             amazonS3.putObject(component.getBucket(), saveFileName, file.getInputStream(), saveMetadata);
+            log.info("S3의 {} 파일 upload 성공", saveFileName);
 
             return component.getCloudFrontUrl() + "/" + saveFileName;
         } catch (Exception e) {
+            log.warn("S3의 {} 파일 upload 실패", saveFileName);
             throw new FileUploadException();
         }
     }
@@ -42,12 +44,12 @@ public class AwsS3Uploader implements StorageUploader {
     @Override
     public void delete(String s3DirPath, String fileName) {
         try {
-            log.debug("S3에서 삭제할 이미지 경로: {}", s3DirPath + fileName);
+            log.info("S3에서 삭제할 이미지 경로: {}", s3DirPath + fileName);
             final DeleteObjectRequest deleteObjectRequest = new DeleteObjectRequest(component.getBucket(), s3DirPath + fileName);
             amazonS3.deleteObject(deleteObjectRequest);
             log.debug("S3의 {} 파일 삭제 성공", s3DirPath + fileName);
         } catch (AmazonServiceException e) {
-            log.info("S3의 {} 파일 삭제 실패", s3DirPath + fileName);
+            log.warn("S3의 {} 파일 삭제 실패", s3DirPath + fileName);
         }
     }
 }

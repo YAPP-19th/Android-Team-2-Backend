@@ -15,7 +15,7 @@ public class FlavorAdviceController {
 
     @ExceptionHandler(FlavorNotFoundException.class)
     protected ResponseEntity<Object> handleFlavorNotFoundException(final FlavorNotFoundException exception) {
-        log.error(exception.getMessage(), exception);
+        log.info("FlavorNotFoundException: {}", exception.getMessage(), exception);
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(exception.getMessage());
     }
 }

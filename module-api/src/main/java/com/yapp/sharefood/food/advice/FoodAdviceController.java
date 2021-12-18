@@ -14,19 +14,19 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 public class FoodAdviceController {
     @ExceptionHandler(FoodNotFoundException.class)
     protected ResponseEntity<Object> handlerFoodNotFoundException(final FoodNotFoundException exception) {
-        log.error(exception.getMessage(), exception);
+        log.info("FoodNotFoundException: {}", exception.getMessage(), exception);
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(exception.getMessage());
     }
 
     @ExceptionHandler(FoodBanndedException.class)
     protected ResponseEntity<Object> handleFoodBanndedException(final FoodBanndedException exception) {
-        log.error(exception.getMessage(), exception);
+        log.info("FoodBanndedException: {}", exception.getMessage(), exception);
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(exception.getMessage());
     }
 
     @ExceptionHandler(ReportNotDefineException.class)
     protected ResponseEntity<Object> handleReportNotDefineException(final ReportNotDefineException exception) {
-        log.error(exception.getMessage(), exception);
+        log.info("ReportNotDefineException: {}", exception.getMessage(), exception);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(exception.getMessage());
     }
 }

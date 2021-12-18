@@ -37,6 +37,7 @@ public class UserlevelLock {
                 log.info("success releaseLock=[{}], connection=[{}]", userLockName, connection);
             }
         } catch (SQLException | DbUserLockException e) {
+            log.warn("user level lock exception");
             throw new DbUserLockException(e.getMessage(), e);
         }
     }

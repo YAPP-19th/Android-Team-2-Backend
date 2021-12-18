@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 public class CategoryAdviceController {
     @ExceptionHandler(CategoryNotFoundException.class)
     protected ResponseEntity<String> handlerCategoryNotFoundException(final CategoryNotFoundException exception) {
-        log.error(exception.getMessage(), exception);
+        log.info("CategoryNotFoundException: {}", exception.getMessage(), exception);
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(exception.getMessage());
     }
 }
