@@ -101,21 +101,12 @@ public class User extends BaseEntity {
         this.grade = Grade.gradeByPoint(point);
     }
 
-    public void updateUserFlavors(Set<Flavor> flavorSet) {
-        this.userFlavors.removeIf(userFlavor -> !flavorSet.contains(userFlavor.getFlavor()));
-        Set<Flavor> userExistFlavor = getUserFlavrs();
+    public void updateUserFlavors(List<Flavor> flavors) {
+        this.userFlavors.clear();
 
-        for (Flavor flavor : flavorSet) {
-            if (!userExistFlavor.contains(flavor)) {
-                this.userFlavors.add(UserFlavor.of(this, flavor));
-            }
+        for (Flavor flavor : flavors) {
+            this.userFlavors.add(UserFlavor.of(this, flavor));
         }
-    }
-
-    private Set<Flavor> getUserFlavrs() {
-        return userFlavors.stream()
-                .map(UserFlavor::getFlavor)
-                .collect(Collectors.toSet());
     }
 
     public void addReport(String reportMessage) {

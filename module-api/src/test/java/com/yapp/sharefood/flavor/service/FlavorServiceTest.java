@@ -90,7 +90,7 @@ class FlavorServiceTest {
                 .collect(Collectors.toList()));
 
         //when
-        UpdateUserFlavorResponse response = flavorService.updateUserFlavors(user, request);
+        FlavorsResponse response = flavorService.updateUserFlavors(user, request);
 
         //then
         assertThat(response.getFlavors())
