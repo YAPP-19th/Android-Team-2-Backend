@@ -1,18 +1,20 @@
 package com.yapp.sharefood.like.controller;
 
 import com.yapp.sharefood.auth.resolver.AuthUser;
-import com.yapp.sharefood.config.lock.UserlevelLock;
+import com.yapp.sharefood.config.lock.UserLevelLock;
 import com.yapp.sharefood.like.service.LikeService;
 import com.yapp.sharefood.user.domain.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import javax.validation.Valid;
 import java.net.URI;
 
-import static com.yapp.sharefood.config.lock.UserlevelLock.DEFAULT_USERLEVEL_LOCk_TIME_OUT;
+import static com.yapp.sharefood.config.lock.UserlevelLockSql.DEFAULT_USERLEVEL_LOCk_TIME_OUT;
 
 @RestController
 @RequiredArgsConstructor
@@ -20,7 +22,7 @@ public class LikeController {
     private static final String SERVICE_NAME = "like";
 
     private final LikeService likeService;
-    private final UserlevelLock userlevelLock;
+    private final UserLevelLock userlevelLock;
 
     @PostMapping("/api/v1/foods/{foodId}/likes")
     public ResponseEntity<URI> createLike(@AuthUser User user,

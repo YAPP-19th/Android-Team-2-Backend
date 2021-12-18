@@ -13,7 +13,7 @@ import java.util.function.Supplier;
 
 @Slf4j
 @RequiredArgsConstructor
-public class UserlevelLock {
+public class UserlevelLockSql implements UserLevelLock {
     private static final String GET_LOCK = "SELECT GET_LOCK(?, ?)";
     private static final String RELEASE_LOCK = "SELECT RELEASE_LOCK(?)";
     public static final int DEFAULT_USERLEVEL_LOCk_TIME_OUT = 2;
