@@ -10,9 +10,6 @@ import org.springframework.data.repository.query.Param;
 import java.util.Optional;
 
 public interface FoodRepository extends JpaRepository<Food, Long>, FoodQueryRepository {
-    @Query("SELECT f FROM Food f JOIN FETCH f.category WHERE f.id = :id")
-    Optional<Food> findByIdWithCategory(@Param("id") Long id);
-
     @Query("SELECT f FROM Food f WHERE f.id = :foodId AND f.writer = :writer")
     Optional<Food> findByIdWithUser(@Param("foodId") Long foodId, @Param("writer") User user);
 
