@@ -68,7 +68,6 @@ public class FoodQueryRepositoryImpl implements FoodQueryRepository {
                                         )
                         )
                 )
-                .limit(5L)
                 .fetch();
     }
 
