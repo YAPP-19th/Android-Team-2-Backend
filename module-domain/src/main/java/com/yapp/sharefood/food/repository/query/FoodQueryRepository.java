@@ -11,6 +11,8 @@ import java.util.List;
 public interface FoodQueryRepository {
     List<Food> findFoodWithCategoryByIds(List<Long> ids);
 
+    List<Food> findFavoriteFoods(User findUser);
+
     List<Food> findRecommendFoods(FoodRecommendSearch foodRecommendSearch);
 
     List<Food> findFoodNormalSearch(FoodPageSearch foodPageSearch);

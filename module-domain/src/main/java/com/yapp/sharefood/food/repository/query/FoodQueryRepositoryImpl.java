@@ -29,6 +29,7 @@ import java.util.Objects;
 
 import static com.yapp.sharefood.bookmark.domain.QBookmark.bookmark;
 import static com.yapp.sharefood.category.domain.QCategory.category;
+import static com.yapp.sharefood.favorite.domain.QFavorite.favorite;
 import static com.yapp.sharefood.food.domain.QFood.food;
 import static com.yapp.sharefood.food.domain.QFoodFlavor.foodFlavor;
 import static com.yapp.sharefood.food.domain.QFoodTag.foodTag;
@@ -51,6 +52,23 @@ public class FoodQueryRepositoryImpl implements FoodQueryRepository {
                 .leftJoin(food.writer, user).fetchJoin()
                 .leftJoin(food.category, category).fetchJoin()
                 .where(inIds(ids))
+                .fetch();
+    }
+
+    @Override
+    public List<Food> findFavoriteFoods(User findUser) {
+        return queryFactory.selectFrom(food)
+                .where(
+                        food.id.in(
+                                JPAExpressions
+                                        .select(favorite.food.id)
+                                        .from(favorite)
+                                        .where(
+                                                user.eq(findUser)
+                                        )
+                        )
+                )
+                .limit(5L)
                 .fetch();
     }
 
