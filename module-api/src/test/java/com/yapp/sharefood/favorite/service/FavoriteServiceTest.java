@@ -3,7 +3,10 @@ package com.yapp.sharefood.favorite.service;
 import com.yapp.sharefood.category.domain.Category;
 import com.yapp.sharefood.category.repository.CategoryRepository;
 import com.yapp.sharefood.favorite.domain.Favorite;
+import com.yapp.sharefood.favorite.dto.FavoriteFoodDto;
+import com.yapp.sharefood.favorite.dto.response.FavoriteFoodResponse;
 import com.yapp.sharefood.favorite.exception.FavoriteNotFoundException;
+import com.yapp.sharefood.favorite.exception.TooManyFavoriteException;
 import com.yapp.sharefood.favorite.repository.FavoriteRepository;
 import com.yapp.sharefood.food.domain.Food;
 import com.yapp.sharefood.food.domain.FoodStatus;
@@ -19,6 +22,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -63,6 +68,12 @@ class FavoriteServiceTest {
                 .category(category)
                 .build();
         return foodRepository.save(food);
+    }
+
+    private Favorite saveTestFavorite(User user, Food food) {
+        Favorite favorite = Favorite.of(user);
+        food.assignFavorite(favorite);
+        return favoriteRepository.save(favorite);
     }
 
     private Category category;
@@ -116,6 +127,28 @@ class FavoriteServiceTest {
     }
 
     @Test
+    @DisplayName("최애 추가 실패 - 최애는 5개를 넘을 수 없습니다")
+    void createFavoriteTest_Fail_TooManyFavorite() {
+        //given
+        Food food1 = saveTestFood("test1", user, category, FoodStatus.SHARED);
+        Food food2 = saveTestFood("test2", user, category, FoodStatus.SHARED);
+        Food food3 = saveTestFood("test3", user, category, FoodStatus.SHARED);
+        Food food4 = saveTestFood("test4", user, category, FoodStatus.SHARED);
+        Food food5 = saveTestFood("test5", user, category, FoodStatus.SHARED);
+        List<Food> foodList = List.of(food1, food2, food3, food4, food5);
+
+        for (Food food : foodList) {
+            saveTestFavorite(user, food);
+        }
+
+        //when
+
+        //then
+        Food testFood = saveTestFood("testFood", user, category, FoodStatus.SHARED);
+        assertThrows(TooManyFavoriteException.class, () -> favoriteService.createFavorite(user, testFood.getId()));
+    }
+
+    @Test
     @DisplayName("최애 삭제 성공")
     void favoriteDelete_Success() {
         //given
@@ -149,6 +182,45 @@ class FavoriteServiceTest {
 
         //then
         assertThrows(FoodNotFoundException.class, () -> favoriteService.deleteFavorite(user, -1L));
+    }
+
+    @Test
+    @DisplayName("최애 조회 성공")
+    void favoriteFind_Success() {
+        //given
+        Food food1 = saveTestFood("test1", writerUser, category, FoodStatus.MINE);
+        Food food2 = saveTestFood("test2", user, category, FoodStatus.SHARED);
+        Food food3 = saveTestFood("test3", writerUser, category, FoodStatus.SHARED);
+        Food food4 = saveTestFood("test4", user, category, FoodStatus.MINE);
+        List<Food> foodList = List.of(food1, food2, food3, food4);
+
+        for (Food food : foodList) {
+            saveTestFavorite(user, food);
+        }
+
+        //when
+        FavoriteFoodResponse favoriteFoods = favoriteService.findFavoriteFoods(user);
+
+        //then
+        int expectFavoriteFoodSize = foodList.size();
+        int actualFavoriteFoodSize = favoriteFoods.getFavoriteFoods().size();
+        assertEquals(expectFavoriteFoodSize, actualFavoriteFoodSize);
+        for (int i = 0; i < foodList.size(); i++) {
+            FavoriteFoodDto expectFood = FavoriteFoodDto.foodToFavoriteFoodDto(user, foodList.get(i));
+            FavoriteFoodDto actualFood = favoriteFoods.getFavoriteFoods().get(i);
+            assertEquals(expectFood, actualFood);
+        }
+    }
+
+    @Test
+    @DisplayName("최애 조회 실패 - 존재하지 않는 유저")
+    void favoriteFood_Fail_UserNotFound() {
+        //given
+
+        //when
+
+        //then
+        assertThrows(UserNotFoundException.class, () -> favoriteService.findFavoriteFoods(User.builder().id(-1L).build()));
     }
 
 }
