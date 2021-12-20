@@ -177,6 +177,8 @@ public class Food extends BaseEntity {
         return this.bookmarks.isAlreadyBookmark(user.getId());
     }
 
+    public boolean isMeFavorite(User user) { return this.favorites.isAlreadyFavorite(user.getId()); }
+
     public void updateAllElements(String foodTitle, String reviewMsg, Integer price, FoodStatus foodStatus, Category category) {
         this.foodTitle = foodTitle;
         this.reviewMsg = reviewMsg;
