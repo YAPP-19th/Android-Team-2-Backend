@@ -48,7 +48,7 @@ class FlavorControllerTest extends PreprocessController {
         FlavorsResponse flavors = objectMapper
                 .readValue(perform
                         .andExpect(status().isOk())
-                        .andDo(documentIdentify("flavor/get/success/not_empty"))
+                        .andDo(documentIdentify("flavor/get/success/notEmpty"))
                         .andReturn()
                         .getResponse()
                         .getContentAsString(StandardCharsets.UTF_8), new TypeReference<>() {

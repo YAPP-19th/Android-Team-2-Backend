@@ -55,7 +55,7 @@ class FavoriteControllerTest extends PreprocessController {
 
         //then
         perform.andExpect(status().isCreated())
-                .andDo(documentIdentify("foods/favorite/post/success"))
+                .andDo(documentIdentify("food-favorite/post/success"))
                 .andReturn()
                 .getResponse()
                 .getContentAsString(StandardCharsets.UTF_8);
@@ -76,7 +76,7 @@ class FavoriteControllerTest extends PreprocessController {
 
         //then
         String errMsg = perform.andExpect(status().isNotFound())
-                .andDo(documentIdentify("foods/favorite/post/fail/userNotFound"))
+                .andDo(documentIdentify("food-favorite/post/fail/userNotFound"))
                 .andReturn()
                 .getResponse()
                 .getContentAsString(StandardCharsets.UTF_8);
@@ -102,7 +102,7 @@ class FavoriteControllerTest extends PreprocessController {
 
         //then
         String errMsg = perform.andExpect(status().isNotFound())
-                .andDo(documentIdentify("foods/favorite/post/fail/userNotFound"))
+                .andDo(documentIdentify("food-favorite/post/fail/foodNotFound"))
                 .andReturn()
                 .getResponse()
                 .getContentAsString(StandardCharsets.UTF_8);
@@ -128,7 +128,7 @@ class FavoriteControllerTest extends PreprocessController {
 
         //then
         String errMsg = perform.andExpect(status().isTooManyRequests())
-                .andDo(documentIdentify("foods/favorite/post/fail/userNotFound"))
+                .andDo(documentIdentify("food-favorite/post/fail/tooManyFavorite"))
                 .andReturn()
                 .getResponse()
                 .getContentAsString(StandardCharsets.UTF_8);
@@ -152,7 +152,7 @@ class FavoriteControllerTest extends PreprocessController {
 
         //then
         perform.andExpect(status().isOk())
-                .andDo(documentIdentify("foods/favorite/delete/success"))
+                .andDo(documentIdentify("food-favorite/delete/success"))
                 .andReturn()
                 .getResponse()
                 .getContentAsString(StandardCharsets.UTF_8);
@@ -173,7 +173,7 @@ class FavoriteControllerTest extends PreprocessController {
 
         //then
         String errMsg = perform.andExpect(status().isNotFound())
-                .andDo(documentIdentify("foods/favorite/delete/fail/userNotFound"))
+                .andDo(documentIdentify("food-favorite/delete/fail/userNotFound"))
                 .andReturn()
                 .getResponse()
                 .getContentAsString(StandardCharsets.UTF_8);
@@ -199,7 +199,7 @@ class FavoriteControllerTest extends PreprocessController {
 
         //then
         String errMsg = perform.andExpect(status().isNotFound())
-                .andDo(documentIdentify("foods/favorite/delete/fail/userNotFound"))
+                .andDo(documentIdentify("food-favorite/delete/fail/foodNotFound"))
                 .andReturn()
                 .getResponse()
                 .getContentAsString(StandardCharsets.UTF_8);
@@ -231,7 +231,7 @@ class FavoriteControllerTest extends PreprocessController {
         //then
         FavoriteFoodResponse resultResponse = objectMapper.readValue(
                 perform.andExpect(status().isOk())
-                        .andDo(documentIdentify("foods/favorite/get/success"))
+                        .andDo(documentIdentify("food-favorite/get/success"))
                         .andReturn()
                         .getResponse()
                         .getContentAsString(StandardCharsets.UTF_8), new TypeReference<FavoriteFoodResponse>() {
@@ -263,7 +263,7 @@ class FavoriteControllerTest extends PreprocessController {
 
         //then
         String errMsg = perform.andExpect(status().isNotFound())
-                .andDo(documentIdentify("foods/favorite/get/success"))
+                .andDo(documentIdentify("food-favorite/get/fail/userNotFound"))
                 .andReturn()
                 .getResponse()
                 .getContentAsString(StandardCharsets.UTF_8);

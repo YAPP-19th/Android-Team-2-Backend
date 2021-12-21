@@ -52,7 +52,7 @@ class LikeControllerTest extends PreprocessController {
 
         // then
         perform.andExpect(status().isCreated())
-                .andDo(documentIdentify("food/like/post/success"))
+                .andDo(documentIdentify("food-like/post/success"))
                 .andExpect(header().exists("Location"))
                 .andReturn()
                 .getResponse()
@@ -74,7 +74,7 @@ class LikeControllerTest extends PreprocessController {
 
         // then
         String errorMsg = perform.andExpect(status().isInternalServerError())
-                .andDo(documentIdentify("food/like/post/invalidOperationException"))
+                .andDo(documentIdentify("food-like/post/fail/invalidOperation"))
                 .andReturn()
                 .getResponse()
                 .getContentAsString(StandardCharsets.UTF_8);
@@ -99,7 +99,7 @@ class LikeControllerTest extends PreprocessController {
 
         // then
         String errorMsg = perform.andExpect(status().isNotFound())
-                .andDo(documentIdentify("food/like/post/foodNotFound"))
+                .andDo(documentIdentify("food-like/post/fail/foodNotFound"))
                 .andReturn()
                 .getResponse()
                 .getContentAsString(StandardCharsets.UTF_8);
@@ -124,7 +124,7 @@ class LikeControllerTest extends PreprocessController {
 
         // then
         perform.andExpect(status().isOk())
-                .andDo(documentIdentify("food/like/delete/success"));
+                .andDo(documentIdentify("food-like/delete/success"));
     }
 
     @Test
@@ -143,7 +143,7 @@ class LikeControllerTest extends PreprocessController {
 
         // then
         String errorMsg = perform.andExpect(status().isForbidden())
-                .andDo(documentIdentify("food/like/delete/forbidden"))
+                .andDo(documentIdentify("food-like/delete/fail/forbidden"))
                 .andReturn()
                 .getResponse()
                 .getContentAsString(StandardCharsets.UTF_8);
@@ -170,7 +170,7 @@ class LikeControllerTest extends PreprocessController {
 
         // then
         String errorMsg = perform.andExpect(status().isNotFound())
-                .andDo(documentIdentify("food/like/delete/foodNotFound"))
+                .andDo(documentIdentify("food-like/delete/fail/foodNotFound"))
                 .andReturn()
                 .getResponse()
                 .getContentAsString(StandardCharsets.UTF_8);

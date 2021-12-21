@@ -92,7 +92,7 @@ class TagControllerTest extends PreprocessController {
         TagSearchResponse tagSearchResponse = objectMapper
                 .readValue(perform
                         .andExpect(status().isOk())
-                        .andDo(documentIdentify("tag/get/success/not_empty"))
+                        .andDo(documentIdentify("tag/get/success/notEmpty"))
                         .andReturn()
                         .getResponse()
                         .getContentAsString(StandardCharsets.UTF_8), new TypeReference<>() {
