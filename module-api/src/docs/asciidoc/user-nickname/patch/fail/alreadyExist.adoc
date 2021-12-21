@@ -1,0 +1,14 @@
+ifndef::snippets[]
+:snippets: ./build/generated-snippets
+endif::[]
+
+
+====
+IMPORTANT: REQUEST
+include::{snippets}/user-nickname/patch/fail/alreadyExist/http-request.adoc[]
+====
+
+====
+IMPORTANT: RESPONSE
+include::{snippets}/user-nickname/patch/fail/alreadyExist/http-response.adoc[]
+====

@@ -330,7 +330,7 @@ class UserControllerTest extends PreprocessController {
 
         //then
         perform.andExpect(status().isOk())
-                .andDo(documentIdentify("user-report/success"))
+                .andDo(documentIdentify("user-report/post/success"))
                 .andReturn()
                 .getResponse();
     }
@@ -353,7 +353,7 @@ class UserControllerTest extends PreprocessController {
 
         //then
         String errMsg = perform.andExpect(status().isNotFound())
-                .andDo(documentIdentify("user-report/fail/userNotFound"))
+                .andDo(documentIdentify("user-report/post/fail/userNotFound"))
                 .andReturn()
                 .getResponse()
                 .getContentAsString(StandardCharsets.UTF_8);
@@ -382,7 +382,7 @@ class UserControllerTest extends PreprocessController {
 
         //then
         String errMsg = perform.andExpect(status().isBadRequest())
-                .andDo(documentIdentify("user-report/fail/reportNotDefine"))
+                .andDo(documentIdentify("user-report/post/fail/reportNotDefine"))
                 .andReturn()
                 .getResponse()
                 .getContentAsString(StandardCharsets.UTF_8);
