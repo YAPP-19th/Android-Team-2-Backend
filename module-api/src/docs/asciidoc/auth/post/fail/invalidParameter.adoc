@@ -1,0 +1,14 @@
+ifndef::snippets[]
+:snippets: ./build/generated-snippets
+endif::[]
+
+
+====
+IMPORTANT: REQUEST
+include::{snippets}/auth/post/fail/invalidParameter/http-request.adoc[]
+====
+
+====
+IMPORTANT: RESPONSE
+include::{snippets}/auth/post/fail/invalidParameter/http-response.adoc[]
+====
