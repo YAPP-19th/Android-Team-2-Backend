@@ -217,7 +217,7 @@ public class FoodControllerTest extends PreprocessController {
 
         // then
         String errorMsg = perform.andExpect(status().isBadRequest())
-                .andDo(documentIdentify("food-recommendation/get/fail/badRequest/top"))
+                .andDo(documentIdentify("food-recommendation/get/fail/badRequest-top"))
                 .andReturn()
                 .getResponse()
                 .getContentAsString(StandardCharsets.UTF_8);
@@ -247,7 +247,7 @@ public class FoodControllerTest extends PreprocessController {
 
         // then
         String errorMsg = perform.andExpect(status().isBadRequest())
-                .andDo(documentIdentify("food-recommendation/get/fail/badRequest/datePeriod"))
+                .andDo(documentIdentify("food-recommendation/get/fail/badRequest-datePeriod"))
                 .andReturn()
                 .getResponse()
                 .getContentAsString(StandardCharsets.UTF_8);

@@ -1,0 +1,14 @@
+ifndef::snippets[]
+:snippets: ./build/generated-snippets
+endif::[]
+
+
+====
+IMPORTANT: REQUEST
+include::{snippets}/food-report/post/fail/foodNotFound/http-request.adoc[]
+====
+
+====
+IMPORTANT: RESPONSE
+include::{snippets}/food-report/post/fail/foodNotFound/http-response.adoc[]
+====
