@@ -370,7 +370,7 @@ class UserControllerTest extends PreprocessController {
         //given
         willThrow(new ReportNotDefineException())
                 .given(userService).createUserReport(anyLong(), any(UserReportRequest.class));
-        UserReportRequest request = UserReportRequest.builder().reportMessage(UserReportType.POSTING_NO_RELATION_USER.getMessage()).build();
+        UserReportRequest request = UserReportRequest.builder().reportMessage("정의되지 않은 신고 사유").build();
 
         //when
         RequestBuilder requestBuilder = post(String.format("/api/v1/users/%d/report", 1L))
