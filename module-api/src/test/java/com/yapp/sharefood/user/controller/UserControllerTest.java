@@ -60,7 +60,7 @@ class UserControllerTest extends PreprocessController {
         // then
         UserNicknameResponse userNicknameResponse = objectMapper.readValue(
                 perform.andExpect(status().isOk())
-                        .andDo(documentIdentify("user/nickname/get/success"))
+                        .andDo(documentIdentify("user-nickname/get/success"))
                         .andReturn()
                         .getResponse()
                         .getContentAsString(StandardCharsets.UTF_8), new TypeReference<UserNicknameResponse>() {
@@ -85,7 +85,7 @@ class UserControllerTest extends PreprocessController {
 
         //then
         String errMsg = perform.andExpect(status().isConflict())
-                .andDo(documentIdentify("user/nickname/get/fail/alreadyExist"))
+                .andDo(documentIdentify("user-nickname/get/fail/alreadyExist"))
                 .andReturn()
                 .getResponse()
                 .getContentAsString(StandardCharsets.UTF_8);
@@ -112,7 +112,7 @@ class UserControllerTest extends PreprocessController {
 
         //then
         perform.andExpect(status().isOk())
-                .andDo(documentIdentify("user/nickname-validation/get/success"))
+                .andDo(documentIdentify("user-nickname-validation/get/success"))
                 .andReturn()
                 .getResponse()
                 .getContentAsString(StandardCharsets.UTF_8);
@@ -134,7 +134,7 @@ class UserControllerTest extends PreprocessController {
 
         //then
         String errMsg = perform.andExpect(status().isConflict())
-                .andDo(documentIdentify("user/nickname-validation/get/fail/alreadyExist"))
+                .andDo(documentIdentify("user-nickname-validation/get/fail/alreadyExist"))
                 .andReturn()
                 .getResponse()
                 .getContentAsString(StandardCharsets.UTF_8);
@@ -163,7 +163,7 @@ class UserControllerTest extends PreprocessController {
 
         //then
         UserNicknameResponse response = objectMapper.readValue(perform.andExpect(status().isOk())
-                .andDo(documentIdentify("user/nickname/patch/success"))
+                .andDo(documentIdentify("user-nickname/patch/success"))
                 .andReturn()
                 .getResponse()
                 .getContentAsString(StandardCharsets.UTF_8), new TypeReference<UserNicknameResponse>() {
@@ -190,7 +190,7 @@ class UserControllerTest extends PreprocessController {
 
         //then
         String errMsg = perform.andExpect(status().isConflict())
-                .andDo(documentIdentify("user/nickname/patch/fail/alreadyExist"))
+                .andDo(documentIdentify("user-nickname/patch/fail/alreadyExist"))
                 .andReturn()
                 .getResponse()
                 .getContentAsString(StandardCharsets.UTF_8);
@@ -217,7 +217,7 @@ class UserControllerTest extends PreprocessController {
 
         //then
         MyUserInfoResponse response = objectMapper.readValue(perform.andExpect(status().isOk())
-                .andDo(documentIdentify("user/me/get/success"))
+                .andDo(documentIdentify("user-me/get/success"))
                 .andReturn()
                 .getResponse()
                 .getContentAsString(StandardCharsets.UTF_8), new TypeReference<MyUserInfoResponse>() {
@@ -245,7 +245,7 @@ class UserControllerTest extends PreprocessController {
 
         //then
         String errMsg = perform.andExpect(status().isNotFound())
-                .andDo(documentIdentify("user/me/get/success"))
+                .andDo(documentIdentify("user-me/get/fail/userNotFound"))
                 .andReturn()
                 .getResponse()
                 .getContentAsString(StandardCharsets.UTF_8);
@@ -280,7 +280,7 @@ class UserControllerTest extends PreprocessController {
 
         // when, then
         OtherUserInfoResponse response = objectMapper.readValue(perform.andExpect(status().isOk())
-                .andDo(documentIdentify("user/other/get/success"))
+                .andDo(documentIdentify("user-other/get/success"))
                 .andReturn()
                 .getResponse()
                 .getContentAsString(StandardCharsets.UTF_8), new TypeReference<OtherUserInfoResponse>() {
@@ -302,7 +302,7 @@ class UserControllerTest extends PreprocessController {
                 .header(HttpHeaders.AUTHORIZATION, "token"));
 
         //then
-        String errMsg = perform.andDo(documentIdentify("user/other/get/fail/notFound"))
+        String errMsg = perform.andDo(documentIdentify("user-other/get/fail/userNotFound"))
                 .andExpect(status().isNotFound())
                 .andReturn()
                 .getResponse()
@@ -330,7 +330,7 @@ class UserControllerTest extends PreprocessController {
 
         //then
         perform.andExpect(status().isOk())
-                .andDo(documentIdentify("user/report/success"))
+                .andDo(documentIdentify("user-report/success"))
                 .andReturn()
                 .getResponse();
     }
@@ -353,7 +353,7 @@ class UserControllerTest extends PreprocessController {
 
         //then
         String errMsg = perform.andExpect(status().isNotFound())
-                .andDo(documentIdentify("user/report/fail/userNotFound"))
+                .andDo(documentIdentify("user-report/fail/userNotFound"))
                 .andReturn()
                 .getResponse()
                 .getContentAsString(StandardCharsets.UTF_8);
@@ -382,7 +382,7 @@ class UserControllerTest extends PreprocessController {
 
         //then
         String errMsg = perform.andExpect(status().isBadRequest())
-                .andDo(documentIdentify("user/report/fail/reportNotDefine"))
+                .andDo(documentIdentify("user-report/fail/reportNotDefine"))
                 .andReturn()
                 .getResponse()
                 .getContentAsString(StandardCharsets.UTF_8);

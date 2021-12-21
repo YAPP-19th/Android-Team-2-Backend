@@ -50,7 +50,7 @@ class BookmarkControllerTest extends PreprocessController {
 
         //then
         perform.andExpect(status().isCreated())
-                .andDo(documentIdentify("bookmark/post/success"))
+                .andDo(documentIdentify("food-bookmark/post/success"))
                 .andReturn()
                 .getResponse()
                 .getContentAsString(StandardCharsets.UTF_8);
@@ -72,7 +72,7 @@ class BookmarkControllerTest extends PreprocessController {
 
         //then
         String errMsg = perform.andExpect(status().isNotFound())
-                .andDo(documentIdentify("bookmark/post/fail/notFound/food"))
+                .andDo(documentIdentify("food-bookmark/post/fail/foodNotFound"))
                 .andReturn()
                 .getResponse()
                 .getContentAsString(StandardCharsets.UTF_8);
@@ -101,7 +101,7 @@ class BookmarkControllerTest extends PreprocessController {
 
         //then
         String errMsg = perform.andExpect(status().isConflict())
-                .andDo(documentIdentify("bookmark/post/fail/alreadyExist"))
+                .andDo(documentIdentify("food-bookmark/post/fail/alreadyExist"))
                 .andReturn()
                 .getResponse()
                 .getContentAsString(StandardCharsets.UTF_8);
@@ -127,7 +127,7 @@ class BookmarkControllerTest extends PreprocessController {
 
         //then
         perform.andExpect(status().isOk())
-                .andDo(documentIdentify("bookmark/delete/success"))
+                .andDo(documentIdentify("food-bookmark/delete/success"))
                 .andReturn()
                 .getResponse()
                 .getContentAsString(StandardCharsets.UTF_8);
@@ -149,7 +149,7 @@ class BookmarkControllerTest extends PreprocessController {
 
         //then
         String errMsg = perform.andExpect(status().isNotFound())
-                .andDo(documentIdentify("bookmark/delete/fail/notFound/food"))
+                .andDo(documentIdentify("food-bookmark/delete/fail/foodNotFound"))
                 .andReturn()
                 .getResponse()
                 .getContentAsString(StandardCharsets.UTF_8);
@@ -177,7 +177,7 @@ class BookmarkControllerTest extends PreprocessController {
 
         //then
         String errMsg = perform.andExpect(status().isNotFound())
-                .andDo(documentIdentify("bookmark/delete/fail/notFound/bookmark"))
+                .andDo(documentIdentify("food-bookmark/delete/fail/bookmarkNotFound"))
                 .andReturn()
                 .getResponse()
                 .getContentAsString(StandardCharsets.UTF_8);
