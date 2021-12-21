@@ -2,14 +2,13 @@ ifndef::snippets[]
 :snippets: ./build/generated-snippets
 endif::[]
 
-== CURL
-include::{snippets}/category/get/success/curl-request.adoc[]
 
-== REQUEST
+====
+IMPORTANT: REQUEST
 include::{snippets}/category/get/success/http-request.adoc[]
+====
 
-== RESPONSE SUCCESS
+====
+IMPORTANT: RESPONSE
 include::{snippets}/category/get/success/http-response.adoc[]
-
-== RESPONSE FAIL
-- 해당 기능은 FAIL인 경우가 존재하지 않습니다.
+====
