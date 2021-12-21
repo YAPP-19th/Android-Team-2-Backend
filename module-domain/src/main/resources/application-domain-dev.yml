@@ -35,6 +35,9 @@ spring:
         connection-timeout: 5000
         pool-name: UserLock-HikariPool
 
+  flyway:
+    enabled: true
+
 logging:
   level:
     org.hibernate.type: trace
