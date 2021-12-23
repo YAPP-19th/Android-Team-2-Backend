@@ -1,6 +1,5 @@
 package com.yapp.sharefood.healthcheck.controller;
 
-import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.env.Environment;
 import org.springframework.http.ResponseEntity;
@@ -12,7 +11,6 @@ import org.springframework.web.bind.annotation.RestController;
 public class HealthCheckController {
     private final Environment env;
 
-    @ApiOperation("Application 생존 검사")
     @GetMapping("/healthcheck")
     public ResponseEntity<String> getHealthCheck() {
 
