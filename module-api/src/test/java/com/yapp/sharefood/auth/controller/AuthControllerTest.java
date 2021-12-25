@@ -178,7 +178,7 @@ class AuthControllerTest extends DocumentTest {
         String createResponse = perform.andExpect(status().isCreated())
                 .andExpect(header().exists("Authorization"))
                 .andExpect(header().string("Authorization", "jwtToken"))
-                .andDo(documentIdentify("auth/signup/post/success"))
+                .andDo(documentIdentify("auth-creation/post/success"))
                 .andReturn()
                 .getResponse()
                 .getContentAsString(StandardCharsets.UTF_8);
@@ -205,7 +205,7 @@ class AuthControllerTest extends DocumentTest {
         // then
         String createResponse = perform.andExpect(status().isConflict())
                 .andExpect(header().doesNotExist("Authorization"))
-                .andDo(documentIdentify("auth/signup/post/fail/oauthExist"))
+                .andDo(documentIdentify("auth-creation/post/fail/oauthExist"))
                 .andReturn()
                 .getResponse()
                 .getContentAsString(StandardCharsets.UTF_8);

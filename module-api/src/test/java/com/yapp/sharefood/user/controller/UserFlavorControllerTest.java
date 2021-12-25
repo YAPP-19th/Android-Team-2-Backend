@@ -138,7 +138,7 @@ public class UserFlavorControllerTest extends PreprocessController {
         UserFlavorRequest request = UserFlavorRequest.of(List.of(FlavorType.SPICY.getFlavorName(), FlavorType.SWEET.getFlavorName()));
         request.setFlavors(List.of(FlavorType.SPICY.getFlavorName(), FlavorType.SWEET.getFlavorName()));
 
-        willReturn(UpdateUserFlavorResponse.of(List.of(FlavorDto.of(1L, FlavorType.SPICY), FlavorDto.of(2L, FlavorType.SWEET))))
+        willReturn(new FlavorsResponse(List.of(FlavorDto.of(1L, FlavorType.SPICY), FlavorDto.of(2L, FlavorType.SWEET))))
                 .given(flavorService).updateUserFlavors(any(User.class), any(UserFlavorRequest.class));
 
         //when
@@ -148,7 +148,7 @@ public class UserFlavorControllerTest extends PreprocessController {
                 .content(objectMapper.writeValueAsString(request)));
 
         //then
-        UpdateUserFlavorResponse response = objectMapper.readValue(perform.andExpect(status().isOk())
+        FlavorsResponse response = objectMapper.readValue(perform.andExpect(status().isOk())
                 .andDo(documentIdentify("user-flavor/post/success"))
                 .andReturn()
                 .getResponse()

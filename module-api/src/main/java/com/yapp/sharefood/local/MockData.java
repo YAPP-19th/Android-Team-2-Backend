@@ -10,6 +10,8 @@ import com.yapp.sharefood.food.domain.FoodIngredientType;
 import com.yapp.sharefood.food.domain.FoodStatus;
 import com.yapp.sharefood.food.domain.TagWrapper;
 import com.yapp.sharefood.food.repository.FoodRepository;
+import com.yapp.sharefood.like.domain.Like;
+import com.yapp.sharefood.like.repository.LikeRepository;
 import com.yapp.sharefood.tag.domain.Tag;
 import com.yapp.sharefood.tag.repository.TagRepository;
 import com.yapp.sharefood.user.domain.OAuthType;
@@ -56,7 +58,7 @@ public class MockData {
         private final UserRepository userRepository;
 
         public void initUser() {
-            for (int i = 0; i < 10; i++) {
+            for (int i = 1; i <= 15; i++) {
                 User user = User.builder()
                         .nickname("nickname" + i)
                         .name("name" + i)
@@ -161,6 +163,7 @@ public class MockData {
         private final FlavorRepository flavorRepository;
         private final TagRepository tagRepository;
         private final UserRepository userRepository;
+        private final LikeRepository likeRepository;
 
         public void initFood() {
             List<User> users = userRepository.findAll();
@@ -186,6 +189,12 @@ public class MockData {
                     food.assignFlavors(flavorEpoch.get(i % flavorEpoch.size()));
                     food.assignWrapperTags(tagEpoch.get(i % tagEpoch.size()));
                 }
+                List<Food> savedFoods = foodRepository.saveAll(foods);
+
+                assignLike(users, savedFoods);
+
+
+                List<Food> mineFoods = new ArrayList<>();
                 for (int i = 0; i < 5; i++) {
                     Food food = Food.builder()
                             .writer(users.get(i % users.size()))
@@ -195,13 +204,25 @@ public class MockData {
                             .price((15 + i) * 1000)
                             .category(category)
                             .build();
-                    foods.add(food);
+                    mineFoods.add(food);
                     food.assignFlavors(flavorEpoch.get(i % flavorEpoch.size()));
                     food.assignWrapperTags(tagEpoch.get(i % tagEpoch.size()));
                 }
 
-                foodRepository.saveAll(foods);
+                foodRepository.saveAll(mineFoods);
             }
+        }
+
+        private void assignLike(List<User> users, List<Food> foods) {
+            if (foods.size() != users.size()) {
+                throw new IllegalArgumentException("food user size가 다름");
+            }
+            for (int foodId = 0; foodId < foods.size(); foodId++) {
+                for (int userId = 0; userId < foodId; userId++) {
+                    foods.get(foodId).assignLike(Like.of(users.get(userId)));
+                }
+            }
+            likeRepository.flush();
         }
 
         private List<List<Flavor>> findFlavorEpoch() {

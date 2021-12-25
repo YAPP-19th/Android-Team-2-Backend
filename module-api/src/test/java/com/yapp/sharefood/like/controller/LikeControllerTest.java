@@ -1,10 +1,9 @@
 package com.yapp.sharefood.like.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yapp.sharefood.common.PreprocessController;
 import com.yapp.sharefood.common.exception.ForbiddenException;
 import com.yapp.sharefood.common.exception.InvalidOperationException;
-import com.yapp.sharefood.config.lock.UserlevelLock;
+import com.yapp.sharefood.config.lock.UserLevelLock;
 import com.yapp.sharefood.food.exception.FoodNotFoundException;
 import com.yapp.sharefood.like.service.LikeService;
 import com.yapp.sharefood.user.domain.User;
@@ -36,9 +35,7 @@ class LikeControllerTest extends PreprocessController {
     @MockBean
     LikeService likeService;
     @MockBean
-    UserlevelLock userlevelLock;
-
-    ObjectMapper objectMapper = new ObjectMapper();
+    UserLevelLock userlevelLock;
 
     @Test
     @DisplayName("게시글에 좋아요를 누른 경우")
@@ -55,7 +52,7 @@ class LikeControllerTest extends PreprocessController {
 
         // then
         perform.andExpect(status().isCreated())
-                .andDo(documentIdentify("food/like/post/success"))
+                .andDo(documentIdentify("food-like/post/success"))
                 .andExpect(header().exists("Location"))
                 .andReturn()
                 .getResponse()
@@ -77,7 +74,7 @@ class LikeControllerTest extends PreprocessController {
 
         // then
         String errorMsg = perform.andExpect(status().isInternalServerError())
-                .andDo(documentIdentify("food/like/post/invalidOperationException"))
+                .andDo(documentIdentify("food-like/post/fail/invalidOperation"))
                 .andReturn()
                 .getResponse()
                 .getContentAsString(StandardCharsets.UTF_8);
@@ -102,7 +99,7 @@ class LikeControllerTest extends PreprocessController {
 
         // then
         String errorMsg = perform.andExpect(status().isNotFound())
-                .andDo(documentIdentify("food/like/post/foodNotFound"))
+                .andDo(documentIdentify("food-like/post/fail/foodNotFound"))
                 .andReturn()
                 .getResponse()
                 .getContentAsString(StandardCharsets.UTF_8);
@@ -127,7 +124,7 @@ class LikeControllerTest extends PreprocessController {
 
         // then
         perform.andExpect(status().isOk())
-                .andDo(documentIdentify("food/like/delete/success"));
+                .andDo(documentIdentify("food-like/delete/success"));
     }
 
     @Test
@@ -146,7 +143,7 @@ class LikeControllerTest extends PreprocessController {
 
         // then
         String errorMsg = perform.andExpect(status().isForbidden())
-                .andDo(documentIdentify("food/like/delete/forbidden"))
+                .andDo(documentIdentify("food-like/delete/fail/forbidden"))
                 .andReturn()
                 .getResponse()
                 .getContentAsString(StandardCharsets.UTF_8);
@@ -173,7 +170,7 @@ class LikeControllerTest extends PreprocessController {
 
         // then
         String errorMsg = perform.andExpect(status().isNotFound())
-                .andDo(documentIdentify("food/like/delete/foodNotFound"))
+                .andDo(documentIdentify("food-like/delete/fail/foodNotFound"))
                 .andReturn()
                 .getResponse()
                 .getContentAsString(StandardCharsets.UTF_8);

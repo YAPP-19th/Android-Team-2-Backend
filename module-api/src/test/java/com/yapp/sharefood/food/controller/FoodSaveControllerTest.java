@@ -155,7 +155,7 @@ class FoodSaveControllerTest extends PreprocessController {
 
         // then
         String errorMsg = perform.andExpect(status().isInternalServerError())
-                .andDo(documentIdentify("food/post/fail/invalidOperationException"))
+                .andDo(documentIdentify("food/post/fail/invalidOperation"))
                 .andReturn()
                 .getResponse()
                 .getContentAsString(StandardCharsets.UTF_8);
@@ -189,7 +189,7 @@ class FoodSaveControllerTest extends PreprocessController {
 
         // then
         String errorMsg = perform.andExpect(status().isInternalServerError())
-                .andDo(documentIdentify("food/post/fail/invalidOperationException"))
+                .andDo(documentIdentify("food/post/fail/invalidOperation"))
                 .andReturn()
                 .getResponse()
                 .getContentAsString(StandardCharsets.UTF_8);
@@ -273,7 +273,7 @@ class FoodSaveControllerTest extends PreprocessController {
         // then
         FoodImageCreateResponse saveImageResponse = objectMapper.readValue(
                 perform.andExpect(status().isCreated())
-                        .andDo(documentIdentify("food/images/post/success"))
+                        .andDo(documentIdentify("food-images/post/success"))
                         .andReturn()
                         .getResponse()
                         .getContentAsString(StandardCharsets.UTF_8), new TypeReference<>() {
@@ -307,7 +307,7 @@ class FoodSaveControllerTest extends PreprocessController {
 
         // then
         String result = perform.andExpect(status().isBadRequest())
-                .andDo(documentIdentify("food/images/post/badRequest"))
+                .andDo(documentIdentify("food-images/post/badRequest"))
                 .andReturn()
                 .getResponse()
                 .getContentAsString(StandardCharsets.UTF_8);

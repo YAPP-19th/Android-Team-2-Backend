@@ -89,7 +89,7 @@ public class FoodControllerTest extends PreprocessController {
         // then
         TopRankFoodResponse topRankFoodResponse = objectMapper
                 .readValue(perform.andExpect(status().isOk())
-                        .andDo(documentIdentify("food/get/success/rank"))
+                        .andDo(documentIdentify("food-rank/get/success"))
                         .andReturn()
                         .getResponse()
                         .getContentAsString(StandardCharsets.UTF_8), new TypeReference<>() {
@@ -103,7 +103,7 @@ public class FoodControllerTest extends PreprocessController {
 
     @MethodSource
     @ParameterizedTest(name = "food like rank 조회 top parameter 최소 최대를 넘는 이슈 케이스 테스트")
-    void findTopRankFoodTopParamterIssueTest_Fail_BadRequest(int top) throws Exception {
+    void findTopRankFoodTopParameterIssueTest_Fail_BadRequest(int top) throws Exception {
         // given
 
         // when
@@ -115,7 +115,7 @@ public class FoodControllerTest extends PreprocessController {
 
         // then
         String errorMsg = perform.andExpect(status().isBadRequest())
-                .andDo(documentIdentify("food/get/fail/badRequest/rank_top"))
+                .andDo(documentIdentify("food-rank/get/fail/badRequest-top"))
                 .andReturn()
                 .getResponse()
                 .getContentAsString(StandardCharsets.UTF_8);
@@ -124,7 +124,7 @@ public class FoodControllerTest extends PreprocessController {
                 .isNotNull();
     }
 
-    static Stream<Arguments> findTopRankFoodTopParamterIssueTest_Fail_BadRequest() {
+    static Stream<Arguments> findTopRankFoodTopParameterIssueTest_Fail_BadRequest() {
         return Stream.of(
                 Arguments.of(4),
                 Arguments.of(11)
@@ -133,7 +133,7 @@ public class FoodControllerTest extends PreprocessController {
 
     @MethodSource
     @ParameterizedTest(name = "food like rank 조회 rankDatePeriod parameter 최소 최대를 넘는 이슈 케이스 테스트")
-    void findTopRankFoodrankDatePeriodParamterIssueTest_Fail_BadRequest(int rankDatePeriod) throws Exception {
+    void findTopRankFoodRankDatePeriodParameterIssueTest_Fail_BadRequest(int rankDatePeriod) throws Exception {
         // given
 
         // when
@@ -145,7 +145,7 @@ public class FoodControllerTest extends PreprocessController {
 
         // then
         String errorMsg = perform.andExpect(status().isBadRequest())
-                .andDo(documentIdentify("food/get/fail/badRequest/rank_rankDatePeriod"))
+                .andDo(documentIdentify("food-rank/get/fail/badRequest-datePeriod"))
                 .andReturn()
                 .getResponse()
                 .getContentAsString(StandardCharsets.UTF_8);
@@ -154,7 +154,7 @@ public class FoodControllerTest extends PreprocessController {
                 .isNotNull();
     }
 
-    static Stream<Arguments> findTopRankFoodrankDatePeriodParamterIssueTest_Fail_BadRequest() {
+    static Stream<Arguments> findTopRankFoodRankDatePeriodParameterIssueTest_Fail_BadRequest() {
         return Stream.of(
                 Arguments.of(2),
                 Arguments.of(11)
@@ -191,7 +191,7 @@ public class FoodControllerTest extends PreprocessController {
         // then
         RecommendationFoodResponse recommendationFoodResponse = objectMapper
                 .readValue(perform.andExpect(status().isOk())
-                        .andDo(documentIdentify("food/get/success/recommendation"))
+                        .andDo(documentIdentify("food-recommendation/get/success"))
                         .andReturn()
                         .getResponse()
                         .getContentAsString(StandardCharsets.UTF_8), new TypeReference<>() {
@@ -217,7 +217,7 @@ public class FoodControllerTest extends PreprocessController {
 
         // then
         String errorMsg = perform.andExpect(status().isBadRequest())
-                .andDo(documentIdentify("food/get/fail/badRequest/recommendation_top"))
+                .andDo(documentIdentify("food-recommendation/get/fail/badRequest-top"))
                 .andReturn()
                 .getResponse()
                 .getContentAsString(StandardCharsets.UTF_8);
@@ -247,7 +247,7 @@ public class FoodControllerTest extends PreprocessController {
 
         // then
         String errorMsg = perform.andExpect(status().isBadRequest())
-                .andDo(documentIdentify("food/get/fail/badRequest/recommendation_rankDatePeriod"))
+                .andDo(documentIdentify("food-recommendation/get/fail/badRequest-datePeriod"))
                 .andReturn()
                 .getResponse()
                 .getContentAsString(StandardCharsets.UTF_8);
@@ -290,7 +290,7 @@ public class FoodControllerTest extends PreprocessController {
         FoodDetailResponse foodDetailResponse = objectMapper
                 .readValue(perform
                         .andExpect(status().isOk())
-                        .andDo(documentIdentify("food/get/success/detail"))
+                        .andDo(documentIdentify("food-detail/get/success"))
                         .andReturn()
                         .getResponse()
                         .getContentAsString(StandardCharsets.UTF_8), new TypeReference<>() {
@@ -319,7 +319,7 @@ public class FoodControllerTest extends PreprocessController {
         // then
         String errorMsg = perform
                 .andExpect(status().isNotFound())
-                .andDo(documentIdentify("food/get/fail/detail"))
+                .andDo(documentIdentify("food-detail/get/fail/foodNotFound"))
                 .andReturn()
                 .getResponse()
                 .getContentAsString(StandardCharsets.UTF_8);
@@ -363,7 +363,7 @@ public class FoodControllerTest extends PreprocessController {
         // then
         String errorMsg = perform
                 .andExpect(status().isForbidden())
-                .andDo(documentIdentify("food/delete/forbidden"))
+                .andDo(documentIdentify("food/delete/fail/forbidden"))
                 .andReturn()
                 .getResponse()
                 .getContentAsString(StandardCharsets.UTF_8);
@@ -387,7 +387,7 @@ public class FoodControllerTest extends PreprocessController {
         // then
         String errorMsg = perform
                 .andExpect(status().isNotFound())
-                .andDo(documentIdentify("food/delete/notFound"))
+                .andDo(documentIdentify("food/delete/fail/foodNotFound"))
                 .andReturn()
                 .getResponse()
                 .getContentAsString(StandardCharsets.UTF_8);
@@ -452,7 +452,7 @@ public class FoodControllerTest extends PreprocessController {
         // then
         FoodPageResponse foodPageResponse = objectMapper
                 .readValue(perform.andExpect(status().isOk())
-                        .andDo(documentIdentify("food/get/success/pageSearch"))
+                        .andDo(documentIdentify("food/get/success"))
                         .andReturn()
                         .getResponse()
                         .getContentAsString(StandardCharsets.UTF_8), new TypeReference<>() {
@@ -521,7 +521,7 @@ public class FoodControllerTest extends PreprocessController {
         // then
         FoodPageResponse foodPageResponse = objectMapper
                 .readValue(perform.andExpect(status().isOk())
-                        .andDo(documentIdentify("food/get/success/myfoods"))
+                        .andDo(documentIdentify("food-me/get/success"))
                         .andReturn()
                         .getResponse()
                         .getContentAsString(StandardCharsets.UTF_8), new TypeReference<>() {
@@ -590,7 +590,7 @@ public class FoodControllerTest extends PreprocessController {
         // then
         FoodPageResponse foodPageResponse = objectMapper
                 .readValue(perform.andExpect(status().isOk())
-                        .andDo(documentIdentify("food/get/success/bookmarkFoods"))
+                        .andDo(documentIdentify("food-bookmark/get/success"))
                         .andReturn()
                         .getResponse()
                         .getContentAsString(StandardCharsets.UTF_8), new TypeReference<>() {

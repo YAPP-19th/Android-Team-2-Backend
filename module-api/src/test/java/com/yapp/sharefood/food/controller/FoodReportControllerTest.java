@@ -51,7 +51,7 @@ class FoodReportControllerTest extends PreprocessController {
 
         //then
         String result = perform.andExpect(status().isOk())
-                .andDo(documentIdentify("foods/report/post/success"))
+                .andDo(documentIdentify("food-report/post/success"))
                 .andReturn()
                 .getResponse()
                 .getContentAsString();
@@ -75,7 +75,7 @@ class FoodReportControllerTest extends PreprocessController {
 
         //then
         String errMessage = perform.andExpect(status().isNotFound())
-                .andDo(documentIdentify("foods/report/post/success"))
+                .andDo(documentIdentify("food-report/post/fail/foodNotFound"))
                 .andReturn()
                 .getResponse()
                 .getContentAsString(StandardCharsets.UTF_8);
@@ -101,7 +101,7 @@ class FoodReportControllerTest extends PreprocessController {
 
         //then
         String errMessage = perform.andExpect(status().isNotFound())
-                .andDo(documentIdentify("foods/report/post/fail/userNotFound"))
+                .andDo(documentIdentify("food-report/post/fail/userNotFound"))
                 .andReturn()
                 .getResponse()
                 .getContentAsString(StandardCharsets.UTF_8);
@@ -127,7 +127,7 @@ class FoodReportControllerTest extends PreprocessController {
 
         //then
         String errMessage = perform.andExpect(status().isBadRequest())
-                .andDo(documentIdentify("foods/report/post/fail/reportNotDefine"))
+                .andDo(documentIdentify("food-report/post/fail/reportNotDefine"))
                 .andReturn()
                 .getResponse()
                 .getContentAsString(StandardCharsets.UTF_8);
