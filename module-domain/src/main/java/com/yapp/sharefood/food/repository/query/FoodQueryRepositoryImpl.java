@@ -56,6 +56,20 @@ public class FoodQueryRepositoryImpl implements FoodQueryRepository {
     }
 
     @Override
+    public List<Food> findFoodWithCategoryByIds(List<Long> ids, SortType sortType, OrderType orderType) {
+        if (Objects.isNull(ids) || ids.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        return queryFactory.selectFrom(food)
+                .leftJoin(food.writer, user).fetchJoin()
+                .leftJoin(food.category, category).fetchJoin()
+                .where(inIds(ids))
+                .orderBy(findCriteria(orderType, sortType))
+                .fetch();
+    }
+
+    @Override
     public List<Food> findFavoriteFoods(User findUser) {
         return queryFactory.selectFrom(food)
                 .where(
@@ -114,7 +128,7 @@ public class FoodQueryRepositoryImpl implements FoodQueryRepository {
                 .offset(foodPageSearch.getOffset() * foodPageSearch.getSize())
                 .fetch();
 
-        return findFoodWithCategoryByIds(foodsIds);
+        return findFoodWithCategoryByIds(foodsIds, foodPageSearch.getSort(), foodPageSearch.getOrder());
     }
 
     @Override
