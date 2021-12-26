@@ -5,10 +5,10 @@ endif::[]
 
 ====
 IMPORTANT: REQUEST
-include::{snippets}/foods/post/success/http-request.adoc[]
+include::{snippets}/food/post/success/http-request.adoc[]
 ====
 
 ====
 IMPORTANT: RESPONSE
-include::{snippets}/foods/post/success/http-response.adoc[]
+include::{snippets}/food/post/success/http-response.adoc[]
 ====
