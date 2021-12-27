@@ -70,7 +70,11 @@ public class FoodQueryRepositoryImpl implements FoodQueryRepository {
     }
 
     @Override
-    public List<Food> findFavoriteFoods(User findUser) {
+    public List<Food> findFavoriteFoods(User findUser, List<Category> categories) {
+        if (categories.isEmpty()) {
+            return new ArrayList<>();
+        }
+
         return queryFactory.selectFrom(food)
                 .where(
                         food.id.in(
@@ -78,7 +82,8 @@ public class FoodQueryRepositoryImpl implements FoodQueryRepository {
                                         .select(favorite.food.id)
                                         .from(favorite)
                                         .where(
-                                                user.eq(findUser)
+                                                user.eq(findUser),
+                                                containCategories(categories)
                                         )
                         )
                 )

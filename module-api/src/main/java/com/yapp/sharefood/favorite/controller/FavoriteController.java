@@ -17,8 +17,8 @@ public class FavoriteController {
     private final FavoriteService favoriteService;
 
     @GetMapping("/api/v1/foods/favorite")
-    public ResponseEntity<FavoriteFoodResponse> findFavorite(@AuthUser User user) {
-        return ResponseEntity.ok(favoriteService.findFavoriteFoods(user));
+    public ResponseEntity<FavoriteFoodResponse> findFavorite(@AuthUser User user, @RequestParam String categoryName) {
+        return ResponseEntity.ok(favoriteService.findFavoriteFoods(user, categoryName));
     }
 
     @PostMapping("/api/v1/foods/{foodId}/favorite")

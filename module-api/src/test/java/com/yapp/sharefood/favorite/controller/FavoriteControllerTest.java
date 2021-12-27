@@ -24,9 +24,8 @@ import java.util.List;
 
 import static com.yapp.sharefood.common.documentation.DocumentationUtils.documentIdentify;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.willReturn;
 import static org.mockito.BDDMockito.willThrow;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -215,16 +214,17 @@ class FavoriteControllerTest extends PreprocessController {
     void findFavoriteTest_Success() throws Exception {
         //given
 
-        FavoriteFoodDto dto1 = FavoriteFoodDto.of(1L, "a", "a", 10000, false, Collections.emptyList());
-        FavoriteFoodDto dto2 = FavoriteFoodDto.of(2L, "b", "b", 20000, false, Collections.emptyList());
-        FavoriteFoodDto dto3 = FavoriteFoodDto.of(3L, "c", "c", 30000, false, Collections.emptyList());
+        FavoriteFoodDto dto1 = FavoriteFoodDto.of(1L, "a", "샌드위치", 10000, false, Collections.emptyList());
+        FavoriteFoodDto dto2 = FavoriteFoodDto.of(2L, "b", "마라탕", 20000, false, Collections.emptyList());
+        FavoriteFoodDto dto3 = FavoriteFoodDto.of(3L, "c", "샐러드", 30000, false, Collections.emptyList());
         FavoriteFoodResponse response = FavoriteFoodResponse.of(List.of(dto1, dto2, dto3));
         willReturn(response)
-                .given(favoriteService).findFavoriteFoods(any(User.class));
+                .given(favoriteService).findFavoriteFoods(any(User.class), anyString());
 
         //when
         RequestBuilder requestBuilder = get("/api/v1/foods/favorite")
-                .header(HttpHeaders.AUTHORIZATION, "token");
+                .header(HttpHeaders.AUTHORIZATION, "token")
+                .param("categoryName", "음식");
 
         ResultActions perform = mockMvc.perform(requestBuilder);
 
@@ -253,11 +253,12 @@ class FavoriteControllerTest extends PreprocessController {
     void findFavoriteTest_Fail_UserNotFound() throws Exception {
         //given
         willThrow(new UserNotFoundException())
-                .given(favoriteService).findFavoriteFoods(any(User.class));
+                .given(favoriteService).findFavoriteFoods(any(User.class), anyString());
 
         //when
         RequestBuilder requestBuilder = get("/api/v1/foods/favorite")
-                .header(HttpHeaders.AUTHORIZATION, "token");
+                .header(HttpHeaders.AUTHORIZATION, "token")
+                .param("categoryName", "음식");
 
         ResultActions perform = mockMvc.perform(requestBuilder);
 

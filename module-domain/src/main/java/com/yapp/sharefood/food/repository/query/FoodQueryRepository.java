@@ -1,5 +1,6 @@
 package com.yapp.sharefood.food.repository.query;
 
+import com.yapp.sharefood.category.domain.Category;
 import com.yapp.sharefood.common.order.SortType;
 import com.yapp.sharefood.food.domain.Food;
 import com.yapp.sharefood.food.dto.FoodMinePageSearch;
@@ -15,7 +16,7 @@ public interface FoodQueryRepository {
 
     List<Food> findFoodWithCategoryByIds(List<Long> ids, SortType sortType, OrderType orderType);
 
-    List<Food> findFavoriteFoods(User findUser);
+    List<Food> findFavoriteFoods(User findUser, List<Category> categories);
 
     List<Food> findRecommendFoods(FoodRecommendSearch foodRecommendSearch);
 
