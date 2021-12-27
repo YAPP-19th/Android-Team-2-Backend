@@ -25,7 +25,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @Transactional
 @SpringBootTest
@@ -199,7 +200,7 @@ class FavoriteServiceTest {
         }
 
         //when
-        FavoriteFoodResponse favoriteFoods = favoriteService.findFavoriteFoods(user);
+        FavoriteFoodResponse favoriteFoods = favoriteService.findFavoriteFoods(user, category.getName());
 
         //then
         int expectFavoriteFoodSize = foodList.size();
@@ -216,11 +217,13 @@ class FavoriteServiceTest {
     @DisplayName("최애 조회 실패 - 존재하지 않는 유저")
     void favoriteFood_Fail_UserNotFound() {
         //given
+        String categoryName = category.getName();
+        User mockUser = User.builder().id(-1L).build();
 
         //when
 
         //then
-        assertThrows(UserNotFoundException.class, () -> favoriteService.findFavoriteFoods(User.builder().id(-1L).build()));
+        assertThrows(UserNotFoundException.class, () -> favoriteService.findFavoriteFoods(mockUser, categoryName));
     }
 
 }
