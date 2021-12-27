@@ -1,5 +1,6 @@
 package com.yapp.sharefood.user.dto;
 
+import com.yapp.sharefood.user.domain.Grade;
 import com.yapp.sharefood.user.domain.User;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -12,12 +13,13 @@ import lombok.NoArgsConstructor;
 public class UserInfoDto {
     private Long id;
     private String nickname;
+    private Grade grade;
 
     public static UserInfoDto of(User user) {
-        return new UserInfoDto(user.getId(), user.getNickname());
+        return new UserInfoDto(user.getId(), user.getNickname(), user.getGrade());
     }
 
-    public static UserInfoDto of(Long id, String nickname) {
-        return new UserInfoDto(id, nickname);
+    public static UserInfoDto of(Long id, String nickname, Grade grade) {
+        return new UserInfoDto(id, nickname, grade);
     }
 }
