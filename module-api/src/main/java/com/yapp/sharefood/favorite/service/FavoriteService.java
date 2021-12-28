@@ -25,8 +25,9 @@ import java.util.stream.Collectors;
 
 import static com.yapp.sharefood.favorite.dto.FavoriteFoodDto.foodToFavoriteFoodDto;
 
-@RequiredArgsConstructor
 @Service
+@RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class FavoriteService {
     private static final int MAX_SIZE_OF_FAVORITE_FOOD = 5;
 
