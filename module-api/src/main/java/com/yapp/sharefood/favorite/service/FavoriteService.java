@@ -5,6 +5,7 @@ import com.yapp.sharefood.category.exception.CategoryNotFoundException;
 import com.yapp.sharefood.category.repository.CategoryRepository;
 import com.yapp.sharefood.favorite.domain.Favorite;
 import com.yapp.sharefood.favorite.dto.FavoriteFoodDto;
+import com.yapp.sharefood.favorite.dto.request.FavoriteCreationRequest;
 import com.yapp.sharefood.favorite.dto.response.FavoriteFoodResponse;
 import com.yapp.sharefood.favorite.exception.TooManyFavoriteException;
 import com.yapp.sharefood.favorite.repository.FavoriteRepository;
@@ -24,8 +25,9 @@ import java.util.stream.Collectors;
 
 import static com.yapp.sharefood.favorite.dto.FavoriteFoodDto.foodToFavoriteFoodDto;
 
-@RequiredArgsConstructor
 @Service
+@RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class FavoriteService {
     private static final int MAX_SIZE_OF_FAVORITE_FOOD = 5;
 
@@ -55,15 +57,16 @@ public class FavoriteService {
     }
 
     @Transactional
-    public Long createFavorite(User user, Long foodId) {
+    public Long createFavorite(User user, Long foodId, FavoriteCreationRequest favoriteCreationRequest) {
+        Food findFood = foodRepository.findById(foodId).orElseThrow(FoodNotFoundException::new);
+        List<Category> categories = findOnePartCategories(favoriteCreationRequest.getCategoryName());
+
         User findUser = userRepository.findById(user.getId()).orElseThrow(UserNotFoundException::new);
-        List<Favorite> findUserFavorite = favoriteRepository.findAllByUser(user);
+        List<Favorite> findUserFavorite = favoriteRepository.findAllByUserAndCategories(user, categories);
 
         if (findUserFavorite.size() >= MAX_SIZE_OF_FAVORITE_FOOD) {
             throw new TooManyFavoriteException();
         }
-
-        Food findFood = foodRepository.findById(foodId).orElseThrow(FoodNotFoundException::new);
 
         Favorite favorite = Favorite.of(findUser);
         findFood.assignFavorite(favorite);
