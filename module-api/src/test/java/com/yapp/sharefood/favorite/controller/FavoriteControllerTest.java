@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yapp.sharefood.common.PreprocessController;
 import com.yapp.sharefood.favorite.dto.FavoriteFoodDto;
+import com.yapp.sharefood.favorite.dto.request.FavoriteCreationRequest;
 import com.yapp.sharefood.favorite.dto.response.FavoriteFoodResponse;
 import com.yapp.sharefood.favorite.exception.TooManyFavoriteException;
 import com.yapp.sharefood.favorite.service.FavoriteService;
@@ -15,6 +16,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.ResultActions;
 
@@ -40,15 +42,18 @@ class FavoriteControllerTest extends PreprocessController {
     ObjectMapper objectMapper = new ObjectMapper();
 
     @Test
-    @DisplayName("최애 생성 성공")
+    @DisplayName("최애 생성 - 성공")
     void createFavorite_Success() throws Exception {
         //given
         willReturn(1L)
-                .given(favoriteService).createFavorite(any(User.class), anyLong());
+                .given(favoriteService).createFavorite(any(User.class), anyLong(), any(FavoriteCreationRequest.class));
+        String requestBodyStr = objectMapper.writeValueAsString(FavoriteCreationRequest.of("음식"));
 
         //when
         RequestBuilder requestBuilder = post(String.format("/api/v1/foods/%d/favorite", 1L))
-                .header(HttpHeaders.AUTHORIZATION, "token");
+                .header(HttpHeaders.AUTHORIZATION, "token")
+                .content(requestBodyStr)
+                .contentType(MediaType.APPLICATION_JSON);
 
         ResultActions perform = mockMvc.perform(requestBuilder);
 
@@ -65,11 +70,14 @@ class FavoriteControllerTest extends PreprocessController {
     void createFavorite_Fail_UserNotFound() throws Exception {
         //given
         willThrow(new UserNotFoundException())
-                .given(favoriteService).createFavorite(any(User.class), anyLong());
+                .given(favoriteService).createFavorite(any(User.class), anyLong(), any(FavoriteCreationRequest.class));
+        String requestBodyStr = objectMapper.writeValueAsString(FavoriteCreationRequest.of("음식"));
 
         //when
         RequestBuilder requestBuilder = post(String.format("/api/v1/foods/%d/favorite", 1L))
-                .header(HttpHeaders.AUTHORIZATION, "token");
+                .header(HttpHeaders.AUTHORIZATION, "token")
+                .content(requestBodyStr)
+                .contentType(MediaType.APPLICATION_JSON);
 
         ResultActions perform = mockMvc.perform(requestBuilder);
 
@@ -91,11 +99,14 @@ class FavoriteControllerTest extends PreprocessController {
     void createFavorite_Fail_FoodNotFound() throws Exception {
         //given
         willThrow(new FoodNotFoundException())
-                .given(favoriteService).createFavorite(any(User.class), anyLong());
+                .given(favoriteService).createFavorite(any(User.class), anyLong(), any(FavoriteCreationRequest.class));
+        String requestBodyStr = objectMapper.writeValueAsString(FavoriteCreationRequest.of("음식"));
 
         //when
         RequestBuilder requestBuilder = post(String.format("/api/v1/foods/%d/favorite", 1L))
-                .header(HttpHeaders.AUTHORIZATION, "token");
+                .header(HttpHeaders.AUTHORIZATION, "token")
+                .content(requestBodyStr)
+                .contentType(MediaType.APPLICATION_JSON);
 
         ResultActions perform = mockMvc.perform(requestBuilder);
 
@@ -117,11 +128,14 @@ class FavoriteControllerTest extends PreprocessController {
     void createFavoriteTest_Fail_TooManyFavorite() throws Exception {
         //given
         willThrow(new TooManyFavoriteException())
-                .given(favoriteService).createFavorite(any(User.class), anyLong());
+                .given(favoriteService).createFavorite(any(User.class), anyLong(), any(FavoriteCreationRequest.class));
+        String requestBodyStr = objectMapper.writeValueAsString(FavoriteCreationRequest.of("음식"));
 
         //when
         RequestBuilder requestBuilder = post(String.format("/api/v1/foods/%d/favorite", 1L))
-                .header(HttpHeaders.AUTHORIZATION, "token");
+                .header(HttpHeaders.AUTHORIZATION, "token")
+                .content(requestBodyStr)
+                .contentType(MediaType.APPLICATION_JSON);
 
         ResultActions perform = mockMvc.perform(requestBuilder);
 
