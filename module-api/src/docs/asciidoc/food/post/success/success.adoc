@@ -12,3 +12,13 @@ include::{snippets}/food/post/success/http-request.adoc[]
 IMPORTANT: RESPONSE
 include::{snippets}/food/post/success/http-response.adoc[]
 ====
+
+====
+IMPORTANT: REQUEST
+include::{snippets}/food-mine/post/success/http-request.adoc[]
+====
+
+====
+IMPORTANT: RESPONSE
+include::{snippets}/food-mine/post/success/http-response.adoc[]
+====
