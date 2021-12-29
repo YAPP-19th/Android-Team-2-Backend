@@ -1,10 +1,10 @@
 package com.yapp.sharefood.food.domain;
 
-import com.yapp.sharefood.common.exception.NotFoundException;
 import com.yapp.sharefood.favorite.domain.Favorite;
 import com.yapp.sharefood.favorite.exception.AlreadyFavoriteExistException;
 import com.yapp.sharefood.favorite.exception.FavoriteNotFoundException;
 import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.CascadeType;
@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+@Getter
 @Embeddable
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Favorites {
@@ -25,14 +26,14 @@ public class Favorites {
     }
 
     public void assignFavorite(Food food, Favorite favorite) {
-        if(Objects.isNull(favorite)) {
+        if (Objects.isNull(favorite)) {
             throw new FavoriteNotFoundException();
         }
 
         validateAlreadyFavoriteUser(favorite.getUser().getId());
 
         favorite.assignFood(food);
-        if(!favorites.contains(favorite)) {
+        if (!favorites.contains(favorite)) {
             favorites.add(favorite);
         }
     }

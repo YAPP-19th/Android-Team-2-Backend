@@ -5,18 +5,14 @@ import com.yapp.sharefood.common.exception.InvalidOperationException;
 import com.yapp.sharefood.flavor.domain.Flavor;
 import com.yapp.sharefood.food.domain.Food;
 import com.yapp.sharefood.food.exception.FoodNotFoundException;
-import com.yapp.sharefood.userflavor.domain.UserFlavor;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 import static com.yapp.sharefood.user.domain.Grade.*;
 

@@ -4,6 +4,7 @@ import com.yapp.sharefood.category.domain.Category;
 import com.yapp.sharefood.category.repository.CategoryRepository;
 import com.yapp.sharefood.favorite.domain.Favorite;
 import com.yapp.sharefood.favorite.dto.FavoriteFoodDto;
+import com.yapp.sharefood.favorite.dto.request.FavoriteCreationRequest;
 import com.yapp.sharefood.favorite.dto.response.FavoriteFoodResponse;
 import com.yapp.sharefood.favorite.exception.FavoriteNotFoundException;
 import com.yapp.sharefood.favorite.exception.TooManyFavoriteException;
@@ -25,7 +26,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @Transactional
 @SpringBootTest
@@ -47,6 +50,13 @@ class FavoriteServiceTest {
 
     private Category saveTestCategory(String categoryName) {
         Category category = Category.of(categoryName);
+        return categoryRepository.save(category);
+    }
+
+    private Category saveTestChildCategory(Category rootCategory, String categoryName) {
+        Category category = Category.of(categoryName);
+        rootCategory.addChildCategories(category);
+
         return categoryRepository.save(category);
     }
 
@@ -76,26 +86,41 @@ class FavoriteServiceTest {
         return favoriteRepository.save(favorite);
     }
 
+    private Favorite createFavorite() {
+        Favorite favorite = Favorite.of(favoriteUseUser);
+        favorite.assignFood(favoriteFood);
+        return favoriteRepository.save(favorite);
+    }
+
     private Category category;
     private User writerUser;
     private User user;
+    private User favoriteUseUser;
+    private Food favoriteFood;
     private Food food;
+    private Favorite favorite;
 
     @BeforeEach
     void setUp() {
-        category = saveTestCategory("A");
+        Category rootCategory = saveTestCategory("음식");
+        category = saveTestChildCategory(rootCategory, "A");
         writerUser = saveTestUser("user1_nick", "user1_name", "oauthId1");
         user = saveTestUser("user2_nick", "user2_name", "oauthId2");
         food = saveTestFood("food title1", writerUser, category, FoodStatus.SHARED);
+
+        favoriteUseUser = saveTestUser("favorite user", "mock_name", "oauthId");
+        favoriteFood = saveTestFood("favorite food title1", writerUser, category, FoodStatus.SHARED);
+        favorite = createFavorite();
     }
 
     @Test
     @DisplayName("최애 추가 성공")
     void favoriteCreate_Success() {
         //given
+        FavoriteCreationRequest favoriteCreationRequest = FavoriteCreationRequest.of("음식");
 
         //when
-        Long favoriteId = favoriteService.createFavorite(user, food.getId());
+        Long favoriteId = favoriteService.createFavorite(user, food.getId(), favoriteCreationRequest);
         Favorite findFavorite = favoriteRepository.findById(favoriteId).orElseThrow(FavoriteNotFoundException::new);
 
         //then
@@ -108,22 +133,24 @@ class FavoriteServiceTest {
     @DisplayName("최애 추가 실패 - 존재하지 않는 사용자")
     void favoriteCreate_Fail_UserNotFound() {
         //given
+        FavoriteCreationRequest favoriteCreationRequest = FavoriteCreationRequest.of("음식");
 
         //when
 
         //then
-        assertThrows(UserNotFoundException.class, () -> favoriteService.createFavorite(User.builder().id(-1L).build(), food.getId()));
+        assertThrows(UserNotFoundException.class, () -> favoriteService.createFavorite(User.builder().id(-1L).build(), food.getId(), favoriteCreationRequest));
     }
 
     @Test
     @DisplayName("최애 추가 실패 - 존재하지 않는 음식(게시글)")
     void favoriteCreate_Fail_FoodNotFound() {
         //given
+        FavoriteCreationRequest favoriteCreationRequest = FavoriteCreationRequest.of("음식");
 
         //when
 
         //then
-        assertThrows(FoodNotFoundException.class, () -> favoriteService.createFavorite(user, -1L));
+        assertThrows(FoodNotFoundException.class, () -> favoriteService.createFavorite(user, -1L, favoriteCreationRequest));
     }
 
     @Test
@@ -140,26 +167,25 @@ class FavoriteServiceTest {
         for (Food food : foodList) {
             saveTestFavorite(user, food);
         }
+        FavoriteCreationRequest favoriteCreationRequest = FavoriteCreationRequest.of("음식");
 
         //when
 
         //then
         Food testFood = saveTestFood("testFood", user, category, FoodStatus.SHARED);
-        assertThrows(TooManyFavoriteException.class, () -> favoriteService.createFavorite(user, testFood.getId()));
+        assertThrows(TooManyFavoriteException.class, () -> favoriteService.createFavorite(user, testFood.getId(), favoriteCreationRequest));
     }
 
     @Test
     @DisplayName("최애 삭제 성공")
     void favoriteDelete_Success() {
         //given
-        Long favoriteId = favoriteService.createFavorite(user, food.getId());
-
         //when
-        favoriteService.deleteFavorite(user, food.getId());
-        favoriteRepository.flush();
+        favoriteService.deleteFavorite(favoriteUseUser, favoriteFood.getId());
+        Food food = foodRepository.findById(favoriteFood.getId()).orElseThrow(FoodNotFoundException::new);
 
         //then
-        assertThrows(FavoriteNotFoundException.class, () -> favoriteRepository.findById(favoriteId).orElseThrow(FavoriteNotFoundException::new));
+        assertThat(food.getFavorites().getFavorites()).isEmpty();
     }
 
     @Test
@@ -199,7 +225,7 @@ class FavoriteServiceTest {
         }
 
         //when
-        FavoriteFoodResponse favoriteFoods = favoriteService.findFavoriteFoods(user);
+        FavoriteFoodResponse favoriteFoods = favoriteService.findFavoriteFoods(user, category.getName());
 
         //then
         int expectFavoriteFoodSize = foodList.size();
@@ -216,11 +242,13 @@ class FavoriteServiceTest {
     @DisplayName("최애 조회 실패 - 존재하지 않는 유저")
     void favoriteFood_Fail_UserNotFound() {
         //given
+        String categoryName = category.getName();
+        User mockUser = User.builder().id(-1L).build();
 
         //when
 
         //then
-        assertThrows(UserNotFoundException.class, () -> favoriteService.findFavoriteFoods(User.builder().id(-1L).build()));
+        assertThrows(UserNotFoundException.class, () -> favoriteService.findFavoriteFoods(mockUser, categoryName));
     }
 
 }

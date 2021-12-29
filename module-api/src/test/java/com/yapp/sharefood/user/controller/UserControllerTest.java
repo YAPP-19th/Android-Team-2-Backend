@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yapp.sharefood.common.PreprocessController;
 import com.yapp.sharefood.oauth.exception.UserNotFoundException;
 import com.yapp.sharefood.report.exception.ReportNotDefineException;
+import com.yapp.sharefood.user.domain.Grade;
 import com.yapp.sharefood.user.domain.OAuthType;
 import com.yapp.sharefood.user.domain.User;
 import com.yapp.sharefood.user.domain.UserReportType;
@@ -19,6 +20,9 @@ import com.yapp.sharefood.user.exception.UserNicknameExistException;
 import com.yapp.sharefood.user.service.UserService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpHeaders;
@@ -27,6 +31,7 @@ import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.ResultActions;
 
 import java.nio.charset.StandardCharsets;
+import java.util.stream.Stream;
 
 import static com.yapp.sharefood.common.documentation.DocumentationUtils.documentIdentify;
 import static com.yapp.sharefood.oauth.exception.UserNotFoundException.USER_NOT_FOUND_EXCEPTION_MSG;
@@ -201,13 +206,13 @@ class UserControllerTest extends PreprocessController {
                 .isEqualTo(NICKNAME_EXIST_EXCEPTION_MSG);
     }
 
-    @Test
-    @DisplayName("user 정보 조회 성공")
-    void userInfoFindingTest() throws Exception {
+
+    @MethodSource
+    @ParameterizedTest(name = "user 정보 조회 성공 grade 별로 조회")
+    void userInfoFindingTest_Success(long userId, Grade userGrade) throws Exception {
         // given
-        Long givenUserId = user.getId();
-        willReturn(new MyUserInfoResponse(UserInfoDto.of(user)))
-                .given(userService).findUserInfo(user.getId());
+        willReturn(new MyUserInfoResponse(UserInfoDto.of(userId, "nickname" + userId, userGrade)))
+                .given(userService).findUserInfo(anyLong());
 
         //when
         RequestBuilder requestBuilder = get("/api/v1/users/me")
@@ -217,25 +222,35 @@ class UserControllerTest extends PreprocessController {
 
         //then
         MyUserInfoResponse response = objectMapper.readValue(perform.andExpect(status().isOk())
-                .andDo(documentIdentify("user-me/get/success"))
+                .andDo(documentIdentify(String.format("user-me-%s/get/success", userId)))
                 .andReturn()
                 .getResponse()
-                .getContentAsString(StandardCharsets.UTF_8), new TypeReference<MyUserInfoResponse>() {
+                .getContentAsString(StandardCharsets.UTF_8), new TypeReference<>() {
         });
 
-        Long resultUserId = response.getUserInfo().getId();
-        String resultUserNickname = response.getUserInfo().getNickname();
-        assertEquals(givenUserId, resultUserId);
-        assertEquals("nickname", resultUserNickname);
+        String expectedNickname = "nickname" + userId;
+        UserInfoDto responseInfo = response.getUserInfo();
+        assertEquals(userId, responseInfo.getId());
+        assertEquals(expectedNickname, responseInfo.getNickname());
+        assertEquals(userGrade, responseInfo.getGrade());
+    }
+
+    static Stream<Arguments> userInfoFindingTest_Success() {
+        return Stream.of(
+                Arguments.of(1L, Grade.STUDENT),
+                Arguments.of(2L, Grade.BACHELOR),
+                Arguments.of(3L, Grade.MASTER),
+                Arguments.of(4L, Grade.EXPERT),
+                Arguments.of(5L, Grade.PROFESSOR)
+        );
     }
 
     @Test
     @DisplayName("user info 조회 실패 -> 없는 사용자")
     void userInfoFindingFailTest() throws Exception {
         // given
-        Long userId = authUserId;
         willThrow(new UserNotFoundException())
-                .given(userService).findUserInfo(userId);
+                .given(userService).findUserInfo(anyLong());
 
         //when
         RequestBuilder requestBuilder = get("/api/v1/users/me")

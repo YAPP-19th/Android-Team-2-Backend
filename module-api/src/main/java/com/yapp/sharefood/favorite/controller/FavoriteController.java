@@ -1,6 +1,7 @@
 package com.yapp.sharefood.favorite.controller;
 
 import com.yapp.sharefood.auth.resolver.AuthUser;
+import com.yapp.sharefood.favorite.dto.request.FavoriteCreationRequest;
 import com.yapp.sharefood.favorite.dto.response.FavoriteFoodResponse;
 import com.yapp.sharefood.favorite.service.FavoriteService;
 import com.yapp.sharefood.user.domain.User;
@@ -17,15 +18,16 @@ public class FavoriteController {
     private final FavoriteService favoriteService;
 
     @GetMapping("/api/v1/foods/favorite")
-    public ResponseEntity<FavoriteFoodResponse> findFavorite(@AuthUser User user) {
-        return ResponseEntity.ok(favoriteService.findFavoriteFoods(user));
+    public ResponseEntity<FavoriteFoodResponse> findFavorite(@AuthUser User user, @RequestParam String categoryName) {
+        return ResponseEntity.ok(favoriteService.findFavoriteFoods(user, categoryName));
     }
 
     @PostMapping("/api/v1/foods/{foodId}/favorite")
-    public ResponseEntity<URI> createFavorite(@AuthUser User user, @PathVariable("foodId") Long foodId) {
+    public ResponseEntity<URI> createFavorite(@AuthUser User user, @PathVariable("foodId") Long foodId,
+                                              @RequestBody FavoriteCreationRequest favoriteCreationRequest) {
         URI uri = ServletUriComponentsBuilder.fromCurrentRequest()
                 .path("/{id}")
-                .buildAndExpand(favoriteService.createFavorite(user, foodId))
+                .buildAndExpand(favoriteService.createFavorite(user, foodId, favoriteCreationRequest))
                 .toUri();
 
         return ResponseEntity.created(uri).build();

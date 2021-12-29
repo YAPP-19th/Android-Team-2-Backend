@@ -13,20 +13,20 @@ import javax.persistence.*;
 import java.util.Objects;
 
 @Getter
+@Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(uniqueConstraints = @UniqueConstraint(columnNames = {"food_id", "user_id"}))
-@Entity
 public class Favorite extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "favorite_id")
     private Long id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "food_id")
     private Food food;
 
@@ -39,14 +39,15 @@ public class Favorite extends BaseEntity {
     }
 
     public void assignFood(Food food) {
-        if(Objects.isNull(food)) {
+        if (Objects.isNull(food)) {
             throw new FoodNotFoundException();
         }
 
-        if(Objects.nonNull(this.food)) {
+        if (Objects.nonNull(this.food)) {
             throw new InvalidOperationException("한번 할당된 게시글은 변경할 수 없습니다.");
         }
 
         this.food = food;
+        this.food.getFavorites().getFavorites().add(this);
     }
 }

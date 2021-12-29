@@ -128,8 +128,7 @@ class AuthControllerTest extends DocumentTest {
 
         assertThat(errorMsg)
                 .isNotNull()
-                .isNotEmpty()
-                .isEqualTo("oauth 요청 타입 에러");
+                .isNotEmpty();
     }
 
     @Test

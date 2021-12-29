@@ -26,7 +26,7 @@ public class AuthAdviceController {
     protected ResponseEntity<Object> handleBadGatewayException(final BadGatewayException exception) {
         log.warn("BadGatewayException: {}", exception.getMessage(), exception);
         // add event publisher for let me know in slack or other application
-        return ResponseEntity.status(HttpStatus.BAD_GATEWAY).body(exception.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_GATEWAY).body("bad gateway exception");
     }
 
     /**
