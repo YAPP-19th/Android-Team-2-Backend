@@ -41,6 +41,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.persistence.EntityManager;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -244,16 +245,19 @@ class FoodFindPageTest {
         FoodPageResponse foodPageResponse = foodService.searchFoodsPage(foodPageSearchRequest, user);
 
         // then
-        List<Food> expectList = foods.stream().filter(food -> food.getReportStatus() == FoodReportStatus.NORMAL).collect(Collectors.toList());
+        List<Food> expectList = foods.stream()
+                .filter(food -> food.getReportStatus() == FoodReportStatus.NORMAL)
+                .sorted(Comparator.comparing(Food::getId).reversed())
+                .collect(Collectors.toList());
 
         assertEquals(5, foodPageResponse.getPageSize());
         assertEquals(0L, foodPageResponse.getOffset());
         assertThat(foodPageResponse.getFoods())
                 .hasSize(5);
-        Long lastFoodId = expectList.get(expectList.size() - 1).getId();
-        assertThat(lastFoodId).isNotNull();
-        FoodPageDto lastSearchFood = foodPageResponse.getFoods().get(foodPageResponse.getFoods().size() - 1);
-        assertEquals(lastFoodId, lastSearchFood.getId());
+        Long firstFoodId = expectList.get(0).getId();
+        assertThat(firstFoodId).isNotNull();
+        FoodPageDto firstSearchFood = foodPageResponse.getFoods().get(0);
+        assertEquals(firstFoodId, firstSearchFood.getId());
     }
 
     @MethodSource

@@ -84,15 +84,45 @@ class FoodSaveControllerTest extends PreprocessController {
                 .contentType(MediaType.APPLICATION_JSON_VALUE));
 
         // then
-        String errorMsg = perform.andExpect(status().isCreated())
+        perform.andExpect(status().isCreated())
                 .andDo(documentIdentify("food/post/success"))
                 .andExpect(header().exists("Location"))
                 .andReturn()
                 .getResponse()
                 .getContentAsString(StandardCharsets.UTF_8);
+    }
 
-        assertThat(errorMsg)
-                .isNotNull();
+    @Test
+    @DisplayName("food 저장 기능 mine으로 저장-성공")
+    void saveMineFood_Success() throws Exception {
+        // given
+        willReturn(1L)
+                .given(foodService).saveFood(any(User.class), any(FoodCreationRequest.class), anyList());
+
+        FoodCreationRequest foodCreationRequest = FoodCreationRequest.builder()
+                .categoryName("샌드위치")
+                .title("title")
+                .price(10000)
+                .flavors(List.of(FlavorType.SWEET.getFlavorName(), FlavorType.REFRESH_DETAIL.getFlavorName()))
+                .tags(List.of(FoodTagDto.of(1L, "샷추가", FoodIngredientType.MAIN), FoodTagDto.of(2L, "커피", FoodIngredientType.ADD)))
+                .reviewMsg("review msg")
+                .foodStatus(FoodStatus.MINE)
+                .build();
+
+        // when
+        String requestBodyStr = objectMapper.writeValueAsString(foodCreationRequest);
+        ResultActions perform = mockMvc.perform(post("/api/v1/foods")
+                .header(HttpHeaders.AUTHORIZATION, "token")
+                .content(requestBodyStr)
+                .contentType(MediaType.APPLICATION_JSON_VALUE));
+
+        // then
+        perform.andExpect(status().isCreated())
+                .andDo(documentIdentify("food-mine/post/success"))
+                .andExpect(header().exists("Location"))
+                .andReturn()
+                .getResponse()
+                .getContentAsString(StandardCharsets.UTF_8);
     }
 
     @Test
