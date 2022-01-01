@@ -17,30 +17,44 @@ public class FavoriteFoodDto {
     private String foodTitle;
     private String categoryName;
     private int price;
+    private long numberOfLikes;
     private boolean isMeFavorite;
     private List<FoodImageDto> foodImages;
 
-    private FavoriteFoodDto(Long id, String title, String categoryName, int price, boolean isMeFavorite, List<FoodImageDto> images) {
+    private FavoriteFoodDto(Long id, String title,
+                            String categoryName,
+                            int price,
+                            long numberOfLikes,
+                            boolean isMeFavorite,
+                            List<FoodImageDto> images) {
         this.id = id;
         this.foodTitle = title;
         this.categoryName = categoryName;
         this.price = price;
+        this.numberOfLikes = numberOfLikes;
         this.isMeFavorite = isMeFavorite;
         this.foodImages = images;
     }
 
-    public static FavoriteFoodDto of(Long id, String title, String categoryName, int price, boolean isMeFavorite, List<FoodImageDto> images) {
-        return new FavoriteFoodDto(id, title, categoryName, price, isMeFavorite, images);
+    public static FavoriteFoodDto of(Long id, String title,
+                                     String categoryName,
+                                     int price,
+                                     long numberOfLikes,
+                                     boolean isMeFavorite,
+                                     List<FoodImageDto> images) {
+        return new FavoriteFoodDto(id, title, categoryName, price, numberOfLikes, isMeFavorite, images);
     }
 
     public static FavoriteFoodDto foodToFavoriteFoodDto(User user, Food food) {
-        return new FavoriteFoodDto(
-                food.getId(),
+        List<FoodImageDto> foodImageDtos = food.getImages().getImages().stream()
+                .map(FoodImageDto::toFoodImageDto)
+                .collect(Collectors.toList());
+        return new FavoriteFoodDto(food.getId(),
                 food.getFoodTitle(),
                 food.getCategory().getName(),
                 food.getPrice(),
+                food.getNumberOfLikes(),
                 food.isMeFavorite(user),
-                food.getImages().getImages().stream().map(image -> FoodImageDto.toFoodImageDto(image)).collect(Collectors.toList())
-        );
+                foodImageDtos);
     }
 }

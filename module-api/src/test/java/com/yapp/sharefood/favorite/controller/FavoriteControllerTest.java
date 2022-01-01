@@ -26,7 +26,7 @@ import java.util.List;
 
 import static com.yapp.sharefood.common.documentation.DocumentationUtils.documentIdentify;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.willReturn;
 import static org.mockito.BDDMockito.willThrow;
@@ -228,11 +228,10 @@ class FavoriteControllerTest extends PreprocessController {
     void findFavoriteTest_Success() throws Exception {
         //given
 
-        FavoriteFoodDto dto1 = FavoriteFoodDto.of(1L, "a", "샌드위치", 10000, false, Collections.emptyList());
-        FavoriteFoodDto dto2 = FavoriteFoodDto.of(2L, "b", "마라탕", 20000, false, Collections.emptyList());
-        FavoriteFoodDto dto3 = FavoriteFoodDto.of(3L, "c", "샐러드", 30000, false, Collections.emptyList());
-        FavoriteFoodResponse response = FavoriteFoodResponse.of(List.of(dto1, dto2, dto3));
-        willReturn(response)
+        FavoriteFoodDto dto1 = FavoriteFoodDto.of(1L, "title1", "샌드위치", 10000, 10L, true, Collections.emptyList());
+        FavoriteFoodDto dto2 = FavoriteFoodDto.of(2L, "title2", "마라탕", 20000, 3L, true, Collections.emptyList());
+        FavoriteFoodDto dto3 = FavoriteFoodDto.of(3L, "title3", "샐러드", 30000, 2L, true, Collections.emptyList());
+        willReturn(FavoriteFoodResponse.of(List.of(dto1, dto2, dto3)))
                 .given(favoriteService).findFavoriteFoods(any(User.class), anyString());
 
         //when
@@ -248,18 +247,19 @@ class FavoriteControllerTest extends PreprocessController {
                         .andDo(documentIdentify("food-favorite/get/success"))
                         .andReturn()
                         .getResponse()
-                        .getContentAsString(StandardCharsets.UTF_8), new TypeReference<FavoriteFoodResponse>() {
+                        .getContentAsString(StandardCharsets.UTF_8), new TypeReference<>() {
                 }
         );
 
-        assertEquals(response.getFavoriteFoods().size(), response.getFavoriteFoods().size());
-        for (int i = 0; i < response.getFavoriteFoods().size(); i++) {
-            assertEquals(response.getFavoriteFoods().get(i).getId(), response.getFavoriteFoods().get(i).getId());
-            assertEquals(response.getFavoriteFoods().get(i).getFoodTitle(), response.getFavoriteFoods().get(i).getFoodTitle());
-            assertEquals(response.getFavoriteFoods().get(i).getPrice(), response.getFavoriteFoods().get(i).getPrice());
-            assertEquals(response.getFavoriteFoods().get(i).isMeFavorite(), response.getFavoriteFoods().get(i).isMeFavorite());
-            assertEquals(response.getFavoriteFoods().get(i).getFoodImages(), response.getFavoriteFoods().get(i).getFoodImages());
-        }
+
+        assertThat(resultResponse.getFavoriteFoods())
+                .hasSize(3)
+                .extracting("id", "foodTitle", "price", "numberOfLikes", "isMeFavorite")
+                .containsExactlyInAnyOrderElementsOf(List.of(
+                        tuple(1L, "title1", 10000, 10L, true),
+                        tuple(2L, "title2", 20000, 3L, true),
+                        tuple(3L, "title3", 30000, 2L, true)
+                ));
     }
 
     @Test
