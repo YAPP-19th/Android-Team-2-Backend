@@ -664,7 +664,7 @@ public class FoodControllerTest extends PreprocessController {
         // then
         FoodPageResponse foodPageResponse = objectMapper
                 .readValue(perform.andExpect(status().isOk())
-                        .andDo(documentIdentify("food-bookmark/get/success"))
+                        .andDo(documentIdentify("food-me3/get/success"))
                         .andReturn()
                         .getResponse()
                         .getContentAsString(StandardCharsets.UTF_8), new TypeReference<>() {
