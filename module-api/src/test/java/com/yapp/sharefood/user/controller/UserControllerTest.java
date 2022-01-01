@@ -209,9 +209,9 @@ class UserControllerTest extends PreprocessController {
 
     @MethodSource
     @ParameterizedTest(name = "user 정보 조회 성공 grade 별로 조회")
-    void userInfoFindingTest_Success(long userId, Grade userGrade) throws Exception {
+    void userInfoFindingTest_Success(long userId, Grade userGrade, Integer point) throws Exception {
         // given
-        willReturn(new MyUserInfoResponse(UserInfoDto.of(userId, "nickname" + userId, userGrade)))
+        willReturn(new MyUserInfoResponse(UserInfoDto.of(userId, "nickname" + userId, userGrade, point)))
                 .given(userService).findUserInfo(anyLong());
 
         //when
@@ -237,11 +237,11 @@ class UserControllerTest extends PreprocessController {
 
     static Stream<Arguments> userInfoFindingTest_Success() {
         return Stream.of(
-                Arguments.of(1L, Grade.STUDENT),
-                Arguments.of(2L, Grade.BACHELOR),
-                Arguments.of(3L, Grade.MASTER),
-                Arguments.of(4L, Grade.EXPERT),
-                Arguments.of(5L, Grade.PROFESSOR)
+                Arguments.of(1L, Grade.STUDENT, 0),
+                Arguments.of(2L, Grade.BACHELOR, 300),
+                Arguments.of(3L, Grade.MASTER, 700),
+                Arguments.of(4L, Grade.EXPERT, 1200),
+                Arguments.of(5L, Grade.PROFESSOR, 1800)
         );
     }
 

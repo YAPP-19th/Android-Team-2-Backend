@@ -14,12 +14,13 @@ public class UserInfoDto {
     private Long id;
     private String nickname;
     private Grade grade;
+    private Integer userGradePoint;
 
     public static UserInfoDto of(User user) {
-        return new UserInfoDto(user.getId(), user.getNickname(), user.getGrade());
+        return new UserInfoDto(user.getId(), user.getNickname(), user.getGrade(), user.getGradePoint());
     }
 
-    public static UserInfoDto of(Long id, String nickname, Grade grade) {
-        return new UserInfoDto(id, nickname, grade);
+    public static UserInfoDto of(Long id, String nickname, Grade grade, Integer userGradePoint) {
+        return new UserInfoDto(id, nickname, grade, userGradePoint);
     }
 }
