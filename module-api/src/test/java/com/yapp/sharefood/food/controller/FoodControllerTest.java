@@ -586,6 +586,7 @@ public class FoodControllerTest extends PreprocessController {
                 .param("offset", "0")
                 .param("mineFoodType", "MYFOOD")
                 .param("pageSize", "3")
+                .param("status", "MINE")
                 .header(HttpHeaders.AUTHORIZATION, "token"));
 
         // then
@@ -659,6 +660,7 @@ public class FoodControllerTest extends PreprocessController {
                 .param("offset", "0")
                 .param("mineFoodType", "BOOKMARK")
                 .param("pageSize", "3")
+                .param("status", "SHARED")
                 .header(HttpHeaders.AUTHORIZATION, "token"));
 
         // then
