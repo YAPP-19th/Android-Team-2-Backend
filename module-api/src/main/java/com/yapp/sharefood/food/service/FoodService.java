@@ -222,6 +222,11 @@ public class FoodService {
         List<Tag> tags = tagRepository.findByNameIn(foodPageSearchRequest.getTags());
         List<Flavor> flavors = flavorRepository.findByFlavorTypeIsIn(FlavorType.toList(foodPageSearchRequest.getFlavors()));
 
+        if ((foodPageSearchRequest.getTags().size() > 0 && tags.size() == 0)
+                || (foodPageSearchRequest.getFlavors().size() > 0 && flavors.size() == 0)) {
+            return FoodPageResponse.ofLastPage(new ArrayList<>(), foodPageSearchRequest.getPageSize(), user);
+        }
+
         FoodPageSearch foodPageSearch = FoodPageSearch.builder()
                 .minPrice(foodPageSearchRequest.getMinPrice())
                 .maxPrice(foodPageSearchRequest.getMaxPrice())
