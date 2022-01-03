@@ -24,4 +24,4 @@ DEPLOY_JAR=$DEPLOY_PATH$JAR_NAME
 
 echo "> DEPLOY_JAR 배포"    >> /home/ec2-user/action/deploy.log
 
-nohup java -jar $DEPLOY_JAR --spring.profiles.active=dev --spring.datasource.url=jdbc:mysql://172.17.0.2:3306/dev?serverTimezone=UTC --spring.config.additional-location=/home/ec2-user/application-aws-dev.yml 2>&1 &
+nohup java -jar $DEPLOY_JAR --spring.profiles.active=dev --spring.datasource.hikariurl.jdbc-url=jdbc:mysql://172.17.0.2:3306/dev?serverTimezone=UTC --spring.user.datasource.hikariurl.jdbc-url=jdbc:mysql://172.17.0.2:3306/dev?serverTimezone=UTC --spring.config.additional-location=/home/ec2-user/application-aws-dev.yml 2>&1 &
