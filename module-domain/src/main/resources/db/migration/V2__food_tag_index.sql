@@ -1,0 +1,1 @@
+alter table food_tag add index idx_food_id_type_tag_id(food_id, tag_id, ingredient_type);
