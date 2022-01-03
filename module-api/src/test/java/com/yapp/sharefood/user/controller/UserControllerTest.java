@@ -222,7 +222,7 @@ class UserControllerTest extends PreprocessController {
 
         //then
         MyUserInfoResponse response = objectMapper.readValue(perform.andExpect(status().isOk())
-                .andDo(documentIdentify(String.format("user-me-%s/get/success", userId)))
+                .andDo(documentIdentify(String.format("user-me/get/success/%d", userId)))
                 .andReturn()
                 .getResponse()
                 .getContentAsString(StandardCharsets.UTF_8), new TypeReference<>() {

@@ -10,6 +10,7 @@ import com.yapp.sharefood.common.order.SortType;
 import com.yapp.sharefood.common.utils.QueryUtils;
 import com.yapp.sharefood.flavor.domain.Flavor;
 import com.yapp.sharefood.food.domain.Food;
+import com.yapp.sharefood.food.domain.FoodIngredientType;
 import com.yapp.sharefood.food.domain.FoodReportStatus;
 import com.yapp.sharefood.food.domain.FoodStatus;
 import com.yapp.sharefood.food.dto.FoodMinePageSearch;
@@ -149,6 +150,7 @@ public class FoodQueryRepositoryImpl implements FoodQueryRepository {
                                         .from(foodTag)
                                         .where(
                                                 foodTag.food.eq(food),
+                                                containMainAddTag(),
                                                 goeMinPrice(foodPageSearch.getMinPrice()),
                                                 loeMaxPrice(foodPageSearch.getMaxPrice()),
                                                 lessThanCreateTime(foodPageSearch.getSearchTime()),
@@ -235,6 +237,10 @@ public class FoodQueryRepositoryImpl implements FoodQueryRepository {
                 .limit(foodMinePageSearch.getSize())
                 .offset(foodMinePageSearch.getOffset() * foodMinePageSearch.getSize())
                 .fetch();
+    }
+
+    private BooleanExpression containMainAddTag() {
+        return foodTag.ingredientType.in(FoodIngredientType.ADD, FoodIngredientType.MAIN);
     }
 
     private BooleanExpression lessThanCreateTime(LocalDateTime searchTime) {

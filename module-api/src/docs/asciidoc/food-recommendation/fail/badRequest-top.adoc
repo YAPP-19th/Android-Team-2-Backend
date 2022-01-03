@@ -2,13 +2,28 @@ ifndef::snippets[]
 :snippets: ./build/generated-snippets
 endif::[]
 
+== Case1
 
 ====
 IMPORTANT: REQUEST
-include::{snippets}/food-recommendation/get/fail/badRequest-top/http-request.adoc[]
+include::{snippets}/food-recommendation/get/fail/badRequest-top/1/http-request.adoc[]
 ====
 
 ====
 IMPORTANT: RESPONSE
-include::{snippets}/food-recommendation/get/fail/badRequest-top/http-response.adoc[]
+include::{snippets}/food-recommendation/get/fail/badRequest-top/1/http-response.adoc[]
+====
+
+'''
+
+== Case2
+
+====
+IMPORTANT: REQUEST
+include::{snippets}/food-recommendation/get/fail/badRequest-top/2/http-request.adoc[]
+====
+
+====
+IMPORTANT: RESPONSE
+include::{snippets}/food-recommendation/get/fail/badRequest-top/2/http-response.adoc[]
 ====
