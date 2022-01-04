@@ -357,6 +357,7 @@ class FoodSaveControllerTest extends PreprocessController {
                 .price(1000)
                 .numberOfLike(10)
                 .writerName("writer")
+                .isMyFood(true)
                 .isMeLike(false)
                 .isMeBookmark(false)
                 .categoryName("샌드위치")

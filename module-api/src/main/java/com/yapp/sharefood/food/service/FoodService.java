@@ -106,7 +106,7 @@ public class FoodService {
         findFood.getFoodFlavors().updateFlavors(flavors, findFood); // update flavors
         findFood.getFoodTags().updateTags(wrapperTags, findFood); // update tags
 
-        return FoodDetailResponse.toFoodDetailDto(findFood);
+        return FoodDetailResponse.toFoodDetailDto(user, findFood);
     }
 
 
@@ -123,6 +123,7 @@ public class FoodService {
                 .reviewDetail(food.getReviewMsg())
                 .price(food.getPrice())
                 .numberOfLike(food.getLikeNumber())
+                .isMyFood(food.isMyFood(user))
                 .isMeLike(food.isMeLike(user))
                 .categoryName(food.getCategory().getName())
                 .isMeBookmark(food.isMeBookMark(user))

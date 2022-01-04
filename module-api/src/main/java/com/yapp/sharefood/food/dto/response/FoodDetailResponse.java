@@ -4,6 +4,7 @@ import com.yapp.sharefood.flavor.dto.FlavorDto;
 import com.yapp.sharefood.food.domain.Food;
 import com.yapp.sharefood.food.dto.FoodImageDto;
 import com.yapp.sharefood.food.dto.FoodTagDto;
+import com.yapp.sharefood.user.domain.User;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Data;
@@ -24,6 +25,7 @@ public class FoodDetailResponse {
 
     private String writerName;
 
+    private boolean isMyFood;
     private boolean isMeLike;
     private boolean isMeBookmark;
 
@@ -32,7 +34,7 @@ public class FoodDetailResponse {
     private List<FoodImageDto> foodImages;
 
     @Builder
-    public FoodDetailResponse(Long id, String foodTitle, String reviewDetail, int price, long numberOfLike, boolean isMeLike, boolean isMeBookmark, String categoryName,
+    public FoodDetailResponse(Long id, String foodTitle, String reviewDetail, int price, long numberOfLike, boolean isMyFood, boolean isMeLike, boolean isMeBookmark, String categoryName,
                               String writerName, List<FoodTagDto> foodTags, List<FoodImageDto> foodImages, List<FlavorDto> foodFlavors) {
         this.id = id;
         this.foodTitle = foodTitle;
@@ -40,6 +42,7 @@ public class FoodDetailResponse {
         this.price = price;
         this.numberOfLike = numberOfLike;
         this.categoryName = categoryName;
+        this.isMyFood = isMyFood;
         this.isMeLike = isMeLike;
         this.isMeBookmark = isMeBookmark;
         this.writerName = writerName;
@@ -48,7 +51,7 @@ public class FoodDetailResponse {
         this.foodImages = foodImages;
     }
 
-    public static FoodDetailResponse toFoodDetailDto(Food food) {
+    public static FoodDetailResponse toFoodDetailDto(User user, Food food) {
         List<FoodTagDto> foodTagDtos = food.getFoodTags().getFoodTags().stream()
                 .map(foodTag -> FoodTagDto.of(foodTag.getId(), foodTag.getTag().getName(), foodTag.getIngredientType()))
                 .collect(Collectors.toList());
@@ -60,6 +63,7 @@ public class FoodDetailResponse {
                 .price(food.getPrice())
                 .numberOfLike(food.getLikeNumber())
                 .categoryName(food.getCategory().getName())
+                .isMyFood(food.isMyFood(user))
                 .isMeLike(food.isMeLike(food.getWriter()))
                 .isMeBookmark(food.isMeBookMark(food.getWriter()))
                 .writerName(food.getWriterNickname())

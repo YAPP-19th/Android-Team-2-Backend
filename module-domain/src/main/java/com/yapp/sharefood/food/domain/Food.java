@@ -169,6 +169,8 @@ public class Food extends BaseEntity {
         return this.writer.getId().equals(user.getId());
     }
 
+    public boolean isMyFood(User user) { return Objects.equals(this.writer.getId(), user.getId());}
+
     public boolean isMeLike(User user) {
         return this.likes.isAlreadyLike(user.getId());
     }
