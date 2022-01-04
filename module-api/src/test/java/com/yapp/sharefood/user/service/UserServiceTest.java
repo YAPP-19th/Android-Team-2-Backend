@@ -1,9 +1,5 @@
 package com.yapp.sharefood.user.service;
 
-import com.yapp.sharefood.category.domain.Category;
-import com.yapp.sharefood.food.domain.Food;
-import com.yapp.sharefood.food.domain.FoodReportType;
-import com.yapp.sharefood.food.domain.FoodStatus;
 import com.yapp.sharefood.oauth.exception.UserNotFoundException;
 import com.yapp.sharefood.user.domain.OAuthType;
 import com.yapp.sharefood.user.domain.User;
@@ -20,6 +16,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.BDDMockito.willReturn;
@@ -448,5 +446,44 @@ class UserServiceTest {
 
         assertEquals(5, point);
         assertEquals(UserReportStatus.BANNDED, reportStatus);
+    }
+
+    @Test
+    @DisplayName("회원 탈퇴 - 성공")
+    void withDrawUserMembership_Success() throws Exception {
+        // given
+        User user = User.builder()
+                .name("kkh")
+                .nickname("kkh_nickname")
+                .oauthId("kakao-id")
+                .oAuthType(OAuthType.KAKAO)
+                .build();
+
+        User existUser = userRepository.save(user);
+
+        // when
+        userService.withdrawUserMembership(existUser);
+        Optional<User> optionalUser = userRepository.findById(user.getId());
+
+        // then
+        assertFalse(optionalUser.isPresent());
+    }
+
+    @Test
+    @DisplayName("이미 탈퇴한 회원 - 실패")
+    void withDrawUserMembership_Fail_NotExistUser() throws Exception {
+        // given
+        User user = User.builder()
+                .id(0L)
+                .name("kkh")
+                .nickname("kkh_nickname")
+                .oauthId("kakao-id")
+                .oAuthType(OAuthType.KAKAO)
+                .build();
+
+        // when
+
+        // then
+        assertThrows(UserNotFoundException.class, () -> userService.withdrawUserMembership(user));
     }
 }
