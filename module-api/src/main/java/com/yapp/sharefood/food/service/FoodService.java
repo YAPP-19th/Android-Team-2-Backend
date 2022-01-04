@@ -265,6 +265,9 @@ public class FoodService {
 
     public FoodPageResponse findOnlyMineFoods(User user, FoodMinePageSearchRequest foodMinePageSearchRequest) {
         List<Flavor> flavors = flavorRepository.findByFlavorTypeIsIn(FlavorType.toList(foodMinePageSearchRequest.getFlavors()));
+        if (foodMinePageSearchRequest.getFlavors().size() > 0 && flavors.isEmpty()) {
+            return FoodPageResponse.ofLastPage(new ArrayList<>(), foodMinePageSearchRequest.getPageSize(), user);
+        }
         List<Category> categoryWithChildrenByName = findCategoryWithChildrenByName(foodMinePageSearchRequest.getCategoryName());
         List<Food> pageFoods = findMineFoods(user, flavors, categoryWithChildrenByName, foodMinePageSearchRequest);
 
