@@ -221,7 +221,7 @@ public class FoodQueryRepositoryImpl implements FoodQueryRepository {
     public List<Food> findMineBookMarkFoodSearch(User ownerUser, FoodMinePageSearch foodMinePageSearch) {
         return queryFactory
                 .selectFrom(food)
-                .leftJoin(food.bookmarks.bookmarks, bookmark)
+                .innerJoin(food.bookmarks.bookmarks, bookmark)
                 .leftJoin(food.foodFlavors.foodFlavors, foodFlavor)
                 .where(
                         bookmark.user.eq(ownerUser),
