@@ -5,6 +5,8 @@ spring:
     include:
       - domain-dev
       - domain-local
+      - domain-prod
+      - aws-prod
       - external
       - oauth
       - aws-local

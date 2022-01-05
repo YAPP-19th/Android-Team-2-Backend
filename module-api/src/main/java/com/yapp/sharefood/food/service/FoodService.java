@@ -106,7 +106,7 @@ public class FoodService {
         findFood.getFoodFlavors().updateFlavors(flavors, findFood); // update flavors
         findFood.getFoodTags().updateTags(wrapperTags, findFood); // update tags
 
-        return FoodDetailResponse.toFoodDetailDto(findFood);
+        return FoodDetailResponse.toFoodDetailDto(user, findFood);
     }
 
 
@@ -123,6 +123,7 @@ public class FoodService {
                 .reviewDetail(food.getReviewMsg())
                 .price(food.getPrice())
                 .numberOfLike(food.getLikeNumber())
+                .isMyFood(food.isMyFood(user))
                 .isMeLike(food.isMeLike(user))
                 .categoryName(food.getCategory().getName())
                 .isMeBookmark(food.isMeBookMark(user))
@@ -265,6 +266,9 @@ public class FoodService {
 
     public FoodPageResponse findOnlyMineFoods(User user, FoodMinePageSearchRequest foodMinePageSearchRequest) {
         List<Flavor> flavors = flavorRepository.findByFlavorTypeIsIn(FlavorType.toList(foodMinePageSearchRequest.getFlavors()));
+        if (foodMinePageSearchRequest.getFlavors().size() > 0 && flavors.isEmpty()) {
+            return FoodPageResponse.ofLastPage(new ArrayList<>(), foodMinePageSearchRequest.getPageSize(), user);
+        }
         List<Category> categoryWithChildrenByName = findCategoryWithChildrenByName(foodMinePageSearchRequest.getCategoryName());
         List<Food> pageFoods = findMineFoods(user, flavors, categoryWithChildrenByName, foodMinePageSearchRequest);
 

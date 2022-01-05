@@ -272,6 +272,47 @@ class UserControllerTest extends PreprocessController {
     }
 
     @Test
+    @DisplayName("user 탈퇴 - 성공")
+    void withdrawUserTest() throws Exception {
+        // given
+        willDoNothing()
+                .given(userService).withdrawUserMembership(any(User.class));
+
+        // when
+        ResultActions perform = mockMvc.perform(delete("/api/v1/users/me")
+                .header(HttpHeaders.AUTHORIZATION, "token"));
+        perform.andExpect(status().isOk())
+                .andDo(documentIdentify("user-me/delete/success"))
+                .andReturn()
+                .getResponse()
+                .getContentAsString(StandardCharsets.UTF_8);
+        // then
+    }
+
+    @Test
+    @DisplayName("user 이미 탈퇴한 회원 탈퇴 시도 - 실패")
+    void withdrawUser_Fail_UserNotFoundException() throws Exception {
+        // given
+        willThrow(new UserNotFoundException())
+                .given(userService).withdrawUserMembership(any(User.class));
+
+        // when
+        ResultActions perform = mockMvc.perform(delete("/api/v1/users/me")
+                .header(HttpHeaders.AUTHORIZATION, "token"));
+        String errMsg = perform.andExpect(status().isNotFound())
+                .andDo(documentIdentify("user-me/delete/fail/userNotFound"))
+                .andReturn()
+                .getResponse()
+                .getContentAsString(StandardCharsets.UTF_8);
+
+        // then
+        assertThat(errMsg)
+                .isNotNull()
+                .isNotEmpty()
+                .isEqualTo(USER_NOT_FOUND_EXCEPTION_MSG);
+    }
+
+    @Test
     @DisplayName("다른 사용자 info 정보 확인 테스트")
     void findOtherUserInfoTest() throws Exception {
         User givenUser = User.builder()

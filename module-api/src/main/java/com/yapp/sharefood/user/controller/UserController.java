@@ -46,6 +46,13 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
 
+    @DeleteMapping("/api/v1/users/me")
+    public ResponseEntity<Void> withdrawUserMembership(@AuthUser User user) {
+        userService.withdrawUserMembership(user);
+        return ResponseEntity.ok().build();
+    }
+
+
     @GetMapping("/api/v1/users/{userId}")
     public ResponseEntity<OtherUserInfoResponse> findOtherUserInfo(@PathVariable("userId") Long userId) {
         return ResponseEntity.ok(userService.findOtherUserInfo(userId));

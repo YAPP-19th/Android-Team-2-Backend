@@ -2,35 +2,38 @@ ifndef::snippets[]
 :snippets: ./build/generated-snippets
 endif::[]
 
+== Case1
 
 ====
 IMPORTANT: REQUEST
-include::{snippets}/food-me/get/success/http-request.adoc[]
+include::{snippets}/food-me/get/success/1/http-request.adoc[]
 ====
 
 ====
 IMPORTANT: RESPONSE
-include::{snippets}/food-me/get/success/http-response.adoc[]
+include::{snippets}/food-me/get/success/1/http-response.adoc[]
 ====
+
+== Case2
 
 ====
 IMPORTANT: REQUEST
-include::{snippets}/food-me2/get/success/http-request.adoc[]
+include::{snippets}/food-me/get/success/2/http-request.adoc[]
 ====
 
 ====
 IMPORTANT: RESPONSE
-include::{snippets}/food-me2/get/success/http-response.adoc[]
+include::{snippets}/food-me/get/success/2/http-response.adoc[]
 ====
 
-
+== Case3
 
 ====
 IMPORTANT: REQUEST
-include::{snippets}/food-me3/get/success/http-request.adoc[]
+include::{snippets}/food-me/get/success/3/http-request.adoc[]
 ====
 
 ====
 IMPORTANT: RESPONSE
-include::{snippets}/food-me3/get/success/http-response.adoc[]
+include::{snippets}/food-me/get/success/3/http-response.adoc[]
 ====

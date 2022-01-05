@@ -274,6 +274,7 @@ public class FoodControllerTest extends PreprocessController {
                 .price(1000)
                 .numberOfLike(2000)
                 .reviewDetail("review Msg")
+                .isMyFood(false)
                 .isMeLike(false)
                 .isMeBookmark(false)
                 .categoryName("샌드위치")

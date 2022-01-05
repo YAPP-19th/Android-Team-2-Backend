@@ -3,7 +3,6 @@ package com.yapp.sharefood.user.service;
 import com.yapp.sharefood.oauth.exception.UserNotFoundException;
 import com.yapp.sharefood.user.domain.User;
 import com.yapp.sharefood.user.domain.UserReportStatus;
-import com.yapp.sharefood.user.domain.UserReportType;
 import com.yapp.sharefood.user.dto.OtherUserInfoDto;
 import com.yapp.sharefood.user.dto.UserInfoDto;
 import com.yapp.sharefood.user.dto.request.UserNicknameRequest;
@@ -64,11 +63,18 @@ public class UserService {
         return new MyUserInfoResponse(UserInfoDto.of(user));
     }
 
+    @Transactional
+    public void withdrawUserMembership(User user) {
+        User findUser = userRepository.findById(user.getId())
+                .orElseThrow(UserNotFoundException::new);
+        userRepository.delete(findUser);
+    }
+
     public OtherUserInfoResponse findOtherUserInfo(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(UserNotFoundException::new);
 
-        if(user.getReportStatus() == UserReportStatus.BANNDED) throw new UserBanndedException();
+        if (user.getReportStatus() == UserReportStatus.BANNDED) throw new UserBanndedException();
 
         return new OtherUserInfoResponse(OtherUserInfoDto.of(user.getId(), user.getNickname()));
     }
