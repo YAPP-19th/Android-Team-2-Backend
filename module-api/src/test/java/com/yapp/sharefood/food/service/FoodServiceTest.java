@@ -21,6 +21,7 @@ import com.yapp.sharefood.food.repository.FoodRepository;
 import com.yapp.sharefood.like.service.LikeService;
 import com.yapp.sharefood.tag.domain.Tag;
 import com.yapp.sharefood.tag.repository.TagRepository;
+import com.yapp.sharefood.user.domain.Grade;
 import com.yapp.sharefood.user.domain.OAuthType;
 import com.yapp.sharefood.user.domain.User;
 import com.yapp.sharefood.user.repository.UserRepository;
@@ -178,6 +179,7 @@ class FoodServiceTest {
         assertEquals(0, food.getLikes().getSize());
         assertEquals(0, food.getNumberOfLikes());
         assertEquals(3, food.getFoodFlavors().getFoodFlavors().size());
+        assertEquals(saveUser.getGradePoint(), Grade.POINT_OPEN_FOOD + Grade.POINT_REGISTER_FOOD);
     }
 
     @Test
