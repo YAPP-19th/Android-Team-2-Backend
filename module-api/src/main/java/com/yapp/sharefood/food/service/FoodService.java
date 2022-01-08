@@ -25,9 +25,11 @@ import com.yapp.sharefood.food.repository.FoodRepository;
 import com.yapp.sharefood.food.repository.FoodTagRepository;
 import com.yapp.sharefood.like.projection.TopLikeProjection;
 import com.yapp.sharefood.like.repository.LikeRepository;
+import com.yapp.sharefood.oauth.exception.UserNotFoundException;
 import com.yapp.sharefood.tag.domain.Tag;
 import com.yapp.sharefood.tag.repository.TagRepository;
 import com.yapp.sharefood.user.domain.User;
+import com.yapp.sharefood.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -47,6 +49,7 @@ public class FoodService {
 
     private static final int MIN_PAGE_OFFSET = 0;
 
+    private final UserRepository userRepository;
     private final FoodRepository foodRepository;
     private final FoodTagRepository foodTagRepository;
     private final TagRepository tagRepository;
@@ -59,6 +62,8 @@ public class FoodService {
 
     @Transactional
     public Long saveFood(User user, FoodCreationRequest foodCreationRequest, List<TagWrapper> wrapperTags) {
+        User findUser = userRepository.findById(user.getId()).orElseThrow(UserNotFoundException::new);
+
         Category findCategory = categoryRepository.findByName(foodCreationRequest.getCategoryName())
                 .orElseThrow(CategoryNotFoundException::new);
         List<Flavor> flavors = flavorRepository.findByFlavorTypeIsIn(
@@ -70,7 +75,7 @@ public class FoodService {
                 .foodStatus(foodCreationRequest.getFoodStatus())
                 .price(foodCreationRequest.getPrice())
                 .reviewMsg(foodCreationRequest.getReviewMsg())
-                .writer(user)
+                .writer(findUser)
                 .category(findCategory)
                 .build();
 
@@ -78,9 +83,9 @@ public class FoodService {
         food.assignFlavors(flavors);
         Food saveFood = foodRepository.save(food);
 
-        user.addPointByRegisterFood(food);
-        user.addPointByOpenFood(food);
-        user.upgrade();
+        findUser.addPointByRegisterFood(food);
+        findUser.addPointByOpenFood(food);
+        findUser.upgrade();
 
         return saveFood.getId();
     }
