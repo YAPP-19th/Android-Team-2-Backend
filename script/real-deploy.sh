@@ -1,4 +1,5 @@
 BUILD_JAR=$(ls /root/shared-food/shared-food/*.jar)
+echo "> buil real path: $BUILD_JAR" >>/root/shared-food/deploy.log
 JAR_NAME=$(basename $BUILD_JAR)
 echo "> build 파일명: $JAR_NAME" >>/root/shared-food/deploy.log
 

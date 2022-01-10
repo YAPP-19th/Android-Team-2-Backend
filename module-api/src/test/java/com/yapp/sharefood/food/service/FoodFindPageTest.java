@@ -446,7 +446,8 @@ class FoodFindPageTest {
         LocalDateTime localDateTime = LocalDateTime.now();
         localDateTime = localDateTime.plusDays(3L);
 
-        List<Flavor> flavors = flavorTypes.stream().map(this::findFlavor)
+        List<Flavor> flavors = flavorTypes.stream()
+                .map(this::findFlavor)
                 .collect(Collectors.toList());
         List<String> flavorNames = new ArrayList<>();
 
@@ -459,8 +460,6 @@ class FoodFindPageTest {
         for (Flavor flavor : flavors) {
             flavorNames.add(flavor.getFlavorType().getFlavorName());
         }
-        em.flush();
-        em.clear();
 
         FoodMinePageSearchRequest foodMinePageSearch = FoodMinePageSearchRequest.builder()
                 .flavors(flavorNames)
@@ -486,7 +485,7 @@ class FoodFindPageTest {
     static Stream<Arguments> findMineFoodTest_Success() {
         return Stream.of(
                 Arguments.of(List.of(), List.of(), List.of("title_8", "title_7", "title_6")),
-                Arguments.of(List.of(FlavorType.BITTER, FlavorType.SPICY), List.of(7, 6, 5), List.of("title_8", "title_7", "title_6"))
+                Arguments.of(List.of(FlavorType.BITTER, FlavorType.SPICY), List.of(7, 6, 5), List.of("title_7", "title_6", "title_5"))
         );
     }
 

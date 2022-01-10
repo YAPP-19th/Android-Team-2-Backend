@@ -3,6 +3,7 @@ package com.yapp.sharefood.food.repository.query;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.JPAExpressions;
+import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.yapp.sharefood.category.domain.Category;
 import com.yapp.sharefood.common.exception.BadRequestException;
@@ -198,9 +199,14 @@ public class FoodQueryRepositoryImpl implements FoodQueryRepository {
 
     @Override
     public List<Food> findMineFoodSearch(User ownerUser, FoodMinePageSearch foodMinePageSearch) {
-        return queryFactory
-                .selectFrom(food)
-                .leftJoin(food.foodFlavors.foodFlavors, foodFlavor)
+        JPAQuery<Food> foodJPAQuery = queryFactory
+                .selectFrom(food);
+
+        if (foodMinePageSearch.isFlavorSearchExist()) {
+            foodJPAQuery = foodJPAQuery.innerJoin(food.foodFlavors.foodFlavors, foodFlavor);
+        }
+
+        return foodJPAQuery
                 .where(
                         food.writer.eq(ownerUser),
                         goeMinPrice(foodMinePageSearch.getMinPrice()),
@@ -208,6 +214,7 @@ public class FoodQueryRepositoryImpl implements FoodQueryRepository {
                         lessThanCreateTime(foodMinePageSearch.getSearchTime()),
                         containCategories(foodMinePageSearch.getCategories()),
                         status(foodMinePageSearch.getStatus()),
+                        containFlavorsIfCan(foodMinePageSearch.getFlavors(), foodMinePageSearch.isFlavorSearchExist()),
                         reportStatusNormal()
                 )
                 .groupBy(food.id)
@@ -219,17 +226,22 @@ public class FoodQueryRepositoryImpl implements FoodQueryRepository {
 
     @Override
     public List<Food> findMineBookMarkFoodSearch(User ownerUser, FoodMinePageSearch foodMinePageSearch) {
-        return queryFactory
+        JPAQuery<Food> foodJPAQuery = queryFactory
                 .selectFrom(food)
-                .innerJoin(food.bookmarks.bookmarks, bookmark)
-                .leftJoin(food.foodFlavors.foodFlavors, foodFlavor)
-                .where(
+                .innerJoin(food.bookmarks.bookmarks, bookmark);
+
+        if (foodMinePageSearch.isFlavorSearchExist()) {
+            foodJPAQuery = foodJPAQuery.innerJoin(food.foodFlavors.foodFlavors, foodFlavor);
+        }
+
+        return foodJPAQuery.where(
                         bookmark.user.eq(ownerUser),
                         goeMinPrice(foodMinePageSearch.getMinPrice()),
                         loeMaxPrice(foodMinePageSearch.getMaxPrice()),
                         lessThanCreateTime(foodMinePageSearch.getSearchTime()),
                         containCategories(foodMinePageSearch.getCategories()),
                         status(foodMinePageSearch.getStatus()),
+                        containFlavorsIfCan(foodMinePageSearch.getFlavors(), foodMinePageSearch.isFlavorSearchExist()),
                         reportStatusNormal()
                 )
                 .groupBy(food.id)
@@ -289,6 +301,14 @@ public class FoodQueryRepositoryImpl implements FoodQueryRepository {
         }
 
         return foodTag.tag.in(tags);
+    }
+
+    public BooleanExpression containFlavorsIfCan(List<Flavor> flavors, boolean isFlavorSearch) {
+        if (!isFlavorSearch || flavors == null) {
+            return null;
+        }
+
+        return foodFlavor.flavor.in(flavors);
     }
 
     public BooleanExpression containFlavors(List<Flavor> flavors) {
