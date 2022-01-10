@@ -50,4 +50,8 @@ public class Bookmark extends BaseEntity {
 
         this.food = food;
     }
+
+    public boolean isSameUser(Long userId) {
+        return user.getId().equals(userId);
+    }
 }

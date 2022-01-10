@@ -58,6 +58,6 @@ public class Favorites {
 
     public boolean isAlreadyFavorite(Long userId) {
         return favorites.stream()
-                .anyMatch(favorite -> favorite.getUser().getId().equals(userId));
+                .anyMatch(favorite -> favorite.isSameUser(userId));
     }
 }
