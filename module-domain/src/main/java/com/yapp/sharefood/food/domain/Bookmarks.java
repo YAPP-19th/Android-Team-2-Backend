@@ -59,6 +59,6 @@ public class Bookmarks {
 
     public boolean isAlreadyBookmark(Long userId) {
         return bookmarks.stream()
-                .anyMatch(bookmark -> bookmark.getUser().getId().equals(userId));
+                .anyMatch(bookmark -> bookmark.isSameUser(userId));
     }
 }

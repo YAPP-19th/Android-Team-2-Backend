@@ -26,13 +26,16 @@ public class FoodPageDto {
     private List<FoodImageDto> foodimages;
 
     @Builder
-    public FoodPageDto(Long id, String foodTitle, String categoryName, int price, boolean isMeBookmark, boolean isMeLike, long numberOfLikes, List<FoodImageDto> foodImages) {
+    public FoodPageDto(Long id, String foodTitle, String categoryName, int price,
+                       boolean isMeBookmark, boolean isMeLike, boolean isMeFavorite,
+                       long numberOfLikes, List<FoodImageDto> foodImages) {
         this.id = id;
         this.foodTitle = foodTitle;
         this.categoryName = categoryName;
         this.price = price;
-        this.isMeBookmark = isMeBookmark;
         this.isMeLike = isMeLike;
+        this.isMeBookmark = isMeBookmark;
+        this.isMeFavorite = isMeFavorite;
         this.numberOfLikes = numberOfLikes;
         this.foodimages = foodImages;
     }
@@ -44,8 +47,9 @@ public class FoodPageDto {
                 .categoryName(food.getCategory().getName())
                 .price(food.getPrice())
                 .numberOfLikes(food.getNumberOfLikes())
-                .numberOfLikes(food.getNumberOfLikes())
                 .isMeBookmark(food.isMeBookMark(user))
+                .isMeFavorite(food.isMeFavorite(user))
+                .isMeLike(food.isMeLike(user))
                 .foodImages(FoodImageDto.toList(food.getImages().getImages()))
                 .build();
     }
