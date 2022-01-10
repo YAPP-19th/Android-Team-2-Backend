@@ -50,4 +50,8 @@ public class Favorite extends BaseEntity {
         this.food = food;
         this.food.getFavorites().getFavorites().add(this);
     }
+
+    public boolean isSameUser(Long userId) {
+        return user.getId().equals(userId);
+    }
 }

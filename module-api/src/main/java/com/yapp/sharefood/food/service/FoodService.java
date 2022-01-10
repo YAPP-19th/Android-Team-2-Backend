@@ -298,6 +298,7 @@ public class FoodService {
                 .size(foodMinePageSearchRequest.getPageSize())
                 .status(foodMinePageSearchRequest.getStatus())
                 .searchTime(foodMinePageSearchRequest.getFirstSearchTime())
+                .isFlavorSearchExist(!foodMinePageSearchRequest.getFlavors().isEmpty())
                 .build();
 
         if (foodMinePageSearchRequest.getMineFoodType() == MineFoodType.MYFOOD) {

@@ -61,6 +61,6 @@ public class Likes {
 
     public boolean isAlreadyLike(Long userId) {
         return likes.stream()
-                .anyMatch(like -> like.getUser().getId().equals(userId));
+                .anyMatch(like -> like.isSameUser(userId));
     }
 }

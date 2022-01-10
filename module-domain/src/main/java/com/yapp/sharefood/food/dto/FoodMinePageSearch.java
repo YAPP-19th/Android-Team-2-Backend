@@ -30,8 +30,10 @@ public class FoodMinePageSearch {
 
     private final LocalDateTime searchTime;
 
+    private final boolean isFlavorSearchExist;
+
     @Builder
-    public FoodMinePageSearch(Integer minPrice, Integer maxPrice, List<Flavor> flavors, SortType sort, OrderType order, FoodStatus status,
+    public FoodMinePageSearch(Integer minPrice, Integer maxPrice, List<Flavor> flavors, SortType sort, OrderType order, FoodStatus status, boolean isFlavorSearchExist,
                               List<Category> categories, Long offset, Integer size, LocalDateTime searchTime) {
         this.minPrice = minPrice;
         this.maxPrice = maxPrice;
@@ -43,5 +45,6 @@ public class FoodMinePageSearch {
         this.offset = offset;
         this.size = size;
         this.searchTime = searchTime;
+        this.isFlavorSearchExist = isFlavorSearchExist;
     }
 }

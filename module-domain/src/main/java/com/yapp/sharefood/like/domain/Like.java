@@ -55,5 +55,9 @@ public class Like extends BaseEntity {
         food.getLikes().getLikes().add(this);
         food.addNumberOfLike();
     }
+
+    public boolean isSameUser(Long userId) {
+        return user.getId().equals(userId);
+    }
 }
 
