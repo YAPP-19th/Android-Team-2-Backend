@@ -13,6 +13,6 @@ public interface FoodRepository extends JpaRepository<Food, Long>, FoodQueryRepo
     @Query("SELECT f FROM Food f WHERE f.id = :foodId AND f.writer = :writer")
     Optional<Food> findByIdWithUser(@Param("foodId") Long foodId, @Param("writer") User user);
 
-    @Query("SELECT f FROM Food f JOIN FETCH f.category JOIN FETCH f.writer WHERE f.id = :foodId")
+    @Query("SELECT f FROM Food f JOIN FETCH f.category LEFT JOIN f.writer WHERE f.id = :foodId")
     Optional<Food> findFoodWithWriterAndCategoryById(@Param("foodId") Long foodId);
 }
