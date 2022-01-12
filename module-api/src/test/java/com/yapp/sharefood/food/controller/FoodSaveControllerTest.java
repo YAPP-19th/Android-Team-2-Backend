@@ -16,8 +16,8 @@ import com.yapp.sharefood.food.dto.request.FoodCreationRequest;
 import com.yapp.sharefood.food.dto.request.FoodUpdateRequest;
 import com.yapp.sharefood.food.dto.response.FoodDetailResponse;
 import com.yapp.sharefood.food.dto.response.FoodImageCreateResponse;
+import com.yapp.sharefood.food.facade.FoodSaveFacade;
 import com.yapp.sharefood.food.service.FoodImageService;
-import com.yapp.sharefood.food.service.FoodService;
 import com.yapp.sharefood.tag.service.TagService;
 import com.yapp.sharefood.user.domain.User;
 import org.junit.jupiter.api.DisplayName;
@@ -52,7 +52,7 @@ class FoodSaveControllerTest extends PreprocessController {
     MockMvc mockMvc;
 
     @MockBean
-    FoodService foodService;
+    FoodSaveFacade foodSaveFacade;
     @MockBean
     TagService tagService;
     @MockBean
@@ -64,7 +64,7 @@ class FoodSaveControllerTest extends PreprocessController {
     void saveFood_Success() throws Exception {
         // given
         willReturn(1L)
-                .given(foodService).saveFood(any(User.class), any(FoodCreationRequest.class), anyList());
+                .given(foodSaveFacade).saveFoodFacade(any(User.class), any(FoodCreationRequest.class));
 
         FoodCreationRequest foodCreationRequest = FoodCreationRequest.builder()
                 .categoryName("샌드위치")
@@ -97,7 +97,7 @@ class FoodSaveControllerTest extends PreprocessController {
     void saveMineFood_Success() throws Exception {
         // given
         willReturn(1L)
-                .given(foodService).saveFood(any(User.class), any(FoodCreationRequest.class), anyList());
+                .given(foodSaveFacade).saveFoodFacade(any(User.class), any(FoodCreationRequest.class));
 
         FoodCreationRequest foodCreationRequest = FoodCreationRequest.builder()
                 .categoryName("샌드위치")
@@ -130,7 +130,7 @@ class FoodSaveControllerTest extends PreprocessController {
     void saveFood_CategoryNotFound_Exception() throws Exception {
         // given
         willThrow(new CategoryNotFoundException())
-                .given(foodService).saveFood(any(User.class), any(FoodCreationRequest.class), anyList());
+                .given(foodSaveFacade).saveFoodFacade(any(User.class), any(FoodCreationRequest.class));
 
         FoodCreationRequest foodCreationRequest = FoodCreationRequest.builder()
                 .categoryName("notExistCategory")
@@ -164,7 +164,7 @@ class FoodSaveControllerTest extends PreprocessController {
     @DisplayName("tag 정보 중복으로 추가할 경우")
     void saveFood_DuplicatedTags_Exception() throws Exception {
         willThrow(new InvalidOperationException("이미 등록된 tag입니다."))
-                .given(foodService).saveFood(any(User.class), any(FoodCreationRequest.class), anyList());
+                .given(foodSaveFacade).saveFoodFacade(any(User.class), any(FoodCreationRequest.class));
 
         FoodCreationRequest foodCreationRequest = FoodCreationRequest.builder()
                 .categoryName("샌드위치")
@@ -198,7 +198,7 @@ class FoodSaveControllerTest extends PreprocessController {
     @DisplayName("중복 flavor 입력시 에러")
     void saveFood_DuplicatedFlavor_Exception() throws Exception {
         willThrow(new InvalidOperationException("이미 등록된 flavor입니다."))
-                .given(foodService).saveFood(any(User.class), any(FoodCreationRequest.class), anyList());
+                .given(foodSaveFacade).saveFoodFacade(any(User.class), any(FoodCreationRequest.class));
 
         FoodCreationRequest foodCreationRequest = FoodCreationRequest.builder()
                 .categoryName("샌드위치")
@@ -232,7 +232,7 @@ class FoodSaveControllerTest extends PreprocessController {
     @DisplayName("Main을 추가 할지 않는 경우 - 실패")
     void foodSaveTest_MainNotExist_Exception() throws Exception {
         willThrow(new BadRequestException())
-                .given(foodService).saveFood(any(User.class), any(FoodCreationRequest.class), anyList());
+                .given(foodSaveFacade).saveFoodFacade(any(User.class), any(FoodCreationRequest.class));
 
         FoodCreationRequest foodCreationRequest = FoodCreationRequest.builder()
                 .categoryName("샌드위치")
@@ -368,7 +368,7 @@ class FoodSaveControllerTest extends PreprocessController {
                 .build();
 
         willReturn(foodDetailResponse)
-                .given(foodService).updateFood(any(User.class), anyLong(), anyList(), any(FoodUpdateRequest.class));
+                .given(foodSaveFacade).updateFoodFacade(any(User.class), anyLong(), any(FoodUpdateRequest.class));
         FoodUpdateRequest foodCreationRequest = FoodUpdateRequest.builder()
                 .categoryName("커피")
                 .title("title1")
