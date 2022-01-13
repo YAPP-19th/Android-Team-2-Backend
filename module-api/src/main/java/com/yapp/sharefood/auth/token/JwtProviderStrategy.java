@@ -6,11 +6,13 @@ import com.yapp.sharefood.user.domain.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 
 import java.util.Date;
 import java.util.function.Function;
 
+@Slf4j
 public class JwtProviderStrategy implements TokenProvider {
     @Value("${jwt.token.secret.key}")
     private String tokenSecretKey;
@@ -24,6 +26,7 @@ public class JwtProviderStrategy implements TokenProvider {
                 .setSubject(String.valueOf(user.getId()));
         Date now = new Date();
         Date expireDate = new Date(now.getTime() + expireTime);
+        log.info("now date: {}, token expire date: {}", now, expireDate);
 
         return Jwts.builder()
                 .setClaims(claims)
@@ -62,7 +65,9 @@ public class JwtProviderStrategy implements TokenProvider {
     @Override
     public boolean isValidToken(String token) {
         Date expireDate = getClaimFromToken(token, Claims::getExpiration);
-        if (expireDate.before(new Date())) {
+        Date now = new Date();
+        log.info("check validate token date now: {}, expire date: {}", now, expireDate);
+        if (expireDate.before(now)) {
             throw new TokenExpireExcetion();
         }
 

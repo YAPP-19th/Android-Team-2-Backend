@@ -2,7 +2,7 @@ package com.yapp.sharefood.external.kakao;
 
 import com.yapp.sharefood.external.oauth.OAuthProfile;
 import com.yapp.sharefood.external.exception.BadGatewayException;
-import com.yapp.sharefood.external.oauth.kakao.KakaoAuthProvider;
+import com.yapp.sharefood.external.oauth.kakao.KakaoAuthStrategy;
 import com.yapp.sharefood.external.oauth.kakao.KakaoOAuthComponent;
 import io.netty.handler.timeout.ReadTimeoutException;
 import okhttp3.mockwebserver.MockResponse;
@@ -25,11 +25,11 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.BDDMockito.willReturn;
 
 @SpringBootTest
-class KakaoAuthProviderTest {
+class KakaoAuthStrategyTest {
     private MockWebServer mockWebServer;
 
     @Autowired
-    KakaoAuthProvider kakaoAuthProvider;
+    KakaoAuthStrategy kakaoAuthProvider;
     @MockBean
     KakaoOAuthComponent kakaoOAuthComponent;
 
