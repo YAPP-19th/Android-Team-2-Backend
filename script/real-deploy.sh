@@ -1,5 +1,5 @@
 BUILD_JAR=$(ls /root/shared-food/shared-food/*.jar)
-echo "> buil real path: $BUILD_JAR" >>/root/shared-food/deploy.log
+echo "> build real path: $BUILD_JAR" >>/root/shared-food/deploy.log
 JAR_NAME=$(basename $BUILD_JAR)
 echo "> build 파일명: $JAR_NAME" >>/root/shared-food/deploy.log
 
@@ -18,3 +18,4 @@ DEPLOY_JAR=$DEPLOY_PATH$JAR_NAME
 echo "> DEPLOY_JAR 배포" >>/root/shared-food/deploy.log
 
 nohup java -jar $DEPLOY_JAR --spring.profiles.active=prod 2>&1 &
+echo "> 배포 성공" >>/root/shared-food/deploy.log
