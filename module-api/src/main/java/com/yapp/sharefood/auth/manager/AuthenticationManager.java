@@ -1,6 +1,6 @@
 package com.yapp.sharefood.auth.manager;
 
-import com.yapp.sharefood.external.oauth.AuthProvider;
+import com.yapp.sharefood.external.oauth.AuthStrategy;
 import com.yapp.sharefood.external.oauth.OAuthProfile;
 import com.yapp.sharefood.user.domain.OAuthType;
 import lombok.RequiredArgsConstructor;
@@ -15,16 +15,16 @@ import java.util.Objects;
 @Component
 @RequiredArgsConstructor
 public class AuthenticationManager {
-    private final Map<String, AuthProvider> authProviderMap;
+    private final Map<String, AuthStrategy> authStrategyMap;
 
     public OAuthProfile requestOAuthUserInfo(OAuthType type, String accessToken) {
-        AuthProvider authProvider = extractProviderByType(type);
-        return authProvider.getOAuthProfileInfo(accessToken);
+        AuthStrategy authStrategy = extractProviderByType(type);
+        return authStrategy.getOAuthProfileInfo(accessToken);
     }
 
-    private AuthProvider extractProviderByType(OAuthType type) {
+    private AuthStrategy extractProviderByType(OAuthType type) {
         validateOAuthType(type);
-        return authProviderMap.get(type.getOAuthProviderName());
+        return authStrategyMap.get(type.getOAuthProviderName());
     }
 
     private void validateOAuthType(OAuthType type) {
@@ -33,7 +33,7 @@ public class AuthenticationManager {
             throw new InvalidParameterException("현재 제공되지 않는 OAuth 형태를 요청하였습니다.");
         }
         String providerName = type.getOAuthProviderName();
-        if (!authProviderMap.containsKey(providerName)) {
+        if (!authStrategyMap.containsKey(providerName)) {
             log.info("OAuth Provider와 bean과의 이름이 일치 하지 않습니다. input type : {}", providerName);
             throw new InvalidParameterException(String.format("해당 OAuth는 사용자에게 제공되지 않습니다 input : %s", providerName));
         }

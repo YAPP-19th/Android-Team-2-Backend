@@ -7,7 +7,7 @@ import java.util.Arrays;
 
 @Getter
 public enum OAuthType {
-    KAKAO("kakaoAuthProvider");
+    KAKAO("kakaoAuthStrategy");
 
     private final String oAuthProviderName;
 
