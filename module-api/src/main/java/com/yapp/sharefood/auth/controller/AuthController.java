@@ -24,7 +24,7 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/api/v1/auth")
-    public ResponseEntity<Void> authenticate(@RequestBody @Valid AuthRequestDto authRequestDto, HttpServletResponse response) {
+    public ResponseEntity<Void> authenticateLegacy(@RequestBody @Valid AuthRequestDto authRequestDto, HttpServletResponse response) {
         OAuthDto oauthDto = authService.authenticate(authRequestDto);
         AuthUtils.setTokenInHeader(response, oauthDto.getToken());
 
@@ -32,6 +32,28 @@ public class AuthController {
     }
 
     @PostMapping("/api/v1/auth/creation")
+    public ResponseEntity<URI> signUpLegacy(@RequestBody @Valid AuthCreationRequestDto creationRequestDto, HttpServletResponse response) {
+        OAuthDto oauthDto = authService.signUp(creationRequestDto);
+        AuthUtils.setTokenInHeader(response, oauthDto.getToken());
+
+        URI userCreateUri = ServletUriComponentsBuilder
+                .fromCurrentServletMapping()
+                .path("/api/v1/users/{id}")
+                .buildAndExpand(oauthDto.getUserId())
+                .toUri();
+
+        return ResponseEntity.created(userCreateUri).build();
+    }
+
+    @PostMapping("/api/v1/users/auth")
+    public ResponseEntity<Void> authenticate(@RequestBody @Valid AuthRequestDto authRequestDto, HttpServletResponse response) {
+        OAuthDto oauthDto = authService.authenticate(authRequestDto);
+        AuthUtils.setTokenInHeader(response, oauthDto.getToken());
+
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/api/v1/users")
     public ResponseEntity<URI> signUp(@RequestBody @Valid AuthCreationRequestDto creationRequestDto, HttpServletResponse response) {
         OAuthDto oauthDto = authService.signUp(creationRequestDto);
         AuthUtils.setTokenInHeader(response, oauthDto.getToken());
