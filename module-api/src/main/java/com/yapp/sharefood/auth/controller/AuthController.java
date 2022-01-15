@@ -3,8 +3,10 @@ package com.yapp.sharefood.auth.controller;
 import com.yapp.sharefood.auth.dto.OAuthDto;
 import com.yapp.sharefood.auth.dto.request.AuthCreationRequestDto;
 import com.yapp.sharefood.auth.dto.request.AuthRequestDto;
+import com.yapp.sharefood.auth.resolver.AuthUser;
 import com.yapp.sharefood.auth.service.AuthService;
 import com.yapp.sharefood.auth.utils.AuthUtils;
+import com.yapp.sharefood.user.domain.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -41,5 +43,11 @@ public class AuthController {
                 .toUri();
 
         return ResponseEntity.created(userCreateUri).build();
+    }
+
+    @PostMapping("/api/v1/auth/token")
+    public ResponseEntity<Void> refreshToken(@AuthUser User user, HttpServletResponse response) {
+        AuthUtils.setTokenInHeader(response, authService.refreshToken(user));
+        return ResponseEntity.ok().build();
     }
 }
