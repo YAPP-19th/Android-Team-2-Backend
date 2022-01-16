@@ -169,7 +169,7 @@ class AuthControllerTest extends DocumentTest {
         // when
         AuthCreationRequestDto authCreationRequestDto = new AuthCreationRequestDto(OAuthType.KAKAO, "kkh", "accessToken");
         String requestBodyStr = objectMapper.writeValueAsString(authCreationRequestDto);
-        ResultActions perform = mockMvc.perform(post("/api/v1/users")
+        ResultActions perform = mockMvc.perform(post("/api/v1/users/creation")
                 .content(requestBodyStr)
                 .contentType(MediaType.APPLICATION_JSON));
 
@@ -197,7 +197,7 @@ class AuthControllerTest extends DocumentTest {
         // when
         AuthCreationRequestDto authCreationRequestDto = new AuthCreationRequestDto(OAuthType.KAKAO, "kkh", "accessToken");
         String requestBodyStr = objectMapper.writeValueAsString(authCreationRequestDto);
-        ResultActions perform = mockMvc.perform(post("/api/v1/users")
+        ResultActions perform = mockMvc.perform(post("/api/v1/users/creation")
                 .content(requestBodyStr)
                 .contentType(MediaType.APPLICATION_JSON));
 

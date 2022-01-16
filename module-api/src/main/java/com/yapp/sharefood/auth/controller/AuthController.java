@@ -53,7 +53,7 @@ public class AuthController {
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping("/api/v1/users")
+    @PostMapping("/api/v1/users/creation")
     public ResponseEntity<URI> signUp(@RequestBody @Valid AuthCreationRequestDto creationRequestDto, HttpServletResponse response) {
         OAuthDto oauthDto = authService.signUp(creationRequestDto);
         AuthUtils.setTokenInHeader(response, oauthDto.getToken());
@@ -67,7 +67,7 @@ public class AuthController {
         return ResponseEntity.created(userCreateUri).build();
     }
 
-    @PostMapping("/api/v1/auth/token")
+    @PostMapping("/api/v1/users/auth/token")
     public ResponseEntity<Void> refreshToken(@AuthUser User user, HttpServletResponse response) {
         AuthUtils.setTokenInHeader(response, authService.refreshToken(user));
         return ResponseEntity.ok().build();
