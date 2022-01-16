@@ -1,7 +1,7 @@
 package com.yapp.sharefood.auth.manager;
 
 import com.yapp.sharefood.external.oauth.OAuthProfile;
-import com.yapp.sharefood.external.oauth.kakao.KakaoAuthProvider;
+import com.yapp.sharefood.external.oauth.kakao.KakaoAuthStrategy;
 import com.yapp.sharefood.external.oauth.kakao.dto.KakaoOAuthProfile;
 import com.yapp.sharefood.user.domain.OAuthType;
 import org.junit.jupiter.api.DisplayName;
@@ -21,7 +21,7 @@ import static org.mockito.BDDMockito.willReturn;
 @SpringBootTest
 class AuthenticationManagerTest {
     @MockBean
-    KakaoAuthProvider kakaoAuthProvider;
+    KakaoAuthStrategy kakaoAuthProvider;
 
     @Autowired
     AuthenticationManager authenticationManager;

@@ -1,6 +1,6 @@
 package com.yapp.sharefood.external.oauth.kakao;
 
-import com.yapp.sharefood.external.oauth.AuthProvider;
+import com.yapp.sharefood.external.oauth.AuthStrategy;
 import com.yapp.sharefood.external.oauth.OAuthProfile;
 import com.yapp.sharefood.external.exception.BadGatewayException;
 import com.yapp.sharefood.external.oauth.kakao.dto.KakaoOAuthProfile;
@@ -12,7 +12,7 @@ import reactor.core.publisher.Mono;
 
 @Component
 @RequiredArgsConstructor
-public class KakaoAuthProvider implements AuthProvider {
+public class KakaoAuthStrategy implements AuthStrategy {
     private final WebClient webClient;
     private final KakaoOAuthComponent kakaoOAuthComponent;
 

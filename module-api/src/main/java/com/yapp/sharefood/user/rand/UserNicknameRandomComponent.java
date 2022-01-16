@@ -5,7 +5,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class UserNicknameRandomComponent {
-    private static final int MAX_NICKNAME_SIZE = 15;
+    private static final int MAX_NICKNAME_SIZE = 10;
 
     public String createRandomUserNickname() {
         return RandomStringCreator.createRandomUUIDStr().substring(0, MAX_NICKNAME_SIZE);

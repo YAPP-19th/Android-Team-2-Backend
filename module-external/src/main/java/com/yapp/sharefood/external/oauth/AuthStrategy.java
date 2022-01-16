@@ -1,5 +1,5 @@
 package com.yapp.sharefood.external.oauth;
 
-public interface AuthProvider {
+public interface AuthStrategy {
     OAuthProfile getOAuthProfileInfo(String accessToken);
 }
