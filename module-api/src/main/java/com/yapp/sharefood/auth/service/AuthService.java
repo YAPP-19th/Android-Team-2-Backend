@@ -55,4 +55,8 @@ public class AuthService {
 
         return OAuthDto.of(saveUser.getId(), token, creationRequestDto.getOauthType());
     }
+
+    public String refreshToken(User user) {
+        return tokenProvider.createToken(user);
+    }
 }
