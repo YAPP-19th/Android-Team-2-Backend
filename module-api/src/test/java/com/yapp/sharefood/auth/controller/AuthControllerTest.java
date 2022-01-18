@@ -9,25 +9,29 @@ import com.yapp.sharefood.auth.token.TokenProvider;
 import com.yapp.sharefood.common.DocumentTest;
 import com.yapp.sharefood.external.exception.BadGatewayException;
 import com.yapp.sharefood.oauth.exception.OAUthExistException;
+import com.yapp.sharefood.oauth.exception.TokenExpireExcetion;
 import com.yapp.sharefood.oauth.exception.UserNotFoundException;
 import com.yapp.sharefood.user.domain.OAuthType;
+import com.yapp.sharefood.user.domain.User;
 import com.yapp.sharefood.user.repository.UserRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidParameterException;
+import java.util.Optional;
 
 import static com.yapp.sharefood.common.documentation.DocumentationUtils.documentIdentify;
 import static com.yapp.sharefood.oauth.exception.UserNotFoundException.USER_NOT_FOUND_EXCEPTION_MSG;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.willReturn;
 import static org.mockito.BDDMockito.willThrow;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -213,5 +217,95 @@ class AuthControllerTest extends DocumentTest {
                 .isNotNull()
                 .isNotEmpty()
                 .isEqualTo("존재하는 사용자 입니다.");
+    }
+
+    @Test
+    @DisplayName("토큰 최신화 - 성공")
+    void refreshToken_Success() throws Exception {
+        // given
+        User user = User.builder()
+                .id(1L)
+                .nickname("nickname")
+                .oauthId("oauth_id")
+                .oAuthType(OAuthType.KAKAO)
+                .name("name")
+                .build();
+
+        willReturn(true)
+                .given(tokenProvider).isValidToken(anyString());
+        willReturn(1L)
+                .given(tokenProvider).extractIdByToken(anyString());
+        willReturn(Optional.of(user))
+                .given(userRepository).findById(anyLong());
+        willReturn("refreshToken")
+                .given(authService).refreshToken(any(User.class));
+
+        // when
+        ResultActions perform = mockMvc.perform(post("/api/v1/users/auth/token")
+                .header(HttpHeaders.AUTHORIZATION, "token"));
+
+        // then
+        perform.andExpect(status().isOk())
+                .andExpect(header().exists("Authorization"))
+                .andDo(documentIdentify("refresh-token/post/success"))
+                .andReturn()
+                .getResponse()
+                .getContentAsString(StandardCharsets.UTF_8);
+    }
+
+    @Test
+    @DisplayName("토큰 최신화 실패 기간이 지난 token - 실패 401")
+    void refreshToken_Fail_401InvalidToken() throws Exception {
+        // given
+        User user = User.builder()
+                .id(1L)
+                .nickname("nickname")
+                .oauthId("oauth_id")
+                .oAuthType(OAuthType.KAKAO)
+                .name("name")
+                .build();
+
+        willThrow(TokenExpireExcetion.class)
+                .given(tokenProvider).isValidToken(anyString());
+        willReturn(1L)
+                .given(tokenProvider).extractIdByToken(anyString());
+        willReturn(Optional.of(user))
+                .given(userRepository).findById(anyLong());
+
+        // when
+        ResultActions perform = mockMvc.perform(post("/api/v1/users/auth/token")
+                .header(HttpHeaders.AUTHORIZATION, "token"));
+
+        // then
+        perform.andExpect(status().isUnauthorized())
+                .andExpect(header().doesNotExist("Authorization"))
+                .andDo(documentIdentify("refresh-token/post/fail/unauth"))
+                .andReturn()
+                .getResponse()
+                .getContentAsString(StandardCharsets.UTF_8);
+    }
+
+    @Test
+    @DisplayName("토큰 최신화 실패 탈퇴한 회원 token - 실패 404")
+    void refreshToken_Fail_404UserNotFound() throws Exception {
+        // given
+        willReturn(true)
+                .given(tokenProvider).isValidToken(anyString());
+        willReturn(1L)
+                .given(tokenProvider).extractIdByToken(anyString());
+        willThrow(UserNotFoundException.class)
+                .given(userRepository).findById(anyLong());
+
+        // when
+        ResultActions perform = mockMvc.perform(post("/api/v1/users/auth/token")
+                .header(HttpHeaders.AUTHORIZATION, "token"));
+
+        // then
+        perform.andExpect(status().isNotFound())
+                .andExpect(header().doesNotExist("Authorization"))
+                .andDo(documentIdentify("refresh-token/post/fail/unauth"))
+                .andReturn()
+                .getResponse()
+                .getContentAsString(StandardCharsets.UTF_8);
     }
 }
