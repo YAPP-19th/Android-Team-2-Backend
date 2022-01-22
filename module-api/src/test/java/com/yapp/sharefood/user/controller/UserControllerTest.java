@@ -40,7 +40,7 @@ import static org.mockito.BDDMockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-class UserControllerProcess extends PreprocessController {
+class UserControllerTest extends PreprocessController {
 
     @BeforeEach
     void setUp() {
@@ -64,7 +64,7 @@ class UserControllerProcess extends PreprocessController {
                         .andDo(documentIdentify("user-nickname/get/success"))
                         .andReturn()
                         .getResponse()
-                        .getContentAsString(StandardCharsets.UTF_8), new TypeReference<UserNicknameResponse>() {
+                        .getContentAsString(StandardCharsets.UTF_8), new TypeReference<>() {
                 }
         );
 
@@ -167,7 +167,7 @@ class UserControllerProcess extends PreprocessController {
                 .andDo(documentIdentify("user-nickname/patch/success"))
                 .andReturn()
                 .getResponse()
-                .getContentAsString(StandardCharsets.UTF_8), new TypeReference<UserNicknameResponse>() {
+                .getContentAsString(StandardCharsets.UTF_8), new TypeReference<>() {
         });
 
         assertEquals("newNickname", response.getNickname());
@@ -335,7 +335,7 @@ class UserControllerProcess extends PreprocessController {
                 .andDo(documentIdentify("user-other/get/success"))
                 .andReturn()
                 .getResponse()
-                .getContentAsString(StandardCharsets.UTF_8), new TypeReference<OtherUserInfoResponse>() {
+                .getContentAsString(StandardCharsets.UTF_8), new TypeReference<>() {
         });
 
         assertNotEquals(100L, loginUserId);

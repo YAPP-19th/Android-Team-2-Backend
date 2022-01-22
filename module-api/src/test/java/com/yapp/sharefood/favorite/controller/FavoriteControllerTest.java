@@ -1,21 +1,17 @@
 package com.yapp.sharefood.favorite.controller;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yapp.sharefood.common.controller.PreprocessController;
 import com.yapp.sharefood.favorite.dto.FavoriteFoodDto;
 import com.yapp.sharefood.favorite.dto.request.FavoriteCreationRequest;
 import com.yapp.sharefood.favorite.dto.response.FavoriteFoodResponse;
 import com.yapp.sharefood.favorite.exception.TooManyFavoriteException;
-import com.yapp.sharefood.favorite.service.FavoriteService;
 import com.yapp.sharefood.food.exception.FoodNotFoundException;
 import com.yapp.sharefood.oauth.exception.UserNotFoundException;
 import com.yapp.sharefood.user.domain.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.RequestBuilder;
@@ -35,7 +31,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 
-class FavoriteControllerProcess extends PreprocessController {
+class FavoriteControllerTest extends PreprocessController {
 
     @BeforeEach
     void setUp() {

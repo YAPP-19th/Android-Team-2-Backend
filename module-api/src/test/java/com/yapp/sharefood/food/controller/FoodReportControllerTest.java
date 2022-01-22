@@ -24,7 +24,7 @@ import static org.mockito.BDDMockito.willThrow;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-class FoodReportControllerProcess extends PreprocessController {
+class FoodReportControllerTest extends PreprocessController {
     @BeforeEach
     void setUp() {
         loginMockSetup();

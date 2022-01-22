@@ -22,7 +22,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-class LikeControllerProcess extends PreprocessController {
+class LikeControllerTest extends PreprocessController {
 
     @BeforeEach
     void setUp() {

@@ -20,7 +20,7 @@ import static org.mockito.BDDMockito.willReturn;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-class CategoryControllerProcess extends PreprocessController {
+class CategoryControllerTest extends PreprocessController {
 
     @BeforeEach
     void setUp() {

@@ -30,7 +30,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-class AuthControllerProcess extends PreprocessController {
+class AuthControllerTest extends PreprocessController {
 
     @Test
     @DisplayName("회원 인증성공")

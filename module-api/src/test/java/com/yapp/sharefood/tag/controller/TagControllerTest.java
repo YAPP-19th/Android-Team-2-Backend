@@ -24,7 +24,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @DisplayName("tag controller 기능")
-class TagControllerProcess extends PreprocessController {
+class TagControllerTest extends PreprocessController {
 
     @BeforeEach
     void setUp() {
