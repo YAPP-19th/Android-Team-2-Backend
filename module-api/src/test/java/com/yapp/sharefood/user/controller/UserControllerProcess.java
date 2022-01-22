@@ -1,8 +1,7 @@
 package com.yapp.sharefood.user.controller;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.yapp.sharefood.common.PreprocessController;
+import com.yapp.sharefood.common.controller.PreprocessController;
 import com.yapp.sharefood.oauth.exception.UserNotFoundException;
 import com.yapp.sharefood.report.exception.ReportNotDefineException;
 import com.yapp.sharefood.user.domain.Grade;
@@ -17,14 +16,12 @@ import com.yapp.sharefood.user.dto.response.MyUserInfoResponse;
 import com.yapp.sharefood.user.dto.response.OtherUserInfoResponse;
 import com.yapp.sharefood.user.dto.response.UserNicknameResponse;
 import com.yapp.sharefood.user.exception.UserNicknameExistException;
-import com.yapp.sharefood.user.service.UserService;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.RequestBuilder;
@@ -33,7 +30,7 @@ import org.springframework.test.web.servlet.ResultActions;
 import java.nio.charset.StandardCharsets;
 import java.util.stream.Stream;
 
-import static com.yapp.sharefood.common.documentation.DocumentationUtils.documentIdentify;
+import static com.yapp.sharefood.common.controller.documentation.DocumentationUtils.documentIdentify;
 import static com.yapp.sharefood.oauth.exception.UserNotFoundException.USER_NOT_FOUND_EXCEPTION_MSG;
 import static com.yapp.sharefood.user.exception.UserNicknameExistException.NICKNAME_EXIST_EXCEPTION_MSG;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -43,13 +40,12 @@ import static org.mockito.BDDMockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest(controllers = UserController.class)
-class UserControllerTest extends PreprocessController {
+class UserControllerProcess extends PreprocessController {
 
-    @MockBean
-    UserService userService;
-
-    ObjectMapper objectMapper = new ObjectMapper();
+    @BeforeEach
+    void setUp() {
+        loginMockSetup();
+    }
 
     @Test
     @DisplayName("유니크한 nickname 반환 api 테스트")
@@ -342,7 +338,7 @@ class UserControllerTest extends PreprocessController {
                 .getContentAsString(StandardCharsets.UTF_8), new TypeReference<OtherUserInfoResponse>() {
         });
 
-        assertNotEquals(100L, authUserId);
+        assertNotEquals(100L, loginUserId);
         assertEquals(100L, response.getUserInfo().getId());
         assertEquals("othreNickname", response.getUserInfo().getNickname());
     }

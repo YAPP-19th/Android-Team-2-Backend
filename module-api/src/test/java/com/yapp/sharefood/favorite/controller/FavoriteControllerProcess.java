@@ -2,7 +2,7 @@ package com.yapp.sharefood.favorite.controller;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.yapp.sharefood.common.PreprocessController;
+import com.yapp.sharefood.common.controller.PreprocessController;
 import com.yapp.sharefood.favorite.dto.FavoriteFoodDto;
 import com.yapp.sharefood.favorite.dto.request.FavoriteCreationRequest;
 import com.yapp.sharefood.favorite.dto.response.FavoriteFoodResponse;
@@ -11,6 +11,7 @@ import com.yapp.sharefood.favorite.service.FavoriteService;
 import com.yapp.sharefood.food.exception.FoodNotFoundException;
 import com.yapp.sharefood.oauth.exception.UserNotFoundException;
 import com.yapp.sharefood.user.domain.User;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -24,7 +25,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
 
-import static com.yapp.sharefood.common.documentation.DocumentationUtils.documentIdentify;
+import static com.yapp.sharefood.common.controller.documentation.DocumentationUtils.documentIdentify;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.ArgumentMatchers.*;
@@ -34,12 +35,12 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 
-@WebMvcTest(controllers = FavoriteController.class)
-class FavoriteControllerTest extends PreprocessController {
-    @MockBean
-    FavoriteService favoriteService;
+class FavoriteControllerProcess extends PreprocessController {
 
-    ObjectMapper objectMapper = new ObjectMapper();
+    @BeforeEach
+    void setUp() {
+        loginMockSetup();
+    }
 
     @Test
     @DisplayName("최애 생성 - 성공")
