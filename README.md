@@ -1,6 +1,9 @@
-# 새로운 맛을 연구하는 당신을 위한 어플, 냠냠박사😋 [[Watching App]](https://play.google.com/store/apps/details?id=com.doctor.yumyum)
+# 새로운 맛을 연구하는 당신을 위한 어플, 냠냠박사😋
 
 [![Build Status](https://app.travis-ci.com/YAPP-19th/Android-Team-2-Backend.svg?branch=main)](https://app.travis-ci.com/YAPP-19th/Android-Team-2-Backend)
+![license](https://img.shields.io/github/license/YAPP-19th/Android-Team-2-Backend)
+![version](https://img.shields.io/github/v/release/YAPP-19th/Android-Team-2-Backend)
+[![Google Play](https://img.shields.io/badge/Play%20Store-gray?style=flat&logo=GooglePlay)](https://play.google.com/store/apps/details?id=com.doctor.yumyum)
 
 브랜드 커스텀 메뉴 레시피 저장, 공유 어플리케이션
 
@@ -32,11 +35,10 @@
 
 ---
 
-# Backend Tech Stack
+## Backend Tech Stack
 
 ### Language
 - Java 11
-
 
 ### Framework
 - Spring Framework (Spring Boot 2.x)
