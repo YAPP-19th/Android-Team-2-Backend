@@ -1,24 +1,19 @@
 package com.yapp.sharefood.like.controller;
 
-import com.yapp.sharefood.common.PreprocessController;
+import com.yapp.sharefood.common.controller.PreprocessController;
 import com.yapp.sharefood.common.exception.ForbiddenException;
 import com.yapp.sharefood.common.exception.InvalidOperationException;
-import com.yapp.sharefood.config.lock.UserLevelLock;
 import com.yapp.sharefood.food.exception.FoodNotFoundException;
-import com.yapp.sharefood.like.service.LikeService;
 import com.yapp.sharefood.user.domain.User;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpHeaders;
-import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
 import java.nio.charset.StandardCharsets;
 
-import static com.yapp.sharefood.common.documentation.DocumentationUtils.documentIdentify;
+import static com.yapp.sharefood.common.controller.documentation.DocumentationUtils.documentIdentify;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.*;
@@ -27,15 +22,12 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest(controllers = LikeController.class)
 class LikeControllerTest extends PreprocessController {
-    @Autowired
-    MockMvc mockMvc;
 
-    @MockBean
-    LikeService likeService;
-    @MockBean
-    UserLevelLock userlevelLock;
+    @BeforeEach
+    void setUp() {
+        loginMockSetup();
+    }
 
     @Test
     @DisplayName("게시글에 좋아요를 누른 경우")

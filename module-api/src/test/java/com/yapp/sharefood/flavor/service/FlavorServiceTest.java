@@ -1,10 +1,10 @@
 package com.yapp.sharefood.flavor.service;
 
+import com.yapp.sharefood.common.service.IntegrationService;
 import com.yapp.sharefood.flavor.domain.Flavor;
 import com.yapp.sharefood.flavor.domain.FlavorType;
 import com.yapp.sharefood.flavor.dto.request.UserFlavorRequest;
 import com.yapp.sharefood.flavor.dto.response.FlavorsResponse;
-import com.yapp.sharefood.flavor.dto.response.UpdateUserFlavorResponse;
 import com.yapp.sharefood.flavor.exception.FlavorNotFoundException;
 import com.yapp.sharefood.flavor.repository.FlavorRepository;
 import com.yapp.sharefood.oauth.exception.UserNotFoundException;
@@ -16,7 +16,6 @@ import com.yapp.sharefood.userflavor.repository.UserFlavorRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -27,8 +26,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @Transactional
-@SpringBootTest
-class FlavorServiceTest {
+class FlavorServiceTest extends IntegrationService {
 
     @Autowired
     FlavorService flavorService;

@@ -4,6 +4,7 @@ import com.yapp.sharefood.category.domain.Category;
 import com.yapp.sharefood.category.repository.CategoryRepository;
 import com.yapp.sharefood.common.exception.ForbiddenException;
 import com.yapp.sharefood.common.exception.InvalidOperationException;
+import com.yapp.sharefood.common.service.IntegrationService;
 import com.yapp.sharefood.food.domain.Food;
 import com.yapp.sharefood.food.domain.FoodStatus;
 import com.yapp.sharefood.food.exception.FoodNotFoundException;
@@ -19,11 +20,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @Transactional
-@SpringBootTest
-class LikeServiceTest {
+class LikeServiceTest extends IntegrationService {
     @Autowired
     LikeService likeService;
 

@@ -3,6 +3,7 @@ package com.yapp.sharefood.food.service;
 import com.yapp.sharefood.category.domain.Category;
 import com.yapp.sharefood.category.repository.CategoryRepository;
 import com.yapp.sharefood.common.StubFileUploader;
+import com.yapp.sharefood.common.service.IntegrationService;
 import com.yapp.sharefood.food.domain.Food;
 import com.yapp.sharefood.food.domain.FoodStatus;
 import com.yapp.sharefood.food.dto.response.FoodImageCreateResponse;
@@ -15,7 +16,6 @@ import com.yapp.sharefood.user.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -27,9 +27,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-@SpringBootTest
 @Transactional
-class FoodImageServiceTest {
+class FoodImageServiceTest extends IntegrationService {
     FoodImageService foodImageService;
 
     @Autowired

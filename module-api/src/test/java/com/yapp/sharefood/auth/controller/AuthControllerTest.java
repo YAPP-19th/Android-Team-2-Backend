@@ -1,34 +1,26 @@
 package com.yapp.sharefood.auth.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yapp.sharefood.auth.dto.OAuthDto;
 import com.yapp.sharefood.auth.dto.request.AuthCreationRequestDto;
 import com.yapp.sharefood.auth.dto.request.AuthRequestDto;
-import com.yapp.sharefood.auth.service.AuthService;
-import com.yapp.sharefood.auth.token.TokenProvider;
-import com.yapp.sharefood.common.DocumentTest;
+import com.yapp.sharefood.common.controller.PreprocessController;
 import com.yapp.sharefood.external.exception.BadGatewayException;
 import com.yapp.sharefood.oauth.exception.OAUthExistException;
 import com.yapp.sharefood.oauth.exception.TokenExpireExcetion;
 import com.yapp.sharefood.oauth.exception.UserNotFoundException;
 import com.yapp.sharefood.user.domain.OAuthType;
 import com.yapp.sharefood.user.domain.User;
-import com.yapp.sharefood.user.repository.UserRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidParameterException;
 import java.util.Optional;
 
-import static com.yapp.sharefood.common.documentation.DocumentationUtils.documentIdentify;
+import static com.yapp.sharefood.common.controller.documentation.DocumentationUtils.documentIdentify;
 import static com.yapp.sharefood.oauth.exception.UserNotFoundException.USER_NOT_FOUND_EXCEPTION_MSG;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.*;
@@ -38,21 +30,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest(controllers = AuthController.class)
-class AuthControllerTest extends DocumentTest {
-
-    @Autowired
-    MockMvc mockMvc;
-    @MockBean
-    UserRepository userRepository;
-    @MockBean
-    TokenProvider tokenProvider;
-
-    @MockBean
-    AuthService authService;
-
-    ObjectMapper objectMapper = new ObjectMapper();
-
+class AuthControllerTest extends PreprocessController {
 
     @Test
     @DisplayName("회원 인증성공")

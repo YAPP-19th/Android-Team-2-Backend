@@ -2,6 +2,7 @@ package com.yapp.sharefood.favorite.service;
 
 import com.yapp.sharefood.category.domain.Category;
 import com.yapp.sharefood.category.repository.CategoryRepository;
+import com.yapp.sharefood.common.service.IntegrationService;
 import com.yapp.sharefood.favorite.domain.Favorite;
 import com.yapp.sharefood.favorite.dto.FavoriteFoodDto;
 import com.yapp.sharefood.favorite.dto.request.FavoriteCreationRequest;
@@ -21,7 +22,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -31,8 +31,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @Transactional
-@SpringBootTest
-class FavoriteServiceTest {
+class FavoriteServiceTest extends IntegrationService {
     @Autowired
     FavoriteService favoriteService;
 

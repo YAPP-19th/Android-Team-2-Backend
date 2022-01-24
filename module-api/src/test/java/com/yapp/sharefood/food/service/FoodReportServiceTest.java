@@ -2,6 +2,7 @@ package com.yapp.sharefood.food.service;
 
 import com.yapp.sharefood.category.domain.Category;
 import com.yapp.sharefood.category.repository.CategoryRepository;
+import com.yapp.sharefood.common.service.IntegrationService;
 import com.yapp.sharefood.food.domain.Food;
 import com.yapp.sharefood.food.domain.FoodReportStatus;
 import com.yapp.sharefood.food.domain.FoodReportType;
@@ -15,15 +16,14 @@ import com.yapp.sharefood.user.domain.User;
 import com.yapp.sharefood.user.repository.UserRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 
 import javax.transaction.Transactional;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @Transactional
-@SpringBootTest
-class FoodReportServiceTest {
+class FoodReportServiceTest extends IntegrationService {
     @Autowired
     FoodReportService foodReportService;
 

@@ -1,38 +1,31 @@
 package com.yapp.sharefood.category.controller;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yapp.sharefood.category.dto.CategoryDto;
 import com.yapp.sharefood.category.dto.response.CategoriesTreeResponse;
-import com.yapp.sharefood.category.service.CategoryService;
-import com.yapp.sharefood.common.PreprocessController;
+import com.yapp.sharefood.common.controller.PreprocessController;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.yapp.sharefood.common.documentation.DocumentationUtils.documentIdentify;
+import static com.yapp.sharefood.common.controller.documentation.DocumentationUtils.documentIdentify;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.BDDMockito.willReturn;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest(controllers = CategoryController.class)
 class CategoryControllerTest extends PreprocessController {
-    @Autowired
-    MockMvc mockMvc;
-    @MockBean
-    CategoryService categoryService;
 
-    ObjectMapper objectMapper = new ObjectMapper();
+    @BeforeEach
+    void setUp() {
+        loginMockSetup();
+    }
 
     @Test
     @DisplayName("category 가져오기")

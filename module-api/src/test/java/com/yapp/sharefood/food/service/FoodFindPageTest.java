@@ -6,6 +6,7 @@ import com.yapp.sharefood.category.domain.Category;
 import com.yapp.sharefood.category.repository.CategoryRepository;
 import com.yapp.sharefood.common.exception.InvalidOperationException;
 import com.yapp.sharefood.common.order.SortType;
+import com.yapp.sharefood.common.service.IntegrationService;
 import com.yapp.sharefood.flavor.domain.Flavor;
 import com.yapp.sharefood.flavor.domain.FlavorType;
 import com.yapp.sharefood.flavor.repository.FlavorRepository;
@@ -35,10 +36,8 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.EntityManager;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -51,13 +50,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-@SpringBootTest
 @Transactional
-class FoodFindPageTest {
-
-    @Autowired
-    EntityManager em;
-
+class FoodFindPageTest extends IntegrationService {
     @Autowired
     FoodService foodService;
     @Autowired
@@ -131,8 +125,8 @@ class FoodFindPageTest {
         List<User> users = initUser();
         initLike(this.foods, users);
 
-        em.flush();
-        em.clear();
+        entityManager.flush();
+        entityManager.clear();
     }
 
     private List<Tag> setUpTags() {
@@ -363,8 +357,8 @@ class FoodFindPageTest {
                 .firstSearchTime(LocalDateTime.now())
                 .build();
 
-        em.flush();
-        em.clear();
+        entityManager.flush();
+        entityManager.clear();
 
         // when
         FoodPageResponse foodPageResponse = foodService.searchFoodsPage(foodPageSearchRequest, user);
@@ -416,8 +410,8 @@ class FoodFindPageTest {
                 .firstSearchTime(LocalDateTime.now())
                 .build();
 
-        em.flush();
-        em.clear();
+        entityManager.flush();
+        entityManager.clear();
 
         // when
         FoodPageResponse foodPageResponse = foodService.searchFoodsPage(foodPageSearchRequest, user);
@@ -532,8 +526,8 @@ class FoodFindPageTest {
             flavorNames.add(flavor.getFlavorType().getFlavorName());
         }
 
-        em.flush();
-        em.clear();
+        entityManager.flush();
+        entityManager.clear();
 
         FoodMinePageSearchRequest foodMinePageSearch = FoodMinePageSearchRequest.builder()
                 .flavors(flavorNames)

@@ -1,4 +1,4 @@
-package com.yapp.sharefood.common.documentation;
+package com.yapp.sharefood.common.controller.documentation;
 
 import org.springframework.test.web.servlet.ResultHandler;
 
