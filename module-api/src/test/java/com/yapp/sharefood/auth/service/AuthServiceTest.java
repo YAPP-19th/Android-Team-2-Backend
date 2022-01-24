@@ -16,8 +16,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
@@ -33,9 +31,6 @@ class AuthServiceTest extends IntegrationService {
     AuthService authService;
     @Autowired
     UserRepository userRepository;
-
-    @PersistenceContext
-    EntityManager entityManager;
 
     @Test
     @DisplayName("kakao oauth 로그인 테스트")

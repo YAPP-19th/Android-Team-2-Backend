@@ -38,7 +38,6 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.EntityManager;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -53,10 +52,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @Transactional
 class FoodFindPageTest extends IntegrationService {
-
-    @Autowired
-    EntityManager em;
-
     @Autowired
     FoodService foodService;
     @Autowired
@@ -130,8 +125,8 @@ class FoodFindPageTest extends IntegrationService {
         List<User> users = initUser();
         initLike(this.foods, users);
 
-        em.flush();
-        em.clear();
+        entityManager.flush();
+        entityManager.clear();
     }
 
     private List<Tag> setUpTags() {
@@ -362,8 +357,8 @@ class FoodFindPageTest extends IntegrationService {
                 .firstSearchTime(LocalDateTime.now())
                 .build();
 
-        em.flush();
-        em.clear();
+        entityManager.flush();
+        entityManager.clear();
 
         // when
         FoodPageResponse foodPageResponse = foodService.searchFoodsPage(foodPageSearchRequest, user);
@@ -415,8 +410,8 @@ class FoodFindPageTest extends IntegrationService {
                 .firstSearchTime(LocalDateTime.now())
                 .build();
 
-        em.flush();
-        em.clear();
+        entityManager.flush();
+        entityManager.clear();
 
         // when
         FoodPageResponse foodPageResponse = foodService.searchFoodsPage(foodPageSearchRequest, user);
@@ -531,8 +526,8 @@ class FoodFindPageTest extends IntegrationService {
             flavorNames.add(flavor.getFlavorType().getFlavorName());
         }
 
-        em.flush();
-        em.clear();
+        entityManager.flush();
+        entityManager.clear();
 
         FoodMinePageSearchRequest foodMinePageSearch = FoodMinePageSearchRequest.builder()
                 .flavors(flavorNames)

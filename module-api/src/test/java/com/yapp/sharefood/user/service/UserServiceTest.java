@@ -9,12 +9,10 @@ import com.yapp.sharefood.user.domain.UserReportType;
 import com.yapp.sharefood.user.dto.request.UserNicknameRequest;
 import com.yapp.sharefood.user.exception.UserBanndedException;
 import com.yapp.sharefood.user.exception.UserNicknameExistException;
-import com.yapp.sharefood.user.rand.UserNicknameRandomComponent;
 import com.yapp.sharefood.user.repository.UserRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
@@ -29,9 +27,6 @@ class UserServiceTest extends IntegrationService {
     UserService userService;
     @Autowired
     UserRepository userRepository;
-    @MockBean
-    UserNicknameRandomComponent userNicknameRandomComponent;
-
 
     @Test
     @DisplayName("유니크한 nickname 생성")
