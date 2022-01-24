@@ -1,5 +1,6 @@
 package com.yapp.sharefood.user.service;
 
+import com.yapp.sharefood.common.service.IntegrationService;
 import com.yapp.sharefood.oauth.exception.UserNotFoundException;
 import com.yapp.sharefood.user.domain.OAuthType;
 import com.yapp.sharefood.user.domain.User;
@@ -13,7 +14,6 @@ import com.yapp.sharefood.user.repository.UserRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,9 +22,8 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.BDDMockito.willReturn;
 
-@SpringBootTest
 @Transactional
-class UserServiceTest {
+class UserServiceTest extends IntegrationService {
 
     @Autowired
     UserService userService;
