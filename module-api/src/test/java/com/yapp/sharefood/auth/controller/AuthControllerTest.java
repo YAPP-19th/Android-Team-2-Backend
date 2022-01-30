@@ -21,7 +21,6 @@ import java.security.InvalidParameterException;
 import java.util.Optional;
 
 import static com.yapp.sharefood.common.controller.documentation.DocumentationUtils.documentIdentify;
-import static com.yapp.sharefood.oauth.exception.UserNotFoundException.USER_NOT_FOUND_EXCEPTION_MSG;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.willReturn;
@@ -63,7 +62,7 @@ class AuthControllerTest extends PreprocessController {
     @DisplayName("등록된 회원이 없을 경우")
     void authenticateEmptyUserTest() throws Exception {
         // given
-        willThrow(new UserNotFoundException())
+        willThrow(UserNotFoundException.class)
                 .given(authService).authenticate(any(AuthRequestDto.class));
 
         // when
@@ -74,24 +73,19 @@ class AuthControllerTest extends PreprocessController {
                 .contentType(MediaType.APPLICATION_JSON));
 
         // then
-        String errorMsg = perform.andExpect(status().isNotFound())
+        perform.andExpect(status().isNotFound())
                 .andExpect(header().doesNotExist("Authorization"))
                 .andDo(documentIdentify("auth/post/fail/userNotFound"))
                 .andReturn()
                 .getResponse()
                 .getContentAsString(StandardCharsets.UTF_8);
-
-        assertThat(errorMsg)
-                .isNotNull()
-                .isNotEmpty()
-                .isEqualTo(USER_NOT_FOUND_EXCEPTION_MSG);
     }
 
     @Test
     @DisplayName("Oauth 서버 다운으로 Gateway error 발생")
     void oauthBadGateExceptionHandlerTest() throws Exception {
         // given
-        willThrow(new BadGatewayException("oauth 요청 타입 에러"))
+        willThrow(BadGatewayException.class)
                 .given(authService).authenticate(any(AuthRequestDto.class));
 
         // when
@@ -101,23 +95,19 @@ class AuthControllerTest extends PreprocessController {
                 .contentType(MediaType.APPLICATION_JSON_VALUE));
 
         // then
-        String errorMsg = perform.andExpect(status().isBadGateway())
+        perform.andExpect(status().isBadGateway())
                 .andExpect(header().doesNotExist("Authorization"))
                 .andDo(documentIdentify("auth/post/fail/badGateway"))
                 .andReturn()
                 .getResponse()
                 .getContentAsString(StandardCharsets.UTF_8);
-
-        assertThat(errorMsg)
-                .isNotNull()
-                .isNotEmpty();
     }
 
     @Test
     @DisplayName("OAuth type오류로 인한 이슈")
     void oauthTypeErrorInvalidExceptionHandlerTest() throws Exception {
         // given
-        willThrow(new InvalidParameterException("oauth type 불일치 에러"))
+        willThrow(InvalidParameterException.class)
                 .given(authService).authenticate(any(AuthRequestDto.class));
 
         // when
@@ -128,17 +118,12 @@ class AuthControllerTest extends PreprocessController {
                 .contentType(MediaType.APPLICATION_JSON_VALUE));
 
         // then
-        String errorMsg = perform.andExpect(status().isBadRequest())
+        perform.andExpect(status().isBadRequest())
                 .andExpect(header().doesNotExist("Authorization"))
                 .andDo(documentIdentify("auth/post/fail/invalidParameter"))
                 .andReturn()
                 .getResponse()
                 .getContentAsString(StandardCharsets.UTF_8);
-
-        assertThat(errorMsg)
-                .isNotNull()
-                .isNotEmpty()
-                .isEqualTo("oauth type 불일치 에러");
     }
 
     @Test
@@ -173,7 +158,7 @@ class AuthControllerTest extends PreprocessController {
     @DisplayName("회원 가입시 기존 사용자가 있을 경우")
     void singUpErrorCuzOfExistDataTest() throws Exception {
         // given
-        willThrow(new OAUthExistException("존재하는 사용자 입니다."))
+        willThrow(OAUthExistException.class)
                 .given(authService).signUp(any(AuthCreationRequestDto.class));
 
         // when
@@ -184,17 +169,12 @@ class AuthControllerTest extends PreprocessController {
                 .contentType(MediaType.APPLICATION_JSON));
 
         // then
-        String createResponse = perform.andExpect(status().isConflict())
+        perform.andExpect(status().isConflict())
                 .andExpect(header().doesNotExist("Authorization"))
                 .andDo(documentIdentify("auth-creation/post/fail/oauthExist"))
                 .andReturn()
                 .getResponse()
                 .getContentAsString(StandardCharsets.UTF_8);
-
-        assertThat(createResponse)
-                .isNotNull()
-                .isNotEmpty()
-                .isEqualTo("존재하는 사용자 입니다.");
     }
 
     @Test

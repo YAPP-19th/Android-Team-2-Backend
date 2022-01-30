@@ -1,5 +1,6 @@
 package com.yapp.sharefood.auth.advice;
 
+import com.yapp.sharefood.common.error.ErrorResponse;
 import com.yapp.sharefood.common.exception.ForbiddenException;
 import com.yapp.sharefood.external.exception.BadGatewayException;
 import com.yapp.sharefood.oauth.exception.*;
@@ -23,10 +24,11 @@ public class AuthAdviceController {
      * 외부 API 연동 중 에러가 발생할 경우 발생하는 Exception
      */
     @ExceptionHandler(BadGatewayException.class)
-    protected ResponseEntity<Object> handleBadGatewayException(final BadGatewayException exception) {
+    protected ResponseEntity<ErrorResponse> handleBadGatewayException(final BadGatewayException exception) {
         log.warn("BadGatewayException: {}", exception.getMessage(), exception);
         // add event publisher for let me know in slack or other application
-        return ResponseEntity.status(HttpStatus.BAD_GATEWAY).body("bad gateway exception");
+
+        return ErrorResponse.toResponseEntity(HttpStatus.BAD_GATEWAY, "bad gateway exception");
     }
 
     /**
@@ -34,10 +36,10 @@ public class AuthAdviceController {
      * 회원가입이 안되어 있는 경우
      */
     @ExceptionHandler(UserNotFoundException.class)
-    protected ResponseEntity<Object> handleUserNotFoundException(final UserNotFoundException exception) {
+    protected ResponseEntity<ErrorResponse> handleUserNotFoundException(final UserNotFoundException exception) {
         log.info("UserNotFoundException: {}", exception.getMessage(), exception);
 
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(exception.getMessage());
+        return ErrorResponse.toResponseEntity(HttpStatus.NOT_FOUND, exception.getMessage());
     }
 
     /**
@@ -45,10 +47,10 @@ public class AuthAdviceController {
      * OAuth 요청 정보가 적절하지 못한 경우
      */
     @ExceptionHandler(InvalidParameterException.class)
-    protected ResponseEntity<String> handleParameterIsNotValidException(final InvalidParameterException exception) {
+    protected ResponseEntity<ErrorResponse> handleParameterIsNotValidException(final InvalidParameterException exception) {
         log.info("InvalidParameterException: {}", exception.getMessage(), exception);
 
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(exception.getMessage());
+        return ErrorResponse.toResponseEntity(HttpStatus.BAD_REQUEST, exception.getMessage());
     }
 
     /**
@@ -56,21 +58,26 @@ public class AuthAdviceController {
      * 이미 동일한 OAUTh로 등록한 회원이 존재하는 경우
      */
     @ExceptionHandler(OAUthExistException.class)
-    protected ResponseEntity<String> handleOAuthUserExistException(final OAUthExistException exception) {
+    protected ResponseEntity<ErrorResponse> handleOAuthUserExistException(final OAUthExistException exception) {
         log.info("OAUthExistException: {}", exception.getMessage(), exception);
 
-        return ResponseEntity.status(HttpStatus.CONFLICT).body(exception.getMessage());
+        return ErrorResponse.toResponseEntity(HttpStatus.CONFLICT, exception.getMessage());
     }
 
     /**
      * 401 Unauthorized
      * token이 적절하지 않을 경우
      */
-    @ExceptionHandler({AuthHeaderOmittedException.class, TokenValidationException.class, TokenExpireExcetion.class, ExpiredJwtException.class})
-    protected ResponseEntity<String> handleUnAuthorizedException(final RuntimeException exception) {
+    @ExceptionHandler({
+            AuthHeaderOmittedException.class,
+            TokenValidationException.class,
+            TokenExpireExcetion.class,
+            ExpiredJwtException.class
+    })
+    protected ResponseEntity<ErrorResponse> handleUnAuthorizedException(final RuntimeException exception) {
         log.info("UnAuthException: {}", exception.getMessage(), exception);
 
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(exception.getMessage());
+        return ErrorResponse.toResponseEntity(HttpStatus.UNAUTHORIZED, exception.getMessage());
     }
 
     /**
@@ -78,9 +85,9 @@ public class AuthAdviceController {
      * 접근 권한이 없을 경우
      */
     @ExceptionHandler(ForbiddenException.class)
-    protected ResponseEntity<String> handleForbiddenException(final RuntimeException execException) {
+    protected ResponseEntity<ErrorResponse> handleForbiddenException(final RuntimeException execException) {
         log.info("ForbiddenException: {}", execException.getMessage(), execException);
 
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(execException.getMessage());
+        return ErrorResponse.toResponseEntity(HttpStatus.FORBIDDEN, execException.getMessage());
     }
 }
