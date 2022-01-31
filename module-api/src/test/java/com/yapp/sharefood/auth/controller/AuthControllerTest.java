@@ -62,7 +62,7 @@ class AuthControllerTest extends PreprocessController {
     @DisplayName("등록된 회원이 없을 경우")
     void authenticateEmptyUserTest() throws Exception {
         // given
-        willThrow(UserNotFoundException.class)
+        willThrow(new UserNotFoundException())
                 .given(authService).authenticate(any(AuthRequestDto.class));
 
         // when
@@ -85,7 +85,7 @@ class AuthControllerTest extends PreprocessController {
     @DisplayName("Oauth 서버 다운으로 Gateway error 발생")
     void oauthBadGateExceptionHandlerTest() throws Exception {
         // given
-        willThrow(BadGatewayException.class)
+        willThrow(new BadGatewayException("oauth 실패"))
                 .given(authService).authenticate(any(AuthRequestDto.class));
 
         // when
@@ -107,7 +107,7 @@ class AuthControllerTest extends PreprocessController {
     @DisplayName("OAuth type오류로 인한 이슈")
     void oauthTypeErrorInvalidExceptionHandlerTest() throws Exception {
         // given
-        willThrow(InvalidParameterException.class)
+        willThrow(new InvalidParameterException())
                 .given(authService).authenticate(any(AuthRequestDto.class));
 
         // when
@@ -158,7 +158,7 @@ class AuthControllerTest extends PreprocessController {
     @DisplayName("회원 가입시 기존 사용자가 있을 경우")
     void singUpErrorCuzOfExistDataTest() throws Exception {
         // given
-        willThrow(OAUthExistException.class)
+        willThrow(new OAUthExistException("등록된 사용자"))
                 .given(authService).signUp(any(AuthCreationRequestDto.class));
 
         // when
@@ -223,7 +223,7 @@ class AuthControllerTest extends PreprocessController {
                 .name("name")
                 .build();
 
-        willThrow(TokenExpireExcetion.class)
+        willThrow(new TokenExpireExcetion())
                 .given(tokenProvider).isValidToken(anyString());
         willReturn(1L)
                 .given(tokenProvider).extractIdByToken(anyString());
@@ -251,7 +251,7 @@ class AuthControllerTest extends PreprocessController {
                 .given(tokenProvider).isValidToken(anyString());
         willReturn(1L)
                 .given(tokenProvider).extractIdByToken(anyString());
-        willThrow(UserNotFoundException.class)
+        willThrow(new UserNotFoundException())
                 .given(userRepository).findById(anyLong());
 
         // when

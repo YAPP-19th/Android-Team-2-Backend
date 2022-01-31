@@ -31,9 +31,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.stream.Stream;
 
 import static com.yapp.sharefood.common.controller.documentation.DocumentationUtils.documentIdentify;
-import static com.yapp.sharefood.oauth.exception.UserNotFoundException.USER_NOT_FOUND_EXCEPTION_MSG;
-import static com.yapp.sharefood.user.exception.UserNicknameExistException.NICKNAME_EXIST_EXCEPTION_MSG;
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.mockito.BDDMockito.*;
@@ -85,16 +82,11 @@ class UserControllerTest extends PreprocessController {
         ResultActions perform = mockMvc.perform(requestBuilder);
 
         //then
-        String errMsg = perform.andExpect(status().isConflict())
+        perform.andExpect(status().isConflict())
                 .andDo(documentIdentify("user-nickname/get/fail/alreadyExist"))
                 .andReturn()
                 .getResponse()
                 .getContentAsString(StandardCharsets.UTF_8);
-
-        assertThat(errMsg)
-                .isNotNull()
-                .isNotEmpty()
-                .isEqualTo(NICKNAME_EXIST_EXCEPTION_MSG);
     }
 
     @Test
@@ -134,16 +126,11 @@ class UserControllerTest extends PreprocessController {
         ResultActions perform = mockMvc.perform(requestBuilder);
 
         //then
-        String errMsg = perform.andExpect(status().isConflict())
+        perform.andExpect(status().isConflict())
                 .andDo(documentIdentify("user-nickname-validation/get/fail/alreadyExist"))
                 .andReturn()
                 .getResponse()
                 .getContentAsString(StandardCharsets.UTF_8);
-
-        assertThat(errMsg)
-                .isNotNull()
-                .isNotEmpty()
-                .isEqualTo(NICKNAME_EXIST_EXCEPTION_MSG);
     }
 
     @Test
@@ -190,16 +177,11 @@ class UserControllerTest extends PreprocessController {
         ResultActions perform = mockMvc.perform(requestBuilder);
 
         //then
-        String errMsg = perform.andExpect(status().isConflict())
+        perform.andExpect(status().isConflict())
                 .andDo(documentIdentify("user-nickname/patch/fail/alreadyExist"))
                 .andReturn()
                 .getResponse()
                 .getContentAsString(StandardCharsets.UTF_8);
-
-        assertThat(errMsg)
-                .isNotNull()
-                .isNotEmpty()
-                .isEqualTo(NICKNAME_EXIST_EXCEPTION_MSG);
     }
 
 
@@ -255,16 +237,11 @@ class UserControllerTest extends PreprocessController {
         ResultActions perform = mockMvc.perform(requestBuilder);
 
         //then
-        String errMsg = perform.andExpect(status().isNotFound())
+        perform.andExpect(status().isNotFound())
                 .andDo(documentIdentify("user-me/get/fail/userNotFound"))
                 .andReturn()
                 .getResponse()
                 .getContentAsString(StandardCharsets.UTF_8);
-
-        assertThat(errMsg)
-                .isNotNull()
-                .isNotEmpty()
-                .isEqualTo(USER_NOT_FOUND_EXCEPTION_MSG);
     }
 
     @Test
@@ -295,17 +272,13 @@ class UserControllerTest extends PreprocessController {
         // when
         ResultActions perform = mockMvc.perform(delete("/api/v1/users/me")
                 .header(HttpHeaders.AUTHORIZATION, "token"));
-        String errMsg = perform.andExpect(status().isNotFound())
+
+        // then
+        perform.andExpect(status().isNotFound())
                 .andDo(documentIdentify("user-me/delete/fail/userNotFound"))
                 .andReturn()
                 .getResponse()
                 .getContentAsString(StandardCharsets.UTF_8);
-
-        // then
-        assertThat(errMsg)
-                .isNotNull()
-                .isNotEmpty()
-                .isEqualTo(USER_NOT_FOUND_EXCEPTION_MSG);
     }
 
     @Test
@@ -354,16 +327,11 @@ class UserControllerTest extends PreprocessController {
                 .header(HttpHeaders.AUTHORIZATION, "token"));
 
         //then
-        String errMsg = perform.andDo(documentIdentify("user-other/get/fail/userNotFound"))
+        perform.andDo(documentIdentify("user-other/get/fail/userNotFound"))
                 .andExpect(status().isNotFound())
                 .andReturn()
                 .getResponse()
                 .getContentAsString(StandardCharsets.UTF_8);
-
-        assertThat(errMsg)
-                .isNotNull()
-                .isNotEmpty()
-                .isEqualTo(USER_NOT_FOUND_EXCEPTION_MSG);
     }
 
     @Test
@@ -404,16 +372,11 @@ class UserControllerTest extends PreprocessController {
         ResultActions perform = mockMvc.perform(requestBuilder);
 
         //then
-        String errMsg = perform.andExpect(status().isNotFound())
+        perform.andExpect(status().isNotFound())
                 .andDo(documentIdentify("user-report/post/fail/userNotFound"))
                 .andReturn()
                 .getResponse()
                 .getContentAsString(StandardCharsets.UTF_8);
-
-        assertThat(errMsg)
-                .isNotNull()
-                .isNotEmpty()
-                .isEqualTo(USER_NOT_FOUND_EXCEPTION_MSG);
     }
 
     @Test
@@ -433,15 +396,10 @@ class UserControllerTest extends PreprocessController {
         ResultActions perform = mockMvc.perform(requestBuilder);
 
         //then
-        String errMsg = perform.andExpect(status().isBadRequest())
+        perform.andExpect(status().isBadRequest())
                 .andDo(documentIdentify("user-report/post/fail/reportNotDefine"))
                 .andReturn()
                 .getResponse()
                 .getContentAsString(StandardCharsets.UTF_8);
-
-        assertThat(errMsg)
-                .isNotNull()
-                .isNotEmpty()
-                .isEqualTo(ReportNotDefineException.NOT_DEFINE_REPORT_EXCEPTION_MSG);
     }
 }
