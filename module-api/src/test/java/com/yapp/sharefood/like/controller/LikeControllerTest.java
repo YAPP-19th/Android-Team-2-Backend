@@ -14,7 +14,6 @@ import org.springframework.test.web.servlet.ResultActions;
 import java.nio.charset.StandardCharsets;
 
 import static com.yapp.sharefood.common.controller.documentation.DocumentationUtils.documentIdentify;
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -65,16 +64,11 @@ class LikeControllerTest extends PreprocessController {
                 .header(HttpHeaders.AUTHORIZATION, "token"));
 
         // then
-        String errorMsg = perform.andExpect(status().isInternalServerError())
+        perform.andExpect(status().isInternalServerError())
                 .andDo(documentIdentify("food-like/post/fail/invalidOperation"))
                 .andReturn()
                 .getResponse()
                 .getContentAsString(StandardCharsets.UTF_8);
-
-        assertThat(errorMsg)
-                .isNotNull()
-                .isNotEmpty()
-                .isEqualTo("이미 like한 사용자 입니다.");
     }
 
     @Test
@@ -90,16 +84,11 @@ class LikeControllerTest extends PreprocessController {
                 .header(HttpHeaders.AUTHORIZATION, "token"));
 
         // then
-        String errorMsg = perform.andExpect(status().isNotFound())
+        perform.andExpect(status().isNotFound())
                 .andDo(documentIdentify("food-like/post/fail/foodNotFound"))
                 .andReturn()
                 .getResponse()
                 .getContentAsString(StandardCharsets.UTF_8);
-
-        assertThat(errorMsg)
-                .isNotNull()
-                .isNotEmpty()
-                .isEqualTo(FoodNotFoundException.FOOD_NOT_FOUND_EXCEPTION_MSG);
     }
 
     @Test
@@ -134,16 +123,11 @@ class LikeControllerTest extends PreprocessController {
                 .param("categoryName", "샌드위치"));
 
         // then
-        String errorMsg = perform.andExpect(status().isForbidden())
+        perform.andExpect(status().isForbidden())
                 .andDo(documentIdentify("food-like/delete/fail/forbidden"))
                 .andReturn()
                 .getResponse()
                 .getContentAsString(StandardCharsets.UTF_8);
-
-        assertThat(errorMsg)
-                .isNotNull()
-                .isNotEmpty()
-                .isEqualTo(ForbiddenException.FORBIDDEN_EXCEPTION_MSG);
     }
 
     @Test
@@ -161,15 +145,10 @@ class LikeControllerTest extends PreprocessController {
                 .param("categoryName", "칵테일"));
 
         // then
-        String errorMsg = perform.andExpect(status().isNotFound())
+        perform.andExpect(status().isNotFound())
                 .andDo(documentIdentify("food-like/delete/fail/foodNotFound"))
                 .andReturn()
                 .getResponse()
                 .getContentAsString(StandardCharsets.UTF_8);
-
-        assertThat(errorMsg)
-                .isNotNull()
-                .isNotEmpty()
-                .isEqualTo(FoodNotFoundException.FOOD_NOT_FOUND_EXCEPTION_MSG);
     }
 }

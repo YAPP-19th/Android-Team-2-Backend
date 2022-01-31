@@ -105,14 +105,11 @@ class FoodControllerTest extends PreprocessController {
                 .param("categoryName", "음식"));
 
         // then
-        String errorMsg = perform.andExpect(status().isBadRequest())
+        perform.andExpect(status().isBadRequest())
                 .andDo(documentIdentify(String.format("food-rank/get/fail/badRequest-top/%d", testCaseIndex)))
                 .andReturn()
                 .getResponse()
                 .getContentAsString(StandardCharsets.UTF_8);
-
-        assertThat(errorMsg)
-                .isNotNull();
     }
 
     static Stream<Arguments> findTopRankFoodTopParameterIssueTest_Fail_BadRequest() {
@@ -135,14 +132,11 @@ class FoodControllerTest extends PreprocessController {
                 .param("categoryName", "음식"));
 
         // then
-        String errorMsg = perform.andExpect(status().isBadRequest())
+        perform.andExpect(status().isBadRequest())
                 .andDo(documentIdentify(String.format("food-rank/get/fail/badRequest-datePeriod/%d", testCaseIndex)))
                 .andReturn()
                 .getResponse()
                 .getContentAsString(StandardCharsets.UTF_8);
-
-        assertThat(errorMsg)
-                .isNotNull();
     }
 
     static Stream<Arguments> findTopRankFoodRankDatePeriodParameterIssueTest_Fail_BadRequest() {
@@ -207,14 +201,11 @@ class FoodControllerTest extends PreprocessController {
                 .param("categoryName", "음식"));
 
         // then
-        String errorMsg = perform.andExpect(status().isBadRequest())
+        perform.andExpect(status().isBadRequest())
                 .andDo(documentIdentify(String.format("food-recommendation/get/fail/badRequest-top/%d", testCaseIndex)))
                 .andReturn()
                 .getResponse()
                 .getContentAsString(StandardCharsets.UTF_8);
-
-        assertThat(errorMsg)
-                .isNotNull();
     }
 
     static Stream<Arguments> recommendationFoodTopParameterTest_Fail_BadRequest() {
@@ -237,14 +228,11 @@ class FoodControllerTest extends PreprocessController {
                 .param("categoryName", "음식"));
 
         // then
-        String errorMsg = perform.andExpect(status().isBadRequest())
+        perform.andExpect(status().isBadRequest())
                 .andDo(documentIdentify(String.format("food-recommendation/get/fail/badRequest-datePeriod/%d", testCaseIndex)))
                 .andReturn()
                 .getResponse()
                 .getContentAsString(StandardCharsets.UTF_8);
-
-        assertThat(errorMsg)
-                .isNotNull();
     }
 
     static Stream<Arguments> recommendationFoodRankDatePeriodIssueTest_Fail_BadRequest() {
@@ -309,16 +297,11 @@ class FoodControllerTest extends PreprocessController {
                 .header(HttpHeaders.AUTHORIZATION, "token"));
 
         // then
-        String errorMsg = perform
-                .andExpect(status().isNotFound())
+        perform.andExpect(status().isNotFound())
                 .andDo(documentIdentify("food-detail/get/fail/foodNotFound"))
                 .andReturn()
                 .getResponse()
                 .getContentAsString(StandardCharsets.UTF_8);
-
-        assertThat(errorMsg)
-                .isNotNull()
-                .isEqualTo(FoodNotFoundException.FOOD_NOT_FOUND_EXCEPTION_MSG);
     }
 
     @Test
@@ -353,16 +336,11 @@ class FoodControllerTest extends PreprocessController {
                 .header(HttpHeaders.AUTHORIZATION, "token"));
 
         // then
-        String errorMsg = perform
-                .andExpect(status().isForbidden())
+        perform.andExpect(status().isForbidden())
                 .andDo(documentIdentify("food/delete/fail/forbidden"))
                 .andReturn()
                 .getResponse()
                 .getContentAsString(StandardCharsets.UTF_8);
-
-        assertThat(errorMsg)
-                .isNotNull()
-                .isEqualTo(ForbiddenException.FORBIDDEN_EXCEPTION_MSG);
     }
 
     @Test
@@ -377,16 +355,11 @@ class FoodControllerTest extends PreprocessController {
                 .header(HttpHeaders.AUTHORIZATION, "token"));
 
         // then
-        String errorMsg = perform
-                .andExpect(status().isNotFound())
+        perform.andExpect(status().isNotFound())
                 .andDo(documentIdentify("food/delete/fail/foodNotFound"))
                 .andReturn()
                 .getResponse()
                 .getContentAsString(StandardCharsets.UTF_8);
-
-        assertThat(errorMsg)
-                .isNotNull()
-                .isEqualTo(FoodNotFoundException.FOOD_NOT_FOUND_EXCEPTION_MSG);
     }
 
     @Test

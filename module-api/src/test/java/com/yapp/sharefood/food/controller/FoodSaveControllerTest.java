@@ -137,14 +137,11 @@ class FoodSaveControllerTest extends PreprocessController {
                 .contentType(MediaType.APPLICATION_JSON_VALUE));
 
         // then
-        String errorMsg = perform.andExpect(status().isNotFound())
+        perform.andExpect(status().isNotFound())
                 .andDo(documentIdentify("food/post/fail/categoryNotFound"))
                 .andReturn()
                 .getResponse()
                 .getContentAsString(StandardCharsets.UTF_8);
-
-        assertThat(errorMsg)
-                .isNotNull();
     }
 
     @Test
@@ -171,14 +168,11 @@ class FoodSaveControllerTest extends PreprocessController {
                 .contentType(MediaType.APPLICATION_JSON_VALUE));
 
         // then
-        String errorMsg = perform.andExpect(status().isInternalServerError())
-                .andDo(documentIdentify("food/post/fail/invalidOperation"))
+        perform.andExpect(status().isInternalServerError())
+                .andDo(documentIdentify("food/post/fail/invalidOperation1"))
                 .andReturn()
                 .getResponse()
                 .getContentAsString(StandardCharsets.UTF_8);
-
-        assertThat(errorMsg)
-                .isNotNull();
     }
 
     @Test
@@ -205,14 +199,11 @@ class FoodSaveControllerTest extends PreprocessController {
                 .contentType(MediaType.APPLICATION_JSON_VALUE));
 
         // then
-        String errorMsg = perform.andExpect(status().isInternalServerError())
-                .andDo(documentIdentify("food/post/fail/invalidOperation"))
+        perform.andExpect(status().isInternalServerError())
+                .andDo(documentIdentify("food/post/fail/invalidOperation2"))
                 .andReturn()
                 .getResponse()
                 .getContentAsString(StandardCharsets.UTF_8);
-
-        assertThat(errorMsg)
-                .isNotNull();
     }
 
     @Test
@@ -239,14 +230,11 @@ class FoodSaveControllerTest extends PreprocessController {
                 .contentType(MediaType.APPLICATION_JSON_VALUE));
 
         // then
-        String errorMsg = perform.andExpect(status().isBadRequest())
+        perform.andExpect(status().isBadRequest())
                 .andDo(documentIdentify("food/post/fail/badRequest"))
                 .andReturn()
                 .getResponse()
                 .getContentAsString(StandardCharsets.UTF_8);
-
-        assertThat(errorMsg)
-                .isNotNull();
     }
 
     private List<MockMultipartFile> getFiles(int index) {
@@ -323,14 +311,11 @@ class FoodSaveControllerTest extends PreprocessController {
                 .header(HttpHeaders.AUTHORIZATION, "token"));
 
         // then
-        String result = perform.andExpect(status().isBadRequest())
+        perform.andExpect(status().isBadRequest())
                 .andDo(documentIdentify("food-images/post/badRequest"))
                 .andReturn()
                 .getResponse()
                 .getContentAsString(StandardCharsets.UTF_8);
-
-        assertThat(result)
-                .isNotNull();
     }
 
     @Test

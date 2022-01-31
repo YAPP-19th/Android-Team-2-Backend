@@ -11,9 +11,11 @@ import com.yapp.sharefood.oauth.exception.UserNotFoundException;
 import com.yapp.sharefood.user.domain.User;
 import com.yapp.sharefood.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.annotation.PostConstruct;
 import java.util.Optional;
 
 @Service
@@ -23,6 +25,12 @@ public class AuthService {
     private final AuthenticationManager authenticationManager;
     private final UserRepository userRepository;
     private final TokenProvider tokenProvider;
+
+    @Profile("local")
+    @PostConstruct
+    void setup() {
+        System.out.println(">>>> token: " + tokenProvider.createToken(User.builder().id(16L).build()));
+    }
 
     public OAuthDto authenticate(AuthRequestDto authRequestDto) {
         OAuthProfile profile = authenticationManager.requestOAuthUserInfo(authRequestDto.getOauthType(), authRequestDto.getAccessToken());
