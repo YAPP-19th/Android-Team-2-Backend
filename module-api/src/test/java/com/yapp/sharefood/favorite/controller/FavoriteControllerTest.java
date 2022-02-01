@@ -1,20 +1,17 @@
 package com.yapp.sharefood.favorite.controller;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.yapp.sharefood.common.PreprocessController;
+import com.yapp.sharefood.common.controller.PreprocessController;
 import com.yapp.sharefood.favorite.dto.FavoriteFoodDto;
 import com.yapp.sharefood.favorite.dto.request.FavoriteCreationRequest;
 import com.yapp.sharefood.favorite.dto.response.FavoriteFoodResponse;
 import com.yapp.sharefood.favorite.exception.TooManyFavoriteException;
-import com.yapp.sharefood.favorite.service.FavoriteService;
 import com.yapp.sharefood.food.exception.FoodNotFoundException;
 import com.yapp.sharefood.oauth.exception.UserNotFoundException;
 import com.yapp.sharefood.user.domain.User;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.RequestBuilder;
@@ -24,7 +21,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
 
-import static com.yapp.sharefood.common.documentation.DocumentationUtils.documentIdentify;
+import static com.yapp.sharefood.common.controller.documentation.DocumentationUtils.documentIdentify;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.ArgumentMatchers.*;
@@ -34,12 +31,12 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 
-@WebMvcTest(controllers = FavoriteController.class)
 class FavoriteControllerTest extends PreprocessController {
-    @MockBean
-    FavoriteService favoriteService;
 
-    ObjectMapper objectMapper = new ObjectMapper();
+    @BeforeEach
+    void setUp() {
+        loginMockSetup();
+    }
 
     @Test
     @DisplayName("최애 생성 - 성공")
@@ -82,16 +79,11 @@ class FavoriteControllerTest extends PreprocessController {
         ResultActions perform = mockMvc.perform(requestBuilder);
 
         //then
-        String errMsg = perform.andExpect(status().isNotFound())
+        perform.andExpect(status().isNotFound())
                 .andDo(documentIdentify("food-favorite/post/fail/userNotFound"))
                 .andReturn()
                 .getResponse()
                 .getContentAsString(StandardCharsets.UTF_8);
-
-        assertThat(errMsg)
-                .isNotNull()
-                .isNotEmpty()
-                .isEqualTo(UserNotFoundException.USER_NOT_FOUND_EXCEPTION_MSG);
     }
 
     @Test
@@ -111,16 +103,11 @@ class FavoriteControllerTest extends PreprocessController {
         ResultActions perform = mockMvc.perform(requestBuilder);
 
         //then
-        String errMsg = perform.andExpect(status().isNotFound())
+        perform.andExpect(status().isNotFound())
                 .andDo(documentIdentify("food-favorite/post/fail/foodNotFound"))
                 .andReturn()
                 .getResponse()
                 .getContentAsString(StandardCharsets.UTF_8);
-
-        assertThat(errMsg)
-                .isNotNull()
-                .isNotEmpty()
-                .isEqualTo(FoodNotFoundException.FOOD_NOT_FOUND_EXCEPTION_MSG);
     }
 
     @Test
@@ -140,16 +127,11 @@ class FavoriteControllerTest extends PreprocessController {
         ResultActions perform = mockMvc.perform(requestBuilder);
 
         //then
-        String errMsg = perform.andExpect(status().isTooManyRequests())
+        perform.andExpect(status().isTooManyRequests())
                 .andDo(documentIdentify("food-favorite/post/fail/tooManyFavorite"))
                 .andReturn()
                 .getResponse()
                 .getContentAsString(StandardCharsets.UTF_8);
-
-        assertThat(errMsg)
-                .isNotNull()
-                .isNotEmpty()
-                .isEqualTo(TooManyFavoriteException.TOO_MANY_FAVORITE_EXCEPTION_MSG);
     }
 
     @Test
@@ -185,16 +167,11 @@ class FavoriteControllerTest extends PreprocessController {
         ResultActions perform = mockMvc.perform(requestBuilder);
 
         //then
-        String errMsg = perform.andExpect(status().isNotFound())
+        perform.andExpect(status().isNotFound())
                 .andDo(documentIdentify("food-favorite/delete/fail/userNotFound"))
                 .andReturn()
                 .getResponse()
                 .getContentAsString(StandardCharsets.UTF_8);
-
-        assertThat(errMsg)
-                .isNotNull()
-                .isNotEmpty()
-                .isEqualTo(UserNotFoundException.USER_NOT_FOUND_EXCEPTION_MSG);
     }
 
     @Test
@@ -211,16 +188,11 @@ class FavoriteControllerTest extends PreprocessController {
         ResultActions perform = mockMvc.perform(requestBuilder);
 
         //then
-        String errMsg = perform.andExpect(status().isNotFound())
+        perform.andExpect(status().isNotFound())
                 .andDo(documentIdentify("food-favorite/delete/fail/foodNotFound"))
                 .andReturn()
                 .getResponse()
                 .getContentAsString(StandardCharsets.UTF_8);
-
-        assertThat(errMsg)
-                .isNotNull()
-                .isNotEmpty()
-                .isEqualTo(FoodNotFoundException.FOOD_NOT_FOUND_EXCEPTION_MSG);
     }
 
     @Test
@@ -277,16 +249,10 @@ class FavoriteControllerTest extends PreprocessController {
         ResultActions perform = mockMvc.perform(requestBuilder);
 
         //then
-        String errMsg = perform.andExpect(status().isNotFound())
+        perform.andExpect(status().isNotFound())
                 .andDo(documentIdentify("food-favorite/get/fail/userNotFound"))
                 .andReturn()
                 .getResponse()
                 .getContentAsString(StandardCharsets.UTF_8);
-
-        assertThat(errMsg)
-                .isNotNull()
-                .isNotEmpty()
-                .isEqualTo(UserNotFoundException.USER_NOT_FOUND_EXCEPTION_MSG);
     }
-
 }

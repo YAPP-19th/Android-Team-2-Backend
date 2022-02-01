@@ -1,9 +1,8 @@
 package com.yapp.sharefood.food.controller;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yapp.sharefood.category.exception.CategoryNotFoundException;
-import com.yapp.sharefood.common.PreprocessController;
+import com.yapp.sharefood.common.controller.PreprocessController;
 import com.yapp.sharefood.common.exception.BadRequestException;
 import com.yapp.sharefood.common.exception.InvalidOperationException;
 import com.yapp.sharefood.flavor.domain.FlavorType;
@@ -16,19 +15,13 @@ import com.yapp.sharefood.food.dto.request.FoodCreationRequest;
 import com.yapp.sharefood.food.dto.request.FoodUpdateRequest;
 import com.yapp.sharefood.food.dto.response.FoodDetailResponse;
 import com.yapp.sharefood.food.dto.response.FoodImageCreateResponse;
-import com.yapp.sharefood.food.facade.FoodSaveFacade;
-import com.yapp.sharefood.food.service.FoodImageService;
-import com.yapp.sharefood.tag.service.TagService;
 import com.yapp.sharefood.user.domain.User;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMultipartHttpServletRequestBuilder;
 
@@ -36,7 +29,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.yapp.sharefood.common.documentation.DocumentationUtils.documentIdentify;
+import static com.yapp.sharefood.common.controller.documentation.DocumentationUtils.documentIdentify;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.*;
@@ -46,18 +39,12 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest(controllers = FoodSaveController.class)
 class FoodSaveControllerTest extends PreprocessController {
-    @Autowired
-    MockMvc mockMvc;
 
-    @MockBean
-    FoodSaveFacade foodSaveFacade;
-    @MockBean
-    TagService tagService;
-    @MockBean
-    FoodImageService foodImageService;
-    ObjectMapper objectMapper = new ObjectMapper();
+    @BeforeEach
+    void setUp() {
+        loginMockSetup();
+    }
 
     @Test
     @DisplayName("food 저장 기능-성공")
@@ -150,14 +137,11 @@ class FoodSaveControllerTest extends PreprocessController {
                 .contentType(MediaType.APPLICATION_JSON_VALUE));
 
         // then
-        String errorMsg = perform.andExpect(status().isNotFound())
+        perform.andExpect(status().isNotFound())
                 .andDo(documentIdentify("food/post/fail/categoryNotFound"))
                 .andReturn()
                 .getResponse()
                 .getContentAsString(StandardCharsets.UTF_8);
-
-        assertThat(errorMsg)
-                .isNotNull();
     }
 
     @Test
@@ -184,14 +168,11 @@ class FoodSaveControllerTest extends PreprocessController {
                 .contentType(MediaType.APPLICATION_JSON_VALUE));
 
         // then
-        String errorMsg = perform.andExpect(status().isInternalServerError())
-                .andDo(documentIdentify("food/post/fail/invalidOperation"))
+        perform.andExpect(status().isInternalServerError())
+                .andDo(documentIdentify("food/post/fail/invalidOperation1"))
                 .andReturn()
                 .getResponse()
                 .getContentAsString(StandardCharsets.UTF_8);
-
-        assertThat(errorMsg)
-                .isNotNull();
     }
 
     @Test
@@ -218,14 +199,11 @@ class FoodSaveControllerTest extends PreprocessController {
                 .contentType(MediaType.APPLICATION_JSON_VALUE));
 
         // then
-        String errorMsg = perform.andExpect(status().isInternalServerError())
-                .andDo(documentIdentify("food/post/fail/invalidOperation"))
+        perform.andExpect(status().isInternalServerError())
+                .andDo(documentIdentify("food/post/fail/invalidOperation2"))
                 .andReturn()
                 .getResponse()
                 .getContentAsString(StandardCharsets.UTF_8);
-
-        assertThat(errorMsg)
-                .isNotNull();
     }
 
     @Test
@@ -252,14 +230,11 @@ class FoodSaveControllerTest extends PreprocessController {
                 .contentType(MediaType.APPLICATION_JSON_VALUE));
 
         // then
-        String errorMsg = perform.andExpect(status().isBadRequest())
+        perform.andExpect(status().isBadRequest())
                 .andDo(documentIdentify("food/post/fail/badRequest"))
                 .andReturn()
                 .getResponse()
                 .getContentAsString(StandardCharsets.UTF_8);
-
-        assertThat(errorMsg)
-                .isNotNull();
     }
 
     private List<MockMultipartFile> getFiles(int index) {
@@ -336,14 +311,11 @@ class FoodSaveControllerTest extends PreprocessController {
                 .header(HttpHeaders.AUTHORIZATION, "token"));
 
         // then
-        String result = perform.andExpect(status().isBadRequest())
+        perform.andExpect(status().isBadRequest())
                 .andDo(documentIdentify("food-images/post/badRequest"))
                 .andReturn()
                 .getResponse()
                 .getContentAsString(StandardCharsets.UTF_8);
-
-        assertThat(result)
-                .isNotNull();
     }
 
     @Test

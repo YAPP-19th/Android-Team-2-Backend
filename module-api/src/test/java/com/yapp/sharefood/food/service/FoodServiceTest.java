@@ -3,6 +3,7 @@ package com.yapp.sharefood.food.service;
 import com.yapp.sharefood.category.domain.Category;
 import com.yapp.sharefood.category.exception.CategoryNotFoundException;
 import com.yapp.sharefood.category.repository.CategoryRepository;
+import com.yapp.sharefood.common.service.IntegrationService;
 import com.yapp.sharefood.flavor.domain.Flavor;
 import com.yapp.sharefood.flavor.domain.FlavorType;
 import com.yapp.sharefood.flavor.dto.FlavorDto;
@@ -31,10 +32,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.EntityManager;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -42,12 +41,8 @@ import java.util.stream.Collectors;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
-@SpringBootTest
 @Transactional
-class FoodServiceTest {
-
-    @Autowired
-    EntityManager em;
+class FoodServiceTest extends IntegrationService {
 
     @Autowired
     FoodService foodService;

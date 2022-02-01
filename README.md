@@ -5,6 +5,15 @@
 ![version](https://img.shields.io/github/v/release/YAPP-19th/Android-Team-2-Backend)
 [![Google Play](https://img.shields.io/badge/Play%20Store-gray?style=flat&logo=GooglePlay)](https://play.google.com/store/apps/details?id=com.doctor.yumyum)
 
+|![First Image](https://user-images.githubusercontent.com/66408194/151561451-b8330aa9-d3d3-455a-a7a9-676ae84ee68a.png)|![Second Image](https://user-images.githubusercontent.com/66408194/151561651-9c48171a-b413-4eca-bb9d-67730aa4122c.png)|
+|:-:|:-:|
+
+![Third Image](https://user-images.githubusercontent.com/66408194/151562279-12339059-5452-432b-aab1-d730e3acaf1c.png)|![Fourth Image](https://user-images.githubusercontent.com/66408194/151562551-280ea67a-aa0c-4540-9a53-c0b0a023eb6e.png)|
+|:-:|:-:|
+
+![Fifth Image](https://user-images.githubusercontent.com/66408194/151562576-2df71f57-ecab-4c30-9743-5d9e132c674e.png)|![Sixth Image](https://user-images.githubusercontent.com/66408194/151562612-6a35d4b0-862e-4099-9bf9-bbee899fb507.png)|
+|:-:|:-:|
+
 브랜드 커스텀 메뉴 레시피 저장, 공유 어플리케이션
 
 버터비어 프라푸치노, 돼지바 쉐이크, 슈렉 프라프치노… 기존의 메뉴에 다른 재료들을 조합해서 입맛에 딱 맞게 먹을 수 있는 커스텀 메뉴들.
@@ -30,6 +39,8 @@
 냠냠박사가 설정한 입맛에 딱 맞는 커스텀 메뉴 레시피를 추천해드립니다.
 
 🍜 내가 바로 이 구역 맛잘알! 냠냠박사에 도전해보세요😋
+
+
 
 <br>
 

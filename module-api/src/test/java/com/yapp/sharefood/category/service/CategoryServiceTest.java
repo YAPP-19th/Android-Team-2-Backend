@@ -3,10 +3,10 @@ package com.yapp.sharefood.category.service;
 import com.yapp.sharefood.category.domain.Category;
 import com.yapp.sharefood.category.dto.response.CategoriesTreeResponse;
 import com.yapp.sharefood.category.repository.CategoryRepository;
+import com.yapp.sharefood.common.service.IntegrationService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Comparator;
@@ -15,8 +15,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @Transactional
-@SpringBootTest
-class CategoryServiceTest {
+class CategoryServiceTest extends IntegrationService {
     @Autowired
     CategoryService categoryService;
     @Autowired

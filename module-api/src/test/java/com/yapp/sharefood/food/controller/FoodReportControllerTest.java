@@ -1,17 +1,14 @@
 package com.yapp.sharefood.food.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.yapp.sharefood.common.PreprocessController;
+import com.yapp.sharefood.common.controller.PreprocessController;
 import com.yapp.sharefood.food.domain.FoodReportType;
 import com.yapp.sharefood.food.dto.request.FoodReportRequest;
 import com.yapp.sharefood.food.exception.FoodNotFoundException;
-import com.yapp.sharefood.food.service.FoodReportService;
 import com.yapp.sharefood.oauth.exception.UserNotFoundException;
 import com.yapp.sharefood.report.exception.ReportNotDefineException;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.RequestBuilder;
@@ -19,21 +16,18 @@ import org.springframework.test.web.servlet.ResultActions;
 
 import java.nio.charset.StandardCharsets;
 
-import static com.yapp.sharefood.common.documentation.DocumentationUtils.documentIdentify;
-import static org.junit.jupiter.api.Assertions.*;
+import static com.yapp.sharefood.common.controller.documentation.DocumentationUtils.documentIdentify;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.willThrow;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest(controllers = FoodReportController.class)
 class FoodReportControllerTest extends PreprocessController {
-
-    @MockBean
-    FoodReportService foodReportService;
-
-    ObjectMapper objectMapper = new ObjectMapper();
+    @BeforeEach
+    void setUp() {
+        loginMockSetup();
+    }
 
     @Test
     @DisplayName("신고 성공")
@@ -50,7 +44,7 @@ class FoodReportControllerTest extends PreprocessController {
         ResultActions perform = mockMvc.perform(requestBuilder);
 
         //then
-        String result = perform.andExpect(status().isOk())
+        perform.andExpect(status().isOk())
                 .andDo(documentIdentify("food-report/post/success"))
                 .andReturn()
                 .getResponse()
@@ -74,13 +68,11 @@ class FoodReportControllerTest extends PreprocessController {
         ResultActions perform = mockMvc.perform(requestBuilder);
 
         //then
-        String errMessage = perform.andExpect(status().isNotFound())
+        perform.andExpect(status().isNotFound())
                 .andDo(documentIdentify("food-report/post/fail/foodNotFound"))
                 .andReturn()
                 .getResponse()
                 .getContentAsString(StandardCharsets.UTF_8);
-
-        assertEquals(errMessage, FoodNotFoundException.FOOD_NOT_FOUND_EXCEPTION_MSG);
     }
 
     @Test
@@ -100,13 +92,11 @@ class FoodReportControllerTest extends PreprocessController {
         ResultActions perform = mockMvc.perform(requestBuilder);
 
         //then
-        String errMessage = perform.andExpect(status().isNotFound())
+        perform.andExpect(status().isNotFound())
                 .andDo(documentIdentify("food-report/post/fail/userNotFound"))
                 .andReturn()
                 .getResponse()
                 .getContentAsString(StandardCharsets.UTF_8);
-
-        assertEquals(errMessage, UserNotFoundException.USER_NOT_FOUND_EXCEPTION_MSG);
     }
 
     @Test
@@ -126,12 +116,10 @@ class FoodReportControllerTest extends PreprocessController {
         ResultActions perform = mockMvc.perform(requestBuilder);
 
         //then
-        String errMessage = perform.andExpect(status().isBadRequest())
+        perform.andExpect(status().isBadRequest())
                 .andDo(documentIdentify("food-report/post/fail/reportNotDefine"))
                 .andReturn()
                 .getResponse()
                 .getContentAsString(StandardCharsets.UTF_8);
-
-        assertEquals(errMessage, ReportNotDefineException.NOT_DEFINE_REPORT_EXCEPTION_MSG);
     }
 }

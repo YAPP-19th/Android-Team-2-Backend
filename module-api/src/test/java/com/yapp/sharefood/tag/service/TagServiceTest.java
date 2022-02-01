@@ -1,5 +1,6 @@
 package com.yapp.sharefood.tag.service;
 
+import com.yapp.sharefood.common.service.IntegrationService;
 import com.yapp.sharefood.food.domain.FoodIngredientType;
 import com.yapp.sharefood.food.dto.FoodTagDto;
 import com.yapp.sharefood.tag.domain.Tag;
@@ -10,7 +11,6 @@ import com.yapp.sharefood.tag.repository.TagRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,9 +22,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-@SpringBootTest
 @Transactional
-class TagServiceTest {
+class TagServiceTest extends IntegrationService {
 
     @Autowired
     TagService tagService;

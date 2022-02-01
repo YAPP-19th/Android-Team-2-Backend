@@ -1,26 +1,20 @@
 package com.yapp.sharefood.user.controller;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.yapp.sharefood.common.PreprocessController;
+import com.yapp.sharefood.common.controller.PreprocessController;
 import com.yapp.sharefood.common.exception.ForbiddenException;
 import com.yapp.sharefood.flavor.domain.FlavorType;
 import com.yapp.sharefood.flavor.dto.FlavorDto;
 import com.yapp.sharefood.flavor.dto.request.UserFlavorRequest;
 import com.yapp.sharefood.flavor.dto.response.FlavorsResponse;
-import com.yapp.sharefood.flavor.dto.response.UpdateUserFlavorResponse;
 import com.yapp.sharefood.flavor.exception.FlavorNotFoundException;
-import com.yapp.sharefood.flavor.service.FlavorService;
 import com.yapp.sharefood.oauth.exception.UserNotFoundException;
 import com.yapp.sharefood.user.domain.User;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
 import java.nio.charset.StandardCharsets;
@@ -28,10 +22,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import static com.yapp.sharefood.common.documentation.DocumentationUtils.documentIdentify;
-import static com.yapp.sharefood.common.exception.ForbiddenException.FORBIDDEN_EXCEPTION_MSG;
-import static com.yapp.sharefood.flavor.exception.FlavorNotFoundException.FLAVOR_NOT_FOUND_EXCEPTION_MSG;
-import static com.yapp.sharefood.oauth.exception.UserNotFoundException.USER_NOT_FOUND_EXCEPTION_MSG;
+import static com.yapp.sharefood.common.controller.documentation.DocumentationUtils.documentIdentify;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -41,15 +32,12 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest(controllers = UserFlavorController.class)
-public class UserFlavorControllerTest extends PreprocessController {
-    @Autowired
-    MockMvc mockMvc;
+public class UserFlavorControllerProcess extends PreprocessController {
 
-    @MockBean
-    FlavorService flavorService;
-
-    ObjectMapper objectMapper = new ObjectMapper();
+    @BeforeEach
+    void setUp() {
+        loginMockSetup();
+    }
 
     @DisplayName("입맛 찾기 성공")
     @Test
@@ -95,16 +83,11 @@ public class UserFlavorControllerTest extends PreprocessController {
                 .header(HttpHeaders.AUTHORIZATION, "token"));
 
         //then
-        String errMsg = perform.andExpect(status().isForbidden())
+        perform.andExpect(status().isForbidden())
                 .andDo(documentIdentify("user-flavor/get/fail/forbidden"))
                 .andReturn()
                 .getResponse()
                 .getContentAsString(StandardCharsets.UTF_8);
-
-        assertThat(errMsg)
-                .isNotNull()
-                .isNotEmpty()
-                .isEqualTo(FORBIDDEN_EXCEPTION_MSG);
     }
 
     @DisplayName("입맛 찾기 요청 중 유저가 없는 경우")
@@ -119,16 +102,11 @@ public class UserFlavorControllerTest extends PreprocessController {
                 .header(HttpHeaders.AUTHORIZATION, "token"));
 
         //then
-        String errMsg = perform.andExpect(status().isNotFound())
+        perform.andExpect(status().isNotFound())
                 .andDo(documentIdentify("user-flavor/get/fail/userNotFound"))
                 .andReturn()
                 .getResponse()
                 .getContentAsString(StandardCharsets.UTF_8);
-
-        assertThat(errMsg)
-                .isNotNull()
-                .isNotEmpty()
-                .isEqualTo(USER_NOT_FOUND_EXCEPTION_MSG);
     }
 
     @DisplayName("입맛 등록 성공")
@@ -178,16 +156,11 @@ public class UserFlavorControllerTest extends PreprocessController {
                 .content(objectMapper.writeValueAsString(request)));
 
         //then
-        String errMsg = perform.andExpect(status().isForbidden())
+        perform.andExpect(status().isForbidden())
                 .andDo(documentIdentify("user-flavor/post/fail/forbidden"))
                 .andReturn()
                 .getResponse()
                 .getContentAsString(StandardCharsets.UTF_8);
-
-        assertThat(errMsg)
-                .isNotNull()
-                .isNotEmpty()
-                .isEqualTo(FORBIDDEN_EXCEPTION_MSG);
     }
 
     @DisplayName("입맛 등록 요청 중 입맛 정보를 찾을 수 없는 경우")
@@ -206,15 +179,10 @@ public class UserFlavorControllerTest extends PreprocessController {
                 .content(objectMapper.writeValueAsString(request)));
 
         //then
-        String errMsg = perform.andExpect(status().isNotFound())
+        perform.andExpect(status().isNotFound())
                 .andDo(documentIdentify("user-flavor/post/fail/flavorNotFound"))
                 .andReturn()
                 .getResponse()
                 .getContentAsString(StandardCharsets.UTF_8);
-
-        assertThat(errMsg)
-                .isNotNull()
-                .isNotEmpty()
-                .isEqualTo(FLAVOR_NOT_FOUND_EXCEPTION_MSG);
     }
 }

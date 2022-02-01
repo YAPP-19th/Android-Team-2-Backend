@@ -1,8 +1,7 @@
 package com.yapp.sharefood.food.controller;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.yapp.sharefood.common.PreprocessController;
+import com.yapp.sharefood.common.controller.PreprocessController;
 import com.yapp.sharefood.common.exception.ForbiddenException;
 import com.yapp.sharefood.food.domain.FoodIngredientType;
 import com.yapp.sharefood.food.dto.FoodImageDto;
@@ -17,19 +16,14 @@ import com.yapp.sharefood.food.dto.response.FoodPageResponse;
 import com.yapp.sharefood.food.dto.response.RecommendationFoodResponse;
 import com.yapp.sharefood.food.dto.response.TopRankFoodResponse;
 import com.yapp.sharefood.food.exception.FoodNotFoundException;
-import com.yapp.sharefood.food.service.FoodImageService;
-import com.yapp.sharefood.food.service.FoodService;
 import com.yapp.sharefood.user.domain.User;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpHeaders;
-import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
 import java.nio.charset.StandardCharsets;
@@ -37,7 +31,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
-import static com.yapp.sharefood.common.documentation.DocumentationUtils.documentIdentify;
+import static com.yapp.sharefood.common.controller.documentation.DocumentationUtils.documentIdentify;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -49,16 +43,12 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 
-@WebMvcTest(controllers = FoodController.class)
-public class FoodControllerTest extends PreprocessController {
-    @Autowired
-    MockMvc mockMvc;
+class FoodControllerTest extends PreprocessController {
 
-    @MockBean
-    FoodService foodService;
-    @MockBean
-    FoodImageService foodImageService;
-    ObjectMapper objectMapper = new ObjectMapper();
+    @BeforeEach
+    void setUp() {
+        loginMockSetup();
+    }
 
     @Test
     @DisplayName("food Top rank 조회 기능")
@@ -115,14 +105,11 @@ public class FoodControllerTest extends PreprocessController {
                 .param("categoryName", "음식"));
 
         // then
-        String errorMsg = perform.andExpect(status().isBadRequest())
+        perform.andExpect(status().isBadRequest())
                 .andDo(documentIdentify(String.format("food-rank/get/fail/badRequest-top/%d", testCaseIndex)))
                 .andReturn()
                 .getResponse()
                 .getContentAsString(StandardCharsets.UTF_8);
-
-        assertThat(errorMsg)
-                .isNotNull();
     }
 
     static Stream<Arguments> findTopRankFoodTopParameterIssueTest_Fail_BadRequest() {
@@ -145,14 +132,11 @@ public class FoodControllerTest extends PreprocessController {
                 .param("categoryName", "음식"));
 
         // then
-        String errorMsg = perform.andExpect(status().isBadRequest())
+        perform.andExpect(status().isBadRequest())
                 .andDo(documentIdentify(String.format("food-rank/get/fail/badRequest-datePeriod/%d", testCaseIndex)))
                 .andReturn()
                 .getResponse()
                 .getContentAsString(StandardCharsets.UTF_8);
-
-        assertThat(errorMsg)
-                .isNotNull();
     }
 
     static Stream<Arguments> findTopRankFoodRankDatePeriodParameterIssueTest_Fail_BadRequest() {
@@ -217,14 +201,11 @@ public class FoodControllerTest extends PreprocessController {
                 .param("categoryName", "음식"));
 
         // then
-        String errorMsg = perform.andExpect(status().isBadRequest())
+        perform.andExpect(status().isBadRequest())
                 .andDo(documentIdentify(String.format("food-recommendation/get/fail/badRequest-top/%d", testCaseIndex)))
                 .andReturn()
                 .getResponse()
                 .getContentAsString(StandardCharsets.UTF_8);
-
-        assertThat(errorMsg)
-                .isNotNull();
     }
 
     static Stream<Arguments> recommendationFoodTopParameterTest_Fail_BadRequest() {
@@ -247,14 +228,11 @@ public class FoodControllerTest extends PreprocessController {
                 .param("categoryName", "음식"));
 
         // then
-        String errorMsg = perform.andExpect(status().isBadRequest())
+        perform.andExpect(status().isBadRequest())
                 .andDo(documentIdentify(String.format("food-recommendation/get/fail/badRequest-datePeriod/%d", testCaseIndex)))
                 .andReturn()
                 .getResponse()
                 .getContentAsString(StandardCharsets.UTF_8);
-
-        assertThat(errorMsg)
-                .isNotNull();
     }
 
     static Stream<Arguments> recommendationFoodRankDatePeriodIssueTest_Fail_BadRequest() {
@@ -319,16 +297,11 @@ public class FoodControllerTest extends PreprocessController {
                 .header(HttpHeaders.AUTHORIZATION, "token"));
 
         // then
-        String errorMsg = perform
-                .andExpect(status().isNotFound())
+        perform.andExpect(status().isNotFound())
                 .andDo(documentIdentify("food-detail/get/fail/foodNotFound"))
                 .andReturn()
                 .getResponse()
                 .getContentAsString(StandardCharsets.UTF_8);
-
-        assertThat(errorMsg)
-                .isNotNull()
-                .isEqualTo(FoodNotFoundException.FOOD_NOT_FOUND_EXCEPTION_MSG);
     }
 
     @Test
@@ -363,16 +336,11 @@ public class FoodControllerTest extends PreprocessController {
                 .header(HttpHeaders.AUTHORIZATION, "token"));
 
         // then
-        String errorMsg = perform
-                .andExpect(status().isForbidden())
+        perform.andExpect(status().isForbidden())
                 .andDo(documentIdentify("food/delete/fail/forbidden"))
                 .andReturn()
                 .getResponse()
                 .getContentAsString(StandardCharsets.UTF_8);
-
-        assertThat(errorMsg)
-                .isNotNull()
-                .isEqualTo(ForbiddenException.FORBIDDEN_EXCEPTION_MSG);
     }
 
     @Test
@@ -387,16 +355,11 @@ public class FoodControllerTest extends PreprocessController {
                 .header(HttpHeaders.AUTHORIZATION, "token"));
 
         // then
-        String errorMsg = perform
-                .andExpect(status().isNotFound())
+        perform.andExpect(status().isNotFound())
                 .andDo(documentIdentify("food/delete/fail/foodNotFound"))
                 .andReturn()
                 .getResponse()
                 .getContentAsString(StandardCharsets.UTF_8);
-
-        assertThat(errorMsg)
-                .isNotNull()
-                .isEqualTo(FoodNotFoundException.FOOD_NOT_FOUND_EXCEPTION_MSG);
     }
 
     @Test
