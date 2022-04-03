@@ -26,7 +26,8 @@ public class WebMvcConfig implements WebMvcConfigurer {
                 .excludePathPatterns("/api/v1/auth/creation")
                 .excludePathPatterns("/api/v1/users/auth")
                 .excludePathPatterns("/api/v1/users/creation")
-                .excludePathPatterns("/api/v1/users/nickname");
+                .excludePathPatterns("/api/v1/users/nickname")
+                .excludePathPatterns("/mockUser/**");
     }
 
     @Override
