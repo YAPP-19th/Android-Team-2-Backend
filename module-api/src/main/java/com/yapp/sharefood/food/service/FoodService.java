@@ -5,7 +5,6 @@ import com.yapp.sharefood.category.exception.CategoryNotFoundException;
 import com.yapp.sharefood.category.repository.CategoryRepository;
 import com.yapp.sharefood.common.exception.BadRequestException;
 import com.yapp.sharefood.common.exception.ForbiddenException;
-import com.yapp.sharefood.common.exception.InvalidOperationException;
 import com.yapp.sharefood.common.order.SortType;
 import com.yapp.sharefood.common.utils.LocalDateTimePeriodUtils;
 import com.yapp.sharefood.flavor.domain.Flavor;
@@ -38,6 +37,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import static com.yapp.sharefood.food.dto.FoodPageDto.toList;
@@ -48,6 +48,7 @@ import static com.yapp.sharefood.food.dto.FoodPageDto.toList;
 public class FoodService {
 
     private static final int MIN_PAGE_OFFSET = 0;
+    private final Map<String, FoodPageReadStrategy> foodPageReadStrategyMap;
 
     private final UserRepository userRepository;
     private final FoodRepository foodRepository;
@@ -246,27 +247,13 @@ public class FoodService {
                 .searchTime(foodPageSearchRequest.getFirstSearchTime())
                 .build();
 
-        List<Food> pageFoods = findFoodPageBySearch(foodPageSearch);
+        List<Food> pageFoods = foodPageReadStrategyMap.get(FoodPageReadType.of(foodPageSearch).getKey()).findFoodPageBySearch(foodPageSearch);
 
         if (pageFoods.size() < foodPageSearchRequest.getPageSize()) {
             return FoodPageResponse.ofLastPage(pageFoods, foodPageSearchRequest.getPageSize(), user);
         }
 
         return FoodPageResponse.of(pageFoods, foodPageSearchRequest.getPageSize(), foodPageSearch.getOffset(), user);
-    }
-
-    private List<Food> findFoodPageBySearch(FoodPageSearch foodPageSearch) {
-        if (!foodPageSearch.getTags().isEmpty() && !foodPageSearch.getFlavors().isEmpty()) {
-            throw new InvalidOperationException("flavor와 tag는 중복으로 filter 할 수 없습니다.");
-        }
-
-        if (!foodPageSearch.getTags().isEmpty()) {
-            return foodRepository.findFoodFilterWithTag(foodPageSearch);
-        } else if (!foodPageSearch.getFlavors().isEmpty()) {
-            return foodRepository.findFoodFilterWithFlavor(foodPageSearch);
-        }
-
-        return foodRepository.findFoodNormalSearch(foodPageSearch);
     }
 
     public FoodPageResponse findOnlyMineFoods(User user, FoodMinePageSearchRequest foodMinePageSearchRequest) {
