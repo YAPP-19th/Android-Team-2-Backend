@@ -9,9 +9,10 @@ import com.yapp.sharefood.common.order.SortType;
 import com.yapp.sharefood.common.utils.LocalDateTimePeriodUtils;
 import com.yapp.sharefood.flavor.domain.Flavor;
 import com.yapp.sharefood.flavor.domain.FlavorType;
-import com.yapp.sharefood.flavor.dto.FlavorDto;
 import com.yapp.sharefood.flavor.repository.FlavorRepository;
-import com.yapp.sharefood.food.domain.*;
+import com.yapp.sharefood.food.domain.Food;
+import com.yapp.sharefood.food.domain.FoodReportStatus;
+import com.yapp.sharefood.food.domain.TagWrapper;
 import com.yapp.sharefood.food.dto.*;
 import com.yapp.sharefood.food.dto.request.*;
 import com.yapp.sharefood.food.dto.response.FoodDetailResponse;
@@ -21,7 +22,6 @@ import com.yapp.sharefood.food.dto.response.TopRankFoodResponse;
 import com.yapp.sharefood.food.exception.FoodBanndedException;
 import com.yapp.sharefood.food.exception.FoodNotFoundException;
 import com.yapp.sharefood.food.repository.FoodRepository;
-import com.yapp.sharefood.food.repository.FoodTagRepository;
 import com.yapp.sharefood.like.projection.TopLikeProjection;
 import com.yapp.sharefood.like.repository.LikeRepository;
 import com.yapp.sharefood.oauth.exception.UserNotFoundException;
@@ -52,7 +52,6 @@ public class FoodService {
 
     private final UserRepository userRepository;
     private final FoodRepository foodRepository;
-    private final FoodTagRepository foodTagRepository;
     private final TagRepository tagRepository;
 
     private final CategoryRepository categoryRepository;
@@ -117,26 +116,12 @@ public class FoodService {
 
 
     public FoodDetailResponse findFoodDetailById(User user, Long foodId) {
-        Food food = foodRepository.findFoodWithWriterAndCategoryById(foodId)
-                .orElseThrow(FoodNotFoundException::new);
+        Food food = foodRepository.findFoodWithWriterAndCategoryById(foodId).orElseThrow(FoodNotFoundException::new);
 
-        if (food.getReportStatus() != FoodReportStatus.NORMAL) throw new FoodBanndedException();
+        if (food.getReportStatus() != FoodReportStatus.NORMAL)
+            throw new FoodBanndedException();
 
-        return FoodDetailResponse.builder()
-                .id(food.getId())
-                .foodTitle(food.getFoodTitle())
-                .writerName(food.getWriterNickname())
-                .reviewDetail(food.getReviewMsg())
-                .price(food.getPrice())
-                .numberOfLike(food.getLikeNumber())
-                .isMyFood(food.isMyFood(user))
-                .isMeLike(food.isMeLike(user))
-                .categoryName(food.getCategory().getName())
-                .isMeBookmark(food.isMeBookMark(user))
-                .foodImages(FoodImageDto.toList(food.getImages().getImages()))
-                .foodTags(findFoodTagsByFoodTag(food.getFoodTags().getFoodTags()))
-                .foodFlavors(findFlavorFromFood(food.getFoodFlavors().getFoodFlavors()))
-                .build();
+        return FoodDetailResponse.toFoodDetailDto(user, food);
     }
 
     @Transactional
@@ -155,21 +140,6 @@ public class FoodService {
         }
     }
 
-    private List<FoodTagDto> findFoodTagsByFoodTag(List<FoodTag> foodTags) {
-        List<Long> tagIds = foodTags.stream()
-                .map(FoodTag::getId)
-                .collect(Collectors.toList());
-        return foodTagRepository.findFoodtagsWithTag(tagIds)
-                .stream().map(foodTag -> FoodTagDto.of(foodTag.getTag().getId(), foodTag.getTag().getName(), foodTag.getIngredientType()))
-                .collect(Collectors.toList());
-    }
-
-    private List<FlavorDto> findFlavorFromFood(List<FoodFlavor> foodFlavors) {
-        return foodFlavors.stream()
-                .map(foodFlavor -> FlavorDto.of(foodFlavor.getFlavor().getId(), foodFlavor.getFlavor().getFlavorType()))
-                .collect(Collectors.toList());
-    }
-
     public TopRankFoodResponse findTopRankFoods(FoodTopRankRequest foodTopRankRequest, User user) {
         LocalDateTime before = LocalDateTimePeriodUtils.getBeforePeriod(foodTopRankRequest.getRankDatePeriod());
         LocalDateTime now = LocalDateTimePeriodUtils.now();
@@ -178,7 +148,8 @@ public class FoodService {
         return TopRankFoodResponse.of(foodPageDtos);
     }
 
-    private List<FoodPageDto> getTopRankPageData(int rank, String categoryName, LocalDateTime before, LocalDateTime now, User user) {
+    private List<FoodPageDto> getTopRankPageData(int rank, String categoryName, LocalDateTime
+            before, LocalDateTime now, User user) {
         List<Category> categoryWithChildrenByName = findCategoryWithChildrenByName(categoryName);
         List<TopLikeProjection> topFoodIdsByCount =
                 likeRepository.findTopFoodIdsByCount(rank, categoryWithChildrenByName, before, now);
@@ -202,7 +173,8 @@ public class FoodService {
         return allCategories;
     }
 
-    public RecommendationFoodResponse findFoodRecommendation(RecommendationFoodRequest recommendationFoodRequest, User user) {
+    public RecommendationFoodResponse findFoodRecommendation(RecommendationFoodRequest
+                                                                     recommendationFoodRequest, User user) {
 
         LocalDateTime before = LocalDateTimePeriodUtils.getBeforePeriod(recommendationFoodRequest.getRankDatePeriod());
         LocalDateTime now = LocalDateTimePeriodUtils.now();
