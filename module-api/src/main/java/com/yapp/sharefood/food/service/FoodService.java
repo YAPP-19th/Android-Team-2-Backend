@@ -34,10 +34,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.yapp.sharefood.food.dto.FoodPageDto.toList;
@@ -195,7 +192,7 @@ public class FoodService {
 
     public FoodPageResponse searchFoodsPage(FoodPageSearchRequest foodPageSearchRequest, User user) {
         if (foodPageSearchRequest.getOffset() < MIN_PAGE_OFFSET) {
-            return FoodPageResponse.ofLastPage(List.of(), foodPageSearchRequest.getPageSize(), user);
+            return FoodPageResponse.ofLastPage(Collections.emptyList(), foodPageSearchRequest.getPageSize(), user);
         }
 
         Category category = categoryRepository.findByName(foodPageSearchRequest.getCategoryName())
@@ -205,7 +202,7 @@ public class FoodService {
 
         if ((foodPageSearchRequest.getTags().size() > ZERO_SIZE && tags.size() == ZERO_SIZE)
                 || (foodPageSearchRequest.getFlavors().size() > ZERO_SIZE && flavors.size() == ZERO_SIZE)) {
-            return FoodPageResponse.ofLastPage(new ArrayList<>(), foodPageSearchRequest.getPageSize(), user);
+            return FoodPageResponse.ofLastPage(Collections.emptyList(), foodPageSearchRequest.getPageSize(), user);
         }
 
         FoodPageSearch foodPageSearch = FoodPageSearch.builder()
@@ -221,11 +218,8 @@ public class FoodService {
                 .searchTime(foodPageSearchRequest.getFirstSearchTime())
                 .build();
 
-        List<Food> pageFoods = foodPageReadStrategyMap.get(FoodPageReadType.of(foodPageSearch).getKey()).findFoodPageBySearch(foodPageSearch);
-
-        if (pageFoods.size() < foodPageSearchRequest.getPageSize()) {
-            return FoodPageResponse.ofLastPage(pageFoods, foodPageSearchRequest.getPageSize(), user);
-        }
+        FoodPageReadStrategy foodPageReadStrategy = foodPageReadStrategyMap.get(FoodPageReadType.of(foodPageSearch).getKey());
+        List<Food> pageFoods = foodPageReadStrategy.findFoodPageBySearch(foodPageSearch);
 
         return FoodPageResponse.of(pageFoods, foodPageSearchRequest.getPageSize(), foodPageSearch.getOffset(), user);
     }
@@ -237,10 +231,6 @@ public class FoodService {
         }
         List<Category> categoryWithChildrenByName = findCategoryWithChildrenByName(foodMinePageSearchRequest.getCategoryName());
         List<Food> pageFoods = findMineFoods(user, flavors, categoryWithChildrenByName, foodMinePageSearchRequest);
-
-        if (pageFoods.size() < foodMinePageSearchRequest.getPageSize()) {
-            return FoodPageResponse.ofLastPage(pageFoods, foodMinePageSearchRequest.getPageSize(), user);
-        }
 
         return FoodPageResponse.of(pageFoods, foodMinePageSearchRequest.getPageSize(), foodMinePageSearchRequest.getOffset(), user);
     }

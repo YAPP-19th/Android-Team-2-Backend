@@ -31,6 +31,10 @@ public class FoodPageResponse {
         List<FoodPageDto> content = foods.stream()
                 .map(food -> FoodPageDto.toFoodPageDto(food, user))
                 .collect(Collectors.toList());
+
+        if (foods.size() < pageSize) {
+            return new FoodPageResponse(content, pageSize, -1L);
+        }
         return new FoodPageResponse(content, pageSize, offset);
     }
 
