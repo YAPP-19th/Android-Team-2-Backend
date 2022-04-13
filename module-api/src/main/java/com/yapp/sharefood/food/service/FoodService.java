@@ -48,6 +48,8 @@ import static com.yapp.sharefood.food.dto.FoodPageDto.toList;
 public class FoodService {
 
     private static final int MIN_PAGE_OFFSET = 0;
+    private static final int ZERO_SIZE = 0;
+
     private final Map<String, FoodPageReadStrategy> foodPageReadStrategyMap;
 
     private final UserRepository userRepository;
@@ -201,8 +203,8 @@ public class FoodService {
         List<Tag> tags = tagRepository.findByNameIn(foodPageSearchRequest.getTags());
         List<Flavor> flavors = flavorRepository.findByFlavorTypeIsIn(FlavorType.toList(foodPageSearchRequest.getFlavors()));
 
-        if ((foodPageSearchRequest.getTags().size() > 0 && tags.size() == 0)
-                || (foodPageSearchRequest.getFlavors().size() > 0 && flavors.size() == 0)) {
+        if ((foodPageSearchRequest.getTags().size() > ZERO_SIZE && tags.size() == ZERO_SIZE)
+                || (foodPageSearchRequest.getFlavors().size() > ZERO_SIZE && flavors.size() == ZERO_SIZE)) {
             return FoodPageResponse.ofLastPage(new ArrayList<>(), foodPageSearchRequest.getPageSize(), user);
         }
 
@@ -230,7 +232,7 @@ public class FoodService {
 
     public FoodPageResponse findOnlyMineFoods(User user, FoodMinePageSearchRequest foodMinePageSearchRequest) {
         List<Flavor> flavors = flavorRepository.findByFlavorTypeIsIn(FlavorType.toList(foodMinePageSearchRequest.getFlavors()));
-        if (foodMinePageSearchRequest.getFlavors().size() > 0 && flavors.isEmpty()) {
+        if (foodMinePageSearchRequest.getFlavors().size() > ZERO_SIZE && flavors.isEmpty()) {
             return FoodPageResponse.ofLastPage(new ArrayList<>(), foodMinePageSearchRequest.getPageSize(), user);
         }
         List<Category> categoryWithChildrenByName = findCategoryWithChildrenByName(foodMinePageSearchRequest.getCategoryName());
