@@ -13,7 +13,7 @@ public enum OrderType {
     DESC("desc"),
     ASC("asc");
 
-    private String order;
+    private final String order;
 
     public static OrderType of(String value) {
         if (Objects.isNull(value)) {

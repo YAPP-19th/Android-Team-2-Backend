@@ -11,7 +11,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Data
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -52,10 +51,6 @@ public class FoodDetailResponse {
     }
 
     public static FoodDetailResponse toFoodDetailDto(User user, Food food) {
-        List<FoodTagDto> foodTagDtos = food.getFoodTags().getFoodTags().stream()
-                .map(foodTag -> FoodTagDto.of(foodTag.getId(), foodTag.getTag().getName(), foodTag.getIngredientType()))
-                .collect(Collectors.toList());
-
         return FoodDetailResponse.builder()
                 .id(food.getId())
                 .foodTitle(food.getFoodTitle())
@@ -67,7 +62,7 @@ public class FoodDetailResponse {
                 .isMeLike(food.isMeLike(food.getWriter()))
                 .isMeBookmark(food.isMeBookMark(food.getWriter()))
                 .writerName(food.getWriterNickname())
-                .foodTags(foodTagDtos)
+                .foodTags(FoodTagDto.toList(food.getFoodTags().getFoodTags()))
                 .foodFlavors(FlavorDto.toFoodFlavor(food.getFoodFlavors().getFoodFlavors()))
                 .foodImages(FoodImageDto.toList(food.getImages().getImages()))
                 .build();

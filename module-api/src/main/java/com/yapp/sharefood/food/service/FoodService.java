@@ -5,14 +5,14 @@ import com.yapp.sharefood.category.exception.CategoryNotFoundException;
 import com.yapp.sharefood.category.repository.CategoryRepository;
 import com.yapp.sharefood.common.exception.BadRequestException;
 import com.yapp.sharefood.common.exception.ForbiddenException;
-import com.yapp.sharefood.common.exception.InvalidOperationException;
 import com.yapp.sharefood.common.order.SortType;
 import com.yapp.sharefood.common.utils.LocalDateTimePeriodUtils;
 import com.yapp.sharefood.flavor.domain.Flavor;
 import com.yapp.sharefood.flavor.domain.FlavorType;
-import com.yapp.sharefood.flavor.dto.FlavorDto;
 import com.yapp.sharefood.flavor.repository.FlavorRepository;
-import com.yapp.sharefood.food.domain.*;
+import com.yapp.sharefood.food.domain.Food;
+import com.yapp.sharefood.food.domain.FoodReportStatus;
+import com.yapp.sharefood.food.domain.TagWrapper;
 import com.yapp.sharefood.food.dto.*;
 import com.yapp.sharefood.food.dto.request.*;
 import com.yapp.sharefood.food.dto.response.FoodDetailResponse;
@@ -22,7 +22,6 @@ import com.yapp.sharefood.food.dto.response.TopRankFoodResponse;
 import com.yapp.sharefood.food.exception.FoodBanndedException;
 import com.yapp.sharefood.food.exception.FoodNotFoundException;
 import com.yapp.sharefood.food.repository.FoodRepository;
-import com.yapp.sharefood.food.repository.FoodTagRepository;
 import com.yapp.sharefood.like.projection.TopLikeProjection;
 import com.yapp.sharefood.like.repository.LikeRepository;
 import com.yapp.sharefood.oauth.exception.UserNotFoundException;
@@ -35,9 +34,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.yapp.sharefood.food.dto.FoodPageDto.toList;
@@ -48,10 +45,12 @@ import static com.yapp.sharefood.food.dto.FoodPageDto.toList;
 public class FoodService {
 
     private static final int MIN_PAGE_OFFSET = 0;
+    private static final int ZERO_SIZE = 0;
+
+    private final Map<String, FoodPageReadStrategy> foodPageReadStrategyMap;
 
     private final UserRepository userRepository;
     private final FoodRepository foodRepository;
-    private final FoodTagRepository foodTagRepository;
     private final TagRepository tagRepository;
 
     private final CategoryRepository categoryRepository;
@@ -116,26 +115,12 @@ public class FoodService {
 
 
     public FoodDetailResponse findFoodDetailById(User user, Long foodId) {
-        Food food = foodRepository.findFoodWithWriterAndCategoryById(foodId)
-                .orElseThrow(FoodNotFoundException::new);
+        Food food = foodRepository.findFoodWithWriterAndCategoryById(foodId).orElseThrow(FoodNotFoundException::new);
 
-        if (food.getReportStatus() != FoodReportStatus.NORMAL) throw new FoodBanndedException();
+        if (food.getReportStatus() != FoodReportStatus.NORMAL)
+            throw new FoodBanndedException();
 
-        return FoodDetailResponse.builder()
-                .id(food.getId())
-                .foodTitle(food.getFoodTitle())
-                .writerName(food.getWriterNickname())
-                .reviewDetail(food.getReviewMsg())
-                .price(food.getPrice())
-                .numberOfLike(food.getLikeNumber())
-                .isMyFood(food.isMyFood(user))
-                .isMeLike(food.isMeLike(user))
-                .categoryName(food.getCategory().getName())
-                .isMeBookmark(food.isMeBookMark(user))
-                .foodImages(FoodImageDto.toList(food.getImages().getImages()))
-                .foodTags(findFoodTagsByFoodTag(food.getFoodTags().getFoodTags()))
-                .foodFlavors(findFlavorFromFood(food.getFoodFlavors().getFoodFlavors()))
-                .build();
+        return FoodDetailResponse.toFoodDetailDto(user, food);
     }
 
     @Transactional
@@ -154,21 +139,6 @@ public class FoodService {
         }
     }
 
-    private List<FoodTagDto> findFoodTagsByFoodTag(List<FoodTag> foodTags) {
-        List<Long> tagIds = foodTags.stream()
-                .map(FoodTag::getId)
-                .collect(Collectors.toList());
-        return foodTagRepository.findFoodtagsWithTag(tagIds)
-                .stream().map(foodTag -> FoodTagDto.of(foodTag.getTag().getId(), foodTag.getTag().getName(), foodTag.getIngredientType()))
-                .collect(Collectors.toList());
-    }
-
-    private List<FlavorDto> findFlavorFromFood(List<FoodFlavor> foodFlavors) {
-        return foodFlavors.stream()
-                .map(foodFlavor -> FlavorDto.of(foodFlavor.getFlavor().getId(), foodFlavor.getFlavor().getFlavorType()))
-                .collect(Collectors.toList());
-    }
-
     public TopRankFoodResponse findTopRankFoods(FoodTopRankRequest foodTopRankRequest, User user) {
         LocalDateTime before = LocalDateTimePeriodUtils.getBeforePeriod(foodTopRankRequest.getRankDatePeriod());
         LocalDateTime now = LocalDateTimePeriodUtils.now();
@@ -177,7 +147,8 @@ public class FoodService {
         return TopRankFoodResponse.of(foodPageDtos);
     }
 
-    private List<FoodPageDto> getTopRankPageData(int rank, String categoryName, LocalDateTime before, LocalDateTime now, User user) {
+    private List<FoodPageDto> getTopRankPageData(int rank, String categoryName, LocalDateTime
+            before, LocalDateTime now, User user) {
         List<Category> categoryWithChildrenByName = findCategoryWithChildrenByName(categoryName);
         List<TopLikeProjection> topFoodIdsByCount =
                 likeRepository.findTopFoodIdsByCount(rank, categoryWithChildrenByName, before, now);
@@ -201,7 +172,8 @@ public class FoodService {
         return allCategories;
     }
 
-    public RecommendationFoodResponse findFoodRecommendation(RecommendationFoodRequest recommendationFoodRequest, User user) {
+    public RecommendationFoodResponse findFoodRecommendation(RecommendationFoodRequest
+                                                                     recommendationFoodRequest, User user) {
 
         LocalDateTime before = LocalDateTimePeriodUtils.getBeforePeriod(recommendationFoodRequest.getRankDatePeriod());
         LocalDateTime now = LocalDateTimePeriodUtils.now();
@@ -220,7 +192,7 @@ public class FoodService {
 
     public FoodPageResponse searchFoodsPage(FoodPageSearchRequest foodPageSearchRequest, User user) {
         if (foodPageSearchRequest.getOffset() < MIN_PAGE_OFFSET) {
-            return FoodPageResponse.ofLastPage(List.of(), foodPageSearchRequest.getPageSize(), user);
+            return FoodPageResponse.ofLastPage(Collections.emptyList(), foodPageSearchRequest.getPageSize(), user);
         }
 
         Category category = categoryRepository.findByName(foodPageSearchRequest.getCategoryName())
@@ -228,9 +200,9 @@ public class FoodService {
         List<Tag> tags = tagRepository.findByNameIn(foodPageSearchRequest.getTags());
         List<Flavor> flavors = flavorRepository.findByFlavorTypeIsIn(FlavorType.toList(foodPageSearchRequest.getFlavors()));
 
-        if ((foodPageSearchRequest.getTags().size() > 0 && tags.size() == 0)
-                || (foodPageSearchRequest.getFlavors().size() > 0 && flavors.size() == 0)) {
-            return FoodPageResponse.ofLastPage(new ArrayList<>(), foodPageSearchRequest.getPageSize(), user);
+        if ((foodPageSearchRequest.getTags().size() > ZERO_SIZE && tags.size() == ZERO_SIZE)
+                || (foodPageSearchRequest.getFlavors().size() > ZERO_SIZE && flavors.size() == ZERO_SIZE)) {
+            return FoodPageResponse.ofLastPage(Collections.emptyList(), foodPageSearchRequest.getPageSize(), user);
         }
 
         FoodPageSearch foodPageSearch = FoodPageSearch.builder()
@@ -246,40 +218,19 @@ public class FoodService {
                 .searchTime(foodPageSearchRequest.getFirstSearchTime())
                 .build();
 
-        List<Food> pageFoods = findFoodPageBySearch(foodPageSearch);
-
-        if (pageFoods.size() < foodPageSearchRequest.getPageSize()) {
-            return FoodPageResponse.ofLastPage(pageFoods, foodPageSearchRequest.getPageSize(), user);
-        }
+        FoodPageReadStrategy foodPageReadStrategy = foodPageReadStrategyMap.get(FoodPageReadType.of(foodPageSearch).getKey());
+        List<Food> pageFoods = foodPageReadStrategy.findFoodPageBySearch(foodPageSearch);
 
         return FoodPageResponse.of(pageFoods, foodPageSearchRequest.getPageSize(), foodPageSearch.getOffset(), user);
     }
 
-    private List<Food> findFoodPageBySearch(FoodPageSearch foodPageSearch) {
-        if (!foodPageSearch.getTags().isEmpty() && !foodPageSearch.getFlavors().isEmpty()) {
-            throw new InvalidOperationException("flavor와 tag는 중복으로 filter 할 수 없습니다.");
-        }
-
-        if (!foodPageSearch.getTags().isEmpty()) {
-            return foodRepository.findFoodFilterWithTag(foodPageSearch);
-        } else if (!foodPageSearch.getFlavors().isEmpty()) {
-            return foodRepository.findFoodFilterWithFlavor(foodPageSearch);
-        }
-
-        return foodRepository.findFoodNormalSearch(foodPageSearch);
-    }
-
     public FoodPageResponse findOnlyMineFoods(User user, FoodMinePageSearchRequest foodMinePageSearchRequest) {
         List<Flavor> flavors = flavorRepository.findByFlavorTypeIsIn(FlavorType.toList(foodMinePageSearchRequest.getFlavors()));
-        if (foodMinePageSearchRequest.getFlavors().size() > 0 && flavors.isEmpty()) {
+        if (foodMinePageSearchRequest.getFlavors().size() > ZERO_SIZE && flavors.isEmpty()) {
             return FoodPageResponse.ofLastPage(new ArrayList<>(), foodMinePageSearchRequest.getPageSize(), user);
         }
         List<Category> categoryWithChildrenByName = findCategoryWithChildrenByName(foodMinePageSearchRequest.getCategoryName());
         List<Food> pageFoods = findMineFoods(user, flavors, categoryWithChildrenByName, foodMinePageSearchRequest);
-
-        if (pageFoods.size() < foodMinePageSearchRequest.getPageSize()) {
-            return FoodPageResponse.ofLastPage(pageFoods, foodMinePageSearchRequest.getPageSize(), user);
-        }
 
         return FoodPageResponse.of(pageFoods, foodMinePageSearchRequest.getPageSize(), foodMinePageSearchRequest.getOffset(), user);
     }
