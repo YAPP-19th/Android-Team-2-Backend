@@ -8,7 +8,6 @@ import com.yapp.sharefood.bookmark.controller.BookmarkController;
 import com.yapp.sharefood.bookmark.service.BookmarkService;
 import com.yapp.sharefood.category.controller.CategoryController;
 import com.yapp.sharefood.category.service.CategoryService;
-import com.yapp.sharefood.config.lock.UserLevelLock;
 import com.yapp.sharefood.favorite.controller.FavoriteController;
 import com.yapp.sharefood.favorite.service.FavoriteService;
 import com.yapp.sharefood.flavor.controller.FlavorController;
@@ -105,9 +104,6 @@ public abstract class PreprocessController {
 
     @MockBean
     protected LikeService likeService;
-
-    @MockBean
-    protected UserLevelLock userlevelLock;
 
     @MockBean
     protected TagService tagService;
