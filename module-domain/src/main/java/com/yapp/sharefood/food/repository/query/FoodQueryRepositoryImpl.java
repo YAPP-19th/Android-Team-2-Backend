@@ -5,6 +5,7 @@ import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import com.yapp.sharefood.annotation.ModifyingQuery;
 import com.yapp.sharefood.category.domain.Category;
 import com.yapp.sharefood.common.exception.BadRequestException;
 import com.yapp.sharefood.common.order.SortType;
@@ -24,7 +25,6 @@ import com.yapp.sharefood.user.domain.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
-import javax.persistence.EntityManager;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -45,7 +45,6 @@ public class FoodQueryRepositoryImpl implements FoodQueryRepository {
     private static final Long EMPTY_LIKE_NUMBER = 0L;
 
     private final JPAQueryFactory queryFactory;
-    private final EntityManager entityManager;
 
     @Override
     public List<Food> findFoodWithCategoryByIds(List<Long> ids) {
@@ -254,15 +253,14 @@ public class FoodQueryRepositoryImpl implements FoodQueryRepository {
                 .fetch();
     }
 
+    @ModifyingQuery(flushAuto = true, cleanAuto = true)
     public void updateFoodNumberOfLikesForAtomic(Food updateFood, int numberOfChange) {
         if (Objects.isNull(updateFood.getId())) throw new UserNotFoundException();
 
-        entityManager.flush();
         queryFactory.update(food)
                 .set(food.numberOfLikes, food.numberOfLikes.add(numberOfChange))
                 .where(food.id.eq(updateFood.getId()))
                 .execute();
-        entityManager.clear();
     }
 
     private BooleanExpression containMainAddTag() {
