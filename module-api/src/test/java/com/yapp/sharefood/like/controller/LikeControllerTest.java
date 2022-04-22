@@ -14,7 +14,8 @@ import org.springframework.test.web.servlet.ResultActions;
 import java.nio.charset.StandardCharsets;
 
 import static com.yapp.sharefood.common.controller.documentation.DocumentationUtils.documentIdentify;
-import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -34,8 +35,6 @@ class LikeControllerTest extends PreprocessController {
         // given
         willReturn(1L)
                 .given(likeService).saveLike(any(User.class), anyLong());
-        willReturn(1L)
-                .given(userlevelLock).executeWithLock(anyString(), anyInt(), any());
 
         // when
         ResultActions perform = mockMvc.perform(post(String.format("/api/v1/foods/%s/likes", 1L))
@@ -56,8 +55,6 @@ class LikeControllerTest extends PreprocessController {
         // given
         willThrow(new InvalidOperationException("이미 like한 사용자 입니다."))
                 .given(likeService).saveLike(any(User.class), anyLong());
-        willThrow(new InvalidOperationException("이미 like한 사용자 입니다."))
-                .given(userlevelLock).executeWithLock(anyString(), anyInt(), any());
 
         // when
         ResultActions perform = mockMvc.perform(post(String.format("/api/v1/foods/%s/likes", 1L))
@@ -76,8 +73,6 @@ class LikeControllerTest extends PreprocessController {
     void createLikeTest_FoodNotExistInCategory_404FoodNotFound() throws Exception {
         willThrow(new FoodNotFoundException())
                 .given(likeService).saveLike(any(User.class), anyLong());
-        willThrow(new FoodNotFoundException())
-                .given(userlevelLock).executeWithLock(anyString(), anyInt(), any());
 
         // when
         ResultActions perform = mockMvc.perform(post(String.format("/api/v1/foods/%s/likes", 1L))
@@ -96,7 +91,6 @@ class LikeControllerTest extends PreprocessController {
     void deleteLikeTest_Success() throws Exception {
         // given
         willDoNothing().given(likeService).deleteLike(any(User.class), anyLong());
-        willReturn(null).given(userlevelLock).executeWithLock(anyString(), anyInt(), any());
 
         // when
         ResultActions perform = mockMvc.perform(delete(String.format("/api/v1/foods/%s/likes", 1L))
@@ -114,8 +108,6 @@ class LikeControllerTest extends PreprocessController {
         // given
         willThrow(new ForbiddenException())
                 .given(likeService).deleteLike(any(User.class), anyLong());
-        willThrow(new ForbiddenException())
-                .given(userlevelLock).executeWithLock(anyString(), anyInt(), any());
 
         // when
         ResultActions perform = mockMvc.perform(delete(String.format("/api/v1/foods/%s/likes", 1L))
@@ -136,8 +128,6 @@ class LikeControllerTest extends PreprocessController {
         // given
         willThrow(new FoodNotFoundException())
                 .given(likeService).deleteLike(any(User.class), anyLong());
-        willThrow(new FoodNotFoundException())
-                .given(userlevelLock).executeWithLock(anyString(), anyInt(), any());
 
         // when
         ResultActions perform = mockMvc.perform(delete(String.format("/api/v1/foods/%s/likes", 1L))
