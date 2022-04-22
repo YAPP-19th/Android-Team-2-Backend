@@ -36,14 +36,12 @@ public class Likes {
         like.assignFood(food);
         if (!likes.contains(like)) {
             likes.add(like);
-            food.addNumberOfLike();
         }
     }
 
-    public void deleteLike(Long userId, Food food) {
+    public void deleteLike(Long userId) {
         Like like = findLikeByUserId(userId);
         likes.remove(like);
-        food.deleteNumberOfLike();
     }
 
     private Like findLikeByUserId(Long userId) {

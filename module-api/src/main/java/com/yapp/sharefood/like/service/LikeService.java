@@ -4,7 +4,6 @@ import com.yapp.sharefood.food.domain.Food;
 import com.yapp.sharefood.food.exception.FoodNotFoundException;
 import com.yapp.sharefood.food.repository.FoodRepository;
 import com.yapp.sharefood.like.domain.Like;
-import com.yapp.sharefood.like.repository.LikeRepository;
 import com.yapp.sharefood.user.domain.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -15,8 +14,10 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(readOnly = true)
 public class LikeService {
 
+    private static final int LIKE_PLUS_ONE = 1;
+    private static final int LIKE_MINUS_ONE = -1;
+
     private final FoodRepository foodRepository;
-    private final LikeRepository likeRepository;
 
     @Transactional
     public Long saveLike(User user, Long foodId) {
@@ -25,7 +26,7 @@ public class LikeService {
 
         Like like = Like.of(user);
         findFood.assignLike(like);
-        likeRepository.flush();
+        foodRepository.updateFoodNumberOfLikesForAtomic(findFood, LIKE_PLUS_ONE);
 
         return like.getId();
     }
@@ -35,6 +36,6 @@ public class LikeService {
         Food findFood = foodRepository.findById(foodId)
                 .orElseThrow(FoodNotFoundException::new);
         findFood.deleteLike(user);
+        foodRepository.updateFoodNumberOfLikesForAtomic(findFood, LIKE_MINUS_ONE);
     }
-
 }
