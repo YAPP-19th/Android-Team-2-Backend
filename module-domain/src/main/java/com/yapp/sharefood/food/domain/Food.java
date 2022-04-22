@@ -115,14 +115,6 @@ public class Food extends BaseEntity {
         this.category = category;
     }
 
-    public void addNumberOfLike() {
-        this.numberOfLikes++;
-    }
-
-    public void deleteNumberOfLike() {
-        this.numberOfLikes--;
-    }
-
     public long getLikeNumber() {
         return this.numberOfLikes;
     }
@@ -135,7 +127,7 @@ public class Food extends BaseEntity {
     }
 
     public void deleteLike(User user) {
-        likes.deleteLike(user.getId(), this);
+        likes.deleteLike(user.getId());
     }
 
     public void assignBookmark(Bookmark bookmark) {
@@ -169,7 +161,9 @@ public class Food extends BaseEntity {
         return this.writer.getId().equals(user.getId());
     }
 
-    public boolean isMyFood(User user) { return Objects.equals(this.writer.getId(), user.getId());}
+    public boolean isMyFood(User user) {
+        return Objects.equals(this.writer.getId(), user.getId());
+    }
 
     public boolean isMeLike(User user) {
         return this.likes.isAlreadyLike(user.getId());
@@ -179,7 +173,9 @@ public class Food extends BaseEntity {
         return this.bookmarks.isAlreadyBookmark(user.getId());
     }
 
-    public boolean isMeFavorite(User user) { return this.favorites.isAlreadyFavorite(user.getId()); }
+    public boolean isMeFavorite(User user) {
+        return this.favorites.isAlreadyFavorite(user.getId());
+    }
 
     public void updateAllElements(String foodTitle, String reviewMsg, Integer price, FoodStatus foodStatus, Category category) {
         this.foodTitle = foodTitle;

@@ -18,11 +18,13 @@ import com.yapp.sharefood.food.dto.FoodMinePageSearch;
 import com.yapp.sharefood.food.dto.FoodPageSearch;
 import com.yapp.sharefood.food.dto.FoodRecommendSearch;
 import com.yapp.sharefood.food.dto.OrderType;
+import com.yapp.sharefood.oauth.exception.UserNotFoundException;
 import com.yapp.sharefood.tag.domain.Tag;
 import com.yapp.sharefood.user.domain.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
+import javax.persistence.EntityManager;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -43,6 +45,7 @@ public class FoodQueryRepositoryImpl implements FoodQueryRepository {
     private static final Long EMPTY_LIKE_NUMBER = 0L;
 
     private final JPAQueryFactory queryFactory;
+    private final EntityManager entityManager;
 
     @Override
     public List<Food> findFoodWithCategoryByIds(List<Long> ids) {
@@ -249,6 +252,17 @@ public class FoodQueryRepositoryImpl implements FoodQueryRepository {
                 .limit(foodMinePageSearch.getSize())
                 .offset(foodMinePageSearch.getOffset() * foodMinePageSearch.getSize())
                 .fetch();
+    }
+
+    public void updateFoodNumberOfLikesForAtomic(Food updateFood, int numberOfChange) {
+        if (Objects.isNull(updateFood.getId())) throw new UserNotFoundException();
+
+        entityManager.flush();
+        queryFactory.update(food)
+                .set(food.numberOfLikes, food.numberOfLikes.add(numberOfChange))
+                .where(food.id.eq(updateFood.getId()))
+                .execute();
+        entityManager.clear();
     }
 
     private BooleanExpression containMainAddTag() {

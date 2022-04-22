@@ -29,4 +29,6 @@ public interface FoodQueryRepository {
     List<Food> findMineFoodSearch(User ownerUser, FoodMinePageSearch foodMinePageSearch);
 
     List<Food> findMineBookMarkFoodSearch(User ownerUser, FoodMinePageSearch foodMinePageSearch);
+
+    void updateFoodNumberOfLikesForAtomic(Food updateFood, int numberOfChange);
 }
