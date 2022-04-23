@@ -7,15 +7,35 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
 import java.security.InvalidParameterException;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class AuthenticationManager {
     private final Map<String, AuthStrategy> authStrategyMap;
+
+    @PostConstruct
+    private void init() {
+        Set<String> authKeys = authStrategyMap.keySet();
+        OAuthType[] enumAuthTypes = OAuthType.values();
+        if (authKeys.size() != enumAuthTypes.length) {
+            log.info("auth enum size={}, bean size={}", enumAuthTypes.length, authKeys.size());
+            throw new IllegalArgumentException();
+        }
+
+        for (OAuthType oauthType : enumAuthTypes) {
+            if (!authKeys.contains(oauthType.getOAuthProviderName())) {
+                log.info("auth enum type not exist enum type={}", oauthType);
+
+                throw new IllegalArgumentException();
+            }
+        }
+    }
 
     public OAuthProfile requestOAuthUserInfo(OAuthType type, String accessToken) {
         AuthStrategy authStrategy = extractProviderByType(type);
