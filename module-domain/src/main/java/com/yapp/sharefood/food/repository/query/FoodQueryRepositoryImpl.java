@@ -292,7 +292,11 @@ public class FoodQueryRepositoryImpl implements FoodQueryRepository {
     }
 
     private BooleanExpression status(FoodStatus foodStatus) {
-        return foodStatus == null ? null : food.foodStatus.eq(foodStatus);
+        if (foodStatus == null) {
+            return food.foodStatus.in(FoodStatus.values());
+        }
+
+        return food.foodStatus.eq(foodStatus);
     }
 
     private BooleanExpression eqCategory(Category category) {
