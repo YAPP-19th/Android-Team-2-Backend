@@ -2,14 +2,20 @@ buildscript {
     ext {
         springBootVersion = '2.5.3'
     }
+
     repositories {
         mavenCentral()
     }
+
     dependencies {
         classpath "org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}"
         classpath "io.spring.gradle:dependency-management-plugin:1.0.11.RELEASE"
         classpath "org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:3.0"
     }
+}
+
+ext {
+    springCloudVersion = "2020.0.4"
 }
 
 ext['log4j2.version'] = '2.17.1'
@@ -27,6 +33,12 @@ subprojects {
 
     repositories {
         mavenCentral()
+    }
+
+    dependencyManagement {
+        imports {
+            mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+        }
     }
 
     dependencies {
