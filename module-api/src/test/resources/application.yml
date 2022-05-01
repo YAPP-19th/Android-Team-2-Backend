@@ -6,6 +6,7 @@ spring:
       - external
       - oauth
       - aws-local
+      - notification
 
 server:
   port: 8100
