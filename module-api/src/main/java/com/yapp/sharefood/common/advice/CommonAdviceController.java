@@ -1,11 +1,14 @@
 package com.yapp.sharefood.common.advice;
 
+import com.yapp.sharefood.common.domain.ApiErrorEvent;
 import com.yapp.sharefood.common.error.ErrorResponse;
 import com.yapp.sharefood.common.exception.BadRequestException;
 import com.yapp.sharefood.common.exception.InvalidOperationException;
 import com.yapp.sharefood.common.exception.file.FileTypeValidationException;
 import com.yapp.sharefood.common.exception.file.FileUploadException;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindException;
@@ -15,7 +18,10 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @Slf4j
 @RestControllerAdvice
+@RequiredArgsConstructor
 public class CommonAdviceController {
+
+    private final ApplicationEventPublisher eventPublisher;
 
     /**
      * 502 Bad Gateway
@@ -72,6 +78,8 @@ public class CommonAdviceController {
     @ExceptionHandler(Exception.class)
     protected ResponseEntity<ErrorResponse> handlerForBaseException(final Exception exception) {
         log.error("Error: {}", exception.getMessage(), exception);
+
+        eventPublisher.publishEvent(new ApiErrorEvent(HttpStatus.INTERNAL_SERVER_ERROR.value(), exception.getMessage()));
 
         return ErrorResponse.toResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR, "Interval Server Error");
     }

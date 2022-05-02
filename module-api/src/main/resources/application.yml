@@ -11,6 +11,7 @@ spring:
       - oauth
       - aws-local
       - aws-dev
+      - notification
   servlet:
     multipart:
       max-file-size: 10MB
