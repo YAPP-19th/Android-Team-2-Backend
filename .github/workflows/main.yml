@@ -8,6 +8,8 @@ on:
 
   workflow_dispatch:
 
+env:
+  NOTIFICATION_RESOURCE_PATH: ./module-external/src/main/resources/application-notification.yml
 
 jobs:
   build:
@@ -24,12 +26,14 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: 11
-      - name: Set Yaml
+
+      - name: Notification Update Yaml
         uses: microsoft/variable-substitution@v1
         with:
-          files: ${{ env.RESOURCE_PATH }}
+          files: ${{ env.NOTIFICATION_RESOURCE_PATH }}
         env:
           secret.slack.token.notification: ${{ secrets.SLACK_NOTIFICATION }}
+
       - name: Grant execute permission for gradlew
         run: chmod +x ./gradlew
         shell: bash
