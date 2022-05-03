@@ -56,8 +56,11 @@
 
     <springProfile name="prod">
         <include resource="console-appender.xml"/>
+
         <include resource="file-error-appender.xml"/>
         <include resource="file-warn-appender.xml"/>
+        <include resource="file-info-appender.xml"/>
+
         <include resource="file-error-aws-appender.xml"/>
         <include resource="file-warn-aws-appender.xml"/>
         <include resource="file-info-aws-appender.xml"/>
