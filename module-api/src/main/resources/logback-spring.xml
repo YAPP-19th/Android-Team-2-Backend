@@ -67,9 +67,10 @@
             <appender-ref ref="FILE-AWS-WARN"/>
             <appender-ref ref="FILE-AWS-INFO"/>
         </logger>
-        <root level="WARN">
+        <root level="INFO">
             <appender-ref ref="FILE-ERROR"/>
             <appender-ref ref="FILE-WARN"/>
+            <appender-ref ref="FILE-INFO"/>
         </root>
     </springProfile>
 </configuration>
