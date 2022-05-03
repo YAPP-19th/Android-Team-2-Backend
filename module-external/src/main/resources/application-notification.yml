@@ -1,0 +1,3 @@
+slack:
+  base-url: https://hooks.slack.com/services
+  token: ${secret.slack.token.notification}
