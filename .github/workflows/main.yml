@@ -27,7 +27,7 @@ jobs:
       - name: Set Yaml
         uses: microsoft/variable-substitution@v1
         with:
-          files: ${}
+          files: ${{ env.RESOURCE_PATH }}
         env:
           secret.slack.token.notification: ${{ secrets.SLACK_NOTIFICATION }}
       - name: Grant execute permission for gradlew
