@@ -6,3 +6,4 @@ spring:
       - aws
       - oauth
       - aws-local
+      - notification
