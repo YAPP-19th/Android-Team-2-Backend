@@ -6,9 +6,11 @@ import com.yapp.sharefood.food.repository.FoodRepository;
 import com.yapp.sharefood.like.domain.Like;
 import com.yapp.sharefood.user.domain.User;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -27,6 +29,7 @@ public class LikeService {
         Like like = Like.of(user);
         findFood.assignLike(like);
         foodRepository.updateFoodNumberOfLikesForAtomic(findFood, LIKE_PLUS_ONE);
+        log.info("press like button foodId={}, userId={}", foodId, user.getId());
 
         return like.getId();
     }
@@ -37,5 +40,6 @@ public class LikeService {
                 .orElseThrow(FoodNotFoundException::new);
         findFood.deleteLike(user);
         foodRepository.updateFoodNumberOfLikesForAtomic(findFood, LIKE_MINUS_ONE);
+        log.info("delete like button foodId={}, userId={}", foodId, user.getId());
     }
 }
