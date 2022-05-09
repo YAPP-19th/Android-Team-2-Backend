@@ -1,31 +1,27 @@
-buildscript {
-    ext {
-        springBootVersion = '2.5.3'
-    }
-
-    repositories {
-        mavenCentral()
-    }
-
-    dependencies {
-        classpath "org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}"
-        classpath "io.spring.gradle:dependency-management-plugin:1.0.11.RELEASE"
-        classpath "org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:3.3"
-    }
+plugins {
+    id 'org.springframework.boot' version '2.5.3'
+    id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+    id 'jacoco'
+    id 'java'
+    id 'org.sonarqube' version '3.3'
 }
 
 ext {
     springCloudVersion = "2020.0.4"
+    springBootVersion = '2.5.3'
+    jacocoVersion = '0.8.7'
 }
 
 ext['log4j2.version'] = '2.17.1'
 
 subprojects {
-    apply plugin: 'java'
-    apply plugin: 'org.springframework.boot'
-    apply plugin: 'io.spring.dependency-management'
-    apply plugin: 'jacoco'
-    apply plugin: 'org.sonarqube'
+    apply {
+        plugin 'java'
+        plugin 'org.springframework.boot'
+        plugin 'io.spring.dependency-management'
+        plugin 'jacoco'
+        plugin 'org.sonarqube'
+    }
 
     sourceCompatibility = 11
     group = 'com.yapp'
@@ -64,7 +60,7 @@ subprojects {
     }
 
     jacoco {
-        toolVersion = '0.8.7'
+        toolVersion = jacocoVersion
     }
 
     jacocoTestReport {
@@ -101,7 +97,7 @@ subprojects {
             property "sonar.host.url", "https://sonarcloud.io"
             property "sonar.java.coveragePlugin", "jacoco"
             property "sonar.test.inclusions", "**/*Test.java"
-            property "sonar.exclusions", "**/*Test*.*, **/Q*.JAVA"
+            property "sonar.exclusions", "**/*Test*.*, **/Q*.JAVA, **.*Dto*"
             property 'sonar.coverage.jacoco.xmlReportPaths', "${buildDir}/reports/jacoco/test/jacocoTestReport.xml"
         }
     }
