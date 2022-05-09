@@ -96,12 +96,10 @@ subprojects {
 
     sonarqube {
         properties {
-            property "sonar.host.url", "http://localhost:9090"
-            property "sonar.login", "910b5a218ab0fe14c43f5d46dc372739e581766e"
-            property "sonar.sources", "src"
-            property "sonar.tests", "src/test/java"
-            property "sonar.language", "java"
-            property "sonar.sourceEncoding", "UTF-8"
+            property "sonar.projectKey", "shared-food"
+            property "sonar.organization", "YAPP-19th"
+            property "sonar.host.url", "https://sonarcloud.io"
+            property "sonar.java.coveragePlugin", "jacoco"
             property "sonar.test.inclusions", "**/*Test.java"
             property "sonar.exclusions", "**/*Test*.*, **/Q*.JAVA"
             property 'sonar.coverage.jacoco.xmlReportPaths', "${buildDir}/reports/jacoco/test/jacocoTestReport.xml"
