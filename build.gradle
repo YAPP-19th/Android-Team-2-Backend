@@ -10,7 +10,7 @@ buildscript {
     dependencies {
         classpath "org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}"
         classpath "io.spring.gradle:dependency-management-plugin:1.0.11.RELEASE"
-        classpath "org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:3.0"
+        classpath "org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:3.3"
     }
 }
 
@@ -97,7 +97,7 @@ subprojects {
     sonarqube {
         properties {
             property "sonar.projectKey", "shared-food"
-            property "sonar.organization", "YAPP-19th"
+            property "sonar.organization", "shared-food"
             property "sonar.host.url", "https://sonarcloud.io"
             property "sonar.java.coveragePlugin", "jacoco"
             property "sonar.test.inclusions", "**/*Test.java"
