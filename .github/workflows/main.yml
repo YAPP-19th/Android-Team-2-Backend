@@ -2,7 +2,8 @@ name: shared-food-action
 
 on:
   push:
-    - chore/#192
+    branches:
+      - chore/#192
   pull_request:
     branches:
       - main
