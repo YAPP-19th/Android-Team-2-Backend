@@ -37,7 +37,3 @@ spring:
 
   flyway:
     enabled: true
-
-logging:
-  level:
-    org.hibernate.type: trace

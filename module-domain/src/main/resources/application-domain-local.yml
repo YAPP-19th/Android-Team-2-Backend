@@ -39,7 +39,3 @@ spring:
       on-profile: local
   flyway:
     enabled: false
-
-logging:
-  level:
-    org.hibernate.type: trace
