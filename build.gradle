@@ -60,7 +60,7 @@ subprojects {
     }
 
     jacoco {
-        toolVersion = jacocoVersion
+        toolVersion = "$jacocoVersion"
     }
 
     jacocoTestReport {
@@ -95,6 +95,7 @@ subprojects {
             property "sonar.projectKey", "shared-food"
             property "sonar.organization", "shared-food"
             property "sonar.host.url", "https://sonarcloud.io"
+            property "sonar.login", "c81e288e2a807a58d2f52bc8e7d2a21d96b94430"
             property "sonar.java.coveragePlugin", "jacoco"
             property "sonar.test.inclusions", "**/*Test.java"
             property "sonar.exclusions", "**/*Test*.*, **/Q*.JAVA, **.*Dto*"
